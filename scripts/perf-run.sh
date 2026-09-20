@@ -244,6 +244,17 @@ data = {
         last_line(r"draft acceptance"),
     ],
 }
+for line in text.splitlines():
+    m = re.search(r"sched-sync-site: site=([^ ]+) count=([0-9]+)", line)
+    if m:
+        data["sched_sync_sites"][m.group(1)] = int(m.group(2))
+
+for line in text.splitlines():
+    m = re.search(r"backend-sync-trace: count=([0-9]+) backend=([^ ]+) caller=(.+)", line)
+    if m:
+        caller = m.group(3).strip()
+        data["backend_sync_trace_samples"][caller] = data["backend_sync_trace_samples"].get(caller, 0) + 1
+
 json.dump(data, open(out_path, "w", encoding="utf-8"), indent=2)
 PY
 
