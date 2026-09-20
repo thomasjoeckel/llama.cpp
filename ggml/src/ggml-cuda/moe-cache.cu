@@ -13981,7 +13981,7 @@ ggml_cuda_moe_grouped_debug_telemetry ggml_cuda_moe_grouped_context::log_and_res
         ggml_cuda_moe_add_phase_stats(aggregate.phase_stats[phase], moe_cache_take_op_stats(g_moe_cache_op_stats[phase], true));
     }
     const ggml_cuda_moe_grouped_debug_telemetry grouped = aggregate.grouped;
-    moe_cache_log_cuda_sync_trace();
+    moe_log_cuda_sync_trace();
     moe_cache_log_telemetry(std::move(aggregate));
     return grouped;
 }
