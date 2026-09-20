@@ -47,6 +47,65 @@
 namespace {
 
 static constexpr uint64_t MOE_CACHE_MM_SAMPLE_RATE = 64;
+
+struct moe_cuda_sync_trace_state {
+    std::mutex mutex;
+    std::map<int, uint64_t> stream_syncs;
+    std::map<int, uint64_t> event_syncs;
+};
+
+static moe_cuda_sync_trace_state & moe_cuda_sync_trace() {
+    static moe_cuda_sync_trace_state state;
+    return state;
+}
+
+static cudaError_t moe_trace_cuda_stream_synchronize(cudaStream_t stream, int line) {
+    auto & state = moe_cuda_sync_trace();
+    {
+        std::lock_guard<std::mutex> lock(state.mutex);
+        ++state.stream_syncs[line];
+    }
+    return ::cudaStreamSynchronize(stream);
+}
+
+static cudaError_t moe_trace_cuda_event_synchronize(cudaEvent_t event, int line) {
+    auto & state = moe_cuda_sync_trace();
+    {
+        std::lock_guard<std::mutex> lock(state.mutex);
+        ++state.event_syncs[line];
+    }
+    return ::cudaEventSynchronize(event);
+}
+
+static void moe_log_cuda_sync_trace() {
+    auto & state = moe_cuda_sync_trace();
+    std::lock_guard<std::mutex> lock(state.mutex);
+    uint64_t stream_total = 0;
+    uint64_t event_total = 0;
+    for (const auto & [line, count] : state.stream_syncs) {
+        stream_total += count;
+    }
+    for (const auto & [line, count] : state.event_syncs) {
+        event_total += count;
+    }
+
+    if (stream_total == 0 && event_total == 0) {
+        return;
+    }
+
+    GGML_LOG_INFO("moe-cuda-sync-trace: stream_syncs=%llu event_syncs=%llu\n",
+                  (unsigned long long) stream_total,
+                  (unsigned long long) event_total);
+    for (const auto & [line, count] : state.stream_syncs) {
+        GGML_LOG_INFO("moe-cuda-sync-trace: stream line=%d count=%llu\n",
+                      line, (unsigned long long) count);
+    }
+    for (const auto & [line, count] : state.event_syncs) {
+        GGML_LOG_INFO("moe-cuda-sync-trace: event line=%d count=%llu\n",
+                      line, (unsigned long long) count);
+    }
+}
+
 static constexpr uint64_t MOE_ORIGINAL_DIRECT_AUX_MAX_BYTES = 4 * 1024;
 static constexpr size_t MOE_PREFILL_RESIDENT_AUX_BUDGET = 32 * 1024 * 1024;
 static std::atomic<bool> g_moe_cache_mm_debug{false};
@@ -4413,11 +4472,11 @@ struct ggml_cuda_moe_grouped_context::impl {
         for (const auto & resource : prepack_resources) {
             const auto & device = *resource->device;
             if (device.has_completion) {
-                CUDA_CHECK(cudaEventSynchronize(device.completion));
+                CUDA_CHECK(moe_trace_cuda_event_synchronize(device.completion, __LINE__));
             }
         }
         if (!early.empty()) {
-            CUDA_CHECK(cudaStreamSynchronize(early[0]->stream));
+            CUDA_CHECK(moe_trace_cuda_stream_synchronize(early[0]->stream, __LINE__));
         }
         host_prepack.reset();
         prepack_storage.reset();
@@ -4442,7 +4501,7 @@ struct ggml_cuda_moe_grouped_context::impl {
             moe_grouped_device_scope device_scope(device);
             if (completion != nullptr) {
                 if (has_completion) {
-                    (void) cudaEventSynchronize(completion);
+                    (void) moe_trace_cuda_event_synchronize(completion, __LINE__);
                 }
                 (void) cudaEventDestroy(completion);
             }
@@ -4976,7 +5035,7 @@ struct ggml_cuda_moe_grouped_context::impl {
                     resource->device->has_completion = true;
                     resource->device->completion_stream = resource->active_decode_stream;
                 } else {
-                    (void) cudaStreamSynchronize(resource->active_decode_stream);
+                    (void) moe_trace_cuda_stream_synchronize(resource->active_decode_stream, __LINE__);
                     resource->device->has_completion = false;
                     resource->device->completion_stream = nullptr;
                 }
@@ -5621,7 +5680,7 @@ struct ggml_cuda_moe_grouped_context::impl {
             if (!moe_grouped_cuda_success(cudaMemsetAsync(
                     result->auxiliary_data[i], 0,
                     snapshot.n_slots * device_auxiliaries[i].n_values * sizeof(float), compute_stream))) {
-                (void) cudaStreamSynchronize(compute_stream);
+                (void) moe_trace_cuda_stream_synchronize(compute_stream, __LINE__);
                 return nullptr;
             }
         }
@@ -5646,7 +5705,7 @@ struct ggml_cuda_moe_grouped_context::impl {
                         result->device_auxiliaries, device_auxiliaries.data(),
                         snapshot.n_slot_auxiliaries * sizeof(moe_grouped_device_auxiliary),
                         cudaMemcpyHostToDevice, compute_stream)))) {
-            (void) cudaStreamSynchronize(compute_stream);
+            (void) moe_trace_cuda_stream_synchronize(compute_stream, __LINE__);
             return nullptr;
         }
         bool resident_copied = prefill_resident;
@@ -5656,7 +5715,7 @@ struct ggml_cuda_moe_grouped_context::impl {
                 static_cast<size_t>(snapshot.slot_auxiliaries[i].byte_extent), cudaMemcpyHostToDevice, compute_stream));
         }
         if (prefill_resident && !resident_copied) {
-            (void) cudaStreamSynchronize(compute_stream);
+            (void) moe_trace_cuda_stream_synchronize(compute_stream, __LINE__);
             for (uint32_t i = 0; i < result->prefill_auxiliary_data.size(); ++i) {
                 if (result->prefill_auxiliary_data[i] != nullptr) {
                     (void) cudaFree(result->prefill_auxiliary_data[i]);
@@ -5665,7 +5724,7 @@ struct ggml_cuda_moe_grouped_context::impl {
             }
         }
         if (!moe_grouped_cuda_success(cudaEventRecord(result->completion, compute_stream))) {
-            (void) cudaStreamSynchronize(compute_stream);
+            (void) moe_trace_cuda_stream_synchronize(compute_stream, __LINE__);
             return nullptr;
         }
         result->has_completion = true;
@@ -5987,7 +6046,7 @@ uint64_t ggml_cuda_moe_grouped_context::early_bytes_for_test(uint64_t * calls) c
     }
     for (const auto & lane : impl_->early) {
         uint64_t counts[5] = {};
-        CUDA_CHECK(cudaStreamSynchronize(lane->stream));
+        CUDA_CHECK(moe_trace_cuda_stream_synchronize(lane->stream, __LINE__));
         CUDA_CHECK(cudaMemcpy(counts, lane->counters, sizeof(counts), cudaMemcpyDeviceToHost));
         bytes += counts[0];
         if (calls != nullptr) {
@@ -6106,7 +6165,7 @@ bool ggml_cuda_moe_grouped_context::early_graph_for_test() {
                         for (int i = 0; i < graph->n_nodes; ++i) {
                             GGML_ASSERT(ggml_cuda_moe_router_compute(reference, graph->nodes[i]));
                         }
-                        CUDA_CHECK(cudaStreamSynchronize(reference.stream()));
+                        CUDA_CHECK(moe_trace_cuda_stream_synchronize(reference.stream(), __LINE__));
                         CUDA_CHECK(cudaMemcpyAsync(program->input->data, boundary->data, ggml_nbytes(boundary), cudaMemcpyDeviceToDevice, predictor.stream()));
                         if (step == 0) {
                             predict();
@@ -6119,7 +6178,7 @@ bool ggml_cuda_moe_grouped_context::early_graph_for_test() {
                         } else {
                             CUDA_CHECK(cudaGraphLaunch(replay, predictor.stream()));
                         }
-                        CUDA_CHECK(cudaStreamSynchronize(predictor.stream()));
+                        CUDA_CHECK(moe_trace_cuda_stream_synchronize(predictor.stream(), __LINE__));
                         for (int row = 0; row < rows; ++row) {
                             CUDA_CHECK(cudaMemcpy(expected.data() + row * top_k, (char *) ids->data + row * ids->nb[1], top_k * sizeof(int32_t), cudaMemcpyDeviceToHost));
                             CUDA_CHECK(cudaMemcpy(actual.data() + row * top_k, (char *) program->ids->data + row * program->ids->nb[1], top_k * sizeof(int32_t), cudaMemcpyDeviceToHost));
@@ -10654,7 +10713,7 @@ bool ggml_cuda_moe_grouped_context::finish_prefill_add_id(
         moe_grouped_device_scope device_scope(impl_->device);
         bool completed = moe_grouped_cuda_success(cudaEventRecord(device_resource.completion, stream));
         if (!completed) {
-            completed = moe_grouped_cuda_success(cudaStreamSynchronize(stream));
+            completed = moe_grouped_cuda_success(moe_trace_cuda_stream_synchronize(stream, __LINE__));
         } else {
             device_resource.completion_stream = stream;
         }
@@ -11339,7 +11398,7 @@ void ggml_cuda_moe_grouped_context::shutdown() {
         moe_grouped_device_scope device_scope(impl_->device);
         for (const auto & resource : retired) {
             if (resource != nullptr && resource->device != nullptr && resource->device->has_completion) {
-                CUDA_CHECK(cudaEventSynchronize(resource->device->completion));
+                CUDA_CHECK(moe_trace_cuda_event_synchronize(resource->device->completion, __LINE__));
             }
         }
         impl_->clear_early();
@@ -11569,7 +11628,7 @@ static cudaError_t moe_cache_wait_host_tile(ggml_cuda_moe_cache * cache, uint32_
     }
     const int64_t start_us = cache->debug_mm ? ggml_time_us() : 0;
     const cudaError_t error = cache->staging_failure_for_test == GGML_CUDA_MOE_STAGING_FAIL_WAIT ? cudaErrorUnknown :
-        cudaEventSynchronize(cache->host_tile_done[tile]);
+        moe_trace_cuda_event_synchronize(cache->host_tile_done[tile], __LINE__);
     if (cache->debug_mm) {
         cache->phase_tile_wait_calls[phase].fetch_add(1, std::memory_order_relaxed);
         cache->phase_tile_wait_time_us[phase].fetch_add((uint64_t) (ggml_time_us() - start_us), std::memory_order_relaxed);
@@ -11674,9 +11733,9 @@ static cudaError_t moe_cache_copy_source(
 #endif
     auto staging_failed = [&](const char * reason, cudaError_t failure, size_t offset = 0, size_t count = 0) {
         // A failed reuse wait can report an error from any earlier fill.
-        cudaError_t drain_error = cudaStreamSynchronize(cache->copy_stream);
+        cudaError_t drain_error = moe_trace_cuda_stream_synchronize(cache->copy_stream, __LINE__);
         if (stream != cache->copy_stream) {
-            const cudaError_t alternate_error = cudaStreamSynchronize(stream);
+            const cudaError_t alternate_error = moe_trace_cuda_stream_synchronize(stream, __LINE__);
             if (drain_error == cudaSuccess) {
                 drain_error = alternate_error;
             }
@@ -11697,7 +11756,7 @@ static cudaError_t moe_cache_copy_source(
             }
         }
         const int64_t pre_sync_start_us = debug_mm ? ggml_time_us() : 0;
-        error = cudaStreamSynchronize(stream);
+        error = moe_trace_cuda_stream_synchronize(stream, __LINE__);
         if (debug_mm) {
             cache->phase_pre_sync_calls[phase].fetch_add(1, std::memory_order_relaxed);
             cache->phase_pre_sync_time_us[phase].fetch_add(
@@ -11756,7 +11815,7 @@ static cudaError_t moe_cache_copy_source(
             continue;
         }
         const int64_t post_sync_start_us = debug_mm ? ggml_time_us() : 0;
-        error = cudaStreamSynchronize(stream);
+        error = moe_trace_cuda_stream_synchronize(stream, __LINE__);
         if (debug_mm) {
             cache->phase_post_sync_calls[phase].fetch_add(1, std::memory_order_relaxed);
             cache->phase_post_sync_time_us[phase].fetch_add(
@@ -11918,7 +11977,7 @@ static ggml_cuda_moe_cache * ggml_cuda_moe_cache_init_with_pool(
     };
     const auto probe_complete = [&] {
         uint32_t value = 0;
-        return cudaStreamSynchronize(probe_stream) == cudaSuccess &&
+        return moe_trace_cuda_stream_synchronize(probe_stream, __LINE__) == cudaSuccess &&
             cudaMemcpy(&value, stream_mem_probe, sizeof(value), cudaMemcpyDeviceToHost) == cudaSuccess && value == 2;
     };
     if (probe_ok) {
@@ -11940,7 +11999,7 @@ static ggml_cuda_moe_cache * ggml_cuda_moe_cache_init_with_pool(
     }
     if (probe_exec != nullptr) { (void) cudaGraphExecDestroy(probe_exec); }
     if (probe_graph != nullptr) { (void) cudaGraphDestroy(probe_graph); }
-    if (probe_stream != nullptr) { (void) cudaStreamSynchronize(probe_stream); }
+    if (probe_stream != nullptr) { (void) moe_trace_cuda_stream_synchronize(probe_stream, __LINE__); }
     if (stream_mem_probe != nullptr) { (void) cudaFree(stream_mem_probe); }
     if (probe_stream != nullptr) { (void) cudaStreamDestroy(probe_stream); }
     c->stream_mem_ops_supported = probe_ok;
@@ -12029,10 +12088,10 @@ void ggml_cuda_moe_cache_free(struct ggml_cuda_moe_cache * cache) {
     cudaSetDevice(cache->device);
 
     if (cache->compute_done) {
-        cudaEventSynchronize(cache->compute_done);
+        moe_trace_cuda_event_synchronize(cache->compute_done, __LINE__);
     }
     if (cache->copy_stream) {
-        cudaStreamSynchronize(cache->copy_stream);
+        moe_trace_cuda_stream_synchronize(cache->copy_stream, __LINE__);
         cudaStreamDestroy(cache->copy_stream);
     }
     for (auto event : cache->host_tile_done) {
@@ -12129,8 +12188,8 @@ static bool ggml_cuda_moe_cache_abort_host_staged(ggml_cuda_moe_cache * cache, c
     if (cache == nullptr || cache->owns_slot_pool || compute_stream == nullptr) {
         return false;
     }
-    if (!moe_grouped_cuda_success(cudaStreamSynchronize(compute_stream)) ||
-            !moe_grouped_cuda_success(cudaStreamSynchronize(cache->copy_stream))) {
+    if (!moe_grouped_cuda_success(moe_trace_cuda_stream_synchronize(compute_stream, __LINE__)) ||
+            !moe_grouped_cuda_success(moe_trace_cuda_stream_synchronize(cache->copy_stream, __LINE__))) {
         return false;
     }
     std::lock_guard<std::mutex> lock(cache->mu);
@@ -12816,13 +12875,13 @@ bool ggml_cuda_moe_cache_grow_pool(
     cudaGetDevice(&prev_device);
     cudaSetDevice(cache->device);
 
-    cudaError_t err = cudaEventSynchronize(cache->compute_done);
+    cudaError_t err = moe_trace_cuda_event_synchronize(cache->compute_done, __LINE__);
     if (err != cudaSuccess) {
         fprintf(stderr, "moe-cache: grow_pool cudaEventSynchronize failed: %s\n", cudaGetErrorString(err));
         cudaSetDevice(prev_device);
         return false;
     }
-    err = cudaStreamSynchronize(cache->copy_stream);
+    err = moe_trace_cuda_stream_synchronize(cache->copy_stream, __LINE__);
     if (err != cudaSuccess) {
         fprintf(stderr, "moe-cache: grow_pool cudaStreamSynchronize failed: %s\n", cudaGetErrorString(err));
         cudaSetDevice(prev_device);
@@ -13922,6 +13981,7 @@ ggml_cuda_moe_grouped_debug_telemetry ggml_cuda_moe_grouped_context::log_and_res
         ggml_cuda_moe_add_phase_stats(aggregate.phase_stats[phase], moe_cache_take_op_stats(g_moe_cache_op_stats[phase], true));
     }
     const ggml_cuda_moe_grouped_debug_telemetry grouped = aggregate.grouped;
+    moe_cache_log_cuda_sync_trace();
     moe_cache_log_telemetry(std::move(aggregate));
     return grouped;
 }
