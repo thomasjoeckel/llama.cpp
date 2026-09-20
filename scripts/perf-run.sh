@@ -17,7 +17,7 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # ============================================================
 
 SERVER_BIN="${SERVER_BIN:-${REPO_ROOT}/build/bin/llama-server}"
-MODEL="${MODEL:-/opt/models/Qwen3.8-Flash-Next/UD-Q3_K_XL/}"
+MODEL="${MODEL:-/opt/models/Qwen3.8-Flash-Next/UD-Q3_K_XL/00001-of-00003.gguf}"
 MTP_MODEL="${MTP_MODEL:-/opt/models/Qwen3.8-Flash-Next/MTP/mtp-Qwen3.8-Flash-Next-Q4_K_M.gguf}"
 
 HOST="${HOST:-127.0.0.1}"
