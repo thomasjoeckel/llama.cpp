@@ -249,58 +249,78 @@ fi
 
 sleep 1
 
-python3 - "${SERVER_LOG}" "${TMP_DIR}/server_timing.json" <<'PY'
+# Stop the server before parsing the log so the file is closed and no more
+# diagnostic output can race with the parser.
+if [[ -n "\${SERVER_PID}" ]] && kill -0 "\${SERVER_PID}" 2>/dev/null && [[ "\${KEEP_SERVER}" != "1" ]]; then
+    echo "Stopping llama-server..."
+    kill "\${SERVER_PID}" 2>/dev/null || true
+    for _ in {1..40}; do
+        if ! kill -0 "\${SERVER_PID}" 2>/dev/null; then
+            break
+        fi
+        sleep 0.25
+    done
+    if kill -0 "\${SERVER_PID}" 2>/dev/null; then
+        echo "llama-server did not exit cleanly; sending SIGKILL." >&2
+        kill -9 "\${SERVER_PID}" 2>/dev/null || true
+    fi
+    wait "\${SERVER_PID}" 2>/dev/null || true
+    SERVER_PID=""
+fi
+
+python3 - "\${SERVER_LOG}" "\${TMP_DIR}/server_timing.json" <<'PY'
 import json
 import re
 import sys
 
 log_path, out_path = sys.argv[1:3]
-text = open(log_path, encoding="utf-8", errors="replace").read()
 
-def last_float(pattern):
-    matches = list(re.finditer(pattern, text))
-    return float(matches[-1].group(1)) if matches else None
-
-def last_int(pattern):
-    matches = list(re.finditer(pattern, text))
-    return int(matches[-1].group(1)) if matches else None
-
-def last_line(pattern):
-    lines = [line for line in text.splitlines() if re.search(pattern, line)]
-    return lines[-1] if lines else None
+patterns = {
+    "prompt_eval_ms": re.compile(r"prompt eval time\s*=\s*([0-9.]+) ms"),
+    "prompt_tokens": re.compile(r"prompt eval time\s*=\s*[0-9.]+ ms /\s*([0-9]+) tokens"),
+    "prompt_tok_s": re.compile(r"prompt eval time.*?([0-9.]+) tokens per second"),
+    "eval_ms": re.compile(r"eval time\s*=\s*([0-9.]+) ms"),
+    "eval_tokens": re.compile(r"eval time\s*=\s*[0-9.]+ ms /\s*([0-9]+) tokens"),
+    "eval_tok_s": re.compile(r"eval time.*?([0-9.]+) tokens per second"),
+    "total_ms": re.compile(r"total time\s*=\s*([0-9.]+) ms"),
+    "graphs_reused": re.compile(r"graphs reused\s*=\s*([0-9]+)"),
+    "draft_acceptance": re.compile(r"draft acceptance\s*=\s*([0-9.]+)"),
+}
 
 data = {
-    "prompt_eval_ms": last_float(r"prompt eval time\s*=\s*([0-9.]+) ms"),
-    "prompt_tokens": last_int(r"prompt eval time\s*=\s*[0-9.]+ ms /\s*([0-9]+) tokens"),
-    "prompt_tok_s": last_float(r"prompt eval time.*?([0-9.]+) tokens per second"),
-    "eval_ms": last_float(r"eval time\s*=\s*([0-9.]+) ms"),
-    "eval_tokens": last_int(r"eval time\s*=\s*[0-9.]+ ms /\s*([0-9]+) tokens"),
-    "eval_tok_s": last_float(r"eval time.*?([0-9.]+) tokens per second"),
-    "total_ms": last_float(r"total time\s*=\s*([0-9.]+) ms"),
-    "graphs_reused": last_int(r"graphs reused\s*=\s*([0-9]+)"),
-    "draft_acceptance": last_float(r"draft acceptance\s*=\s*([0-9.]+)"),
+    "prompt_eval_ms": None,
+    "prompt_tokens": None,
+    "prompt_tok_s": None,
+    "eval_ms": None,
+    "eval_tokens": None,
+    "eval_tok_s": None,
+    "total_ms": None,
+    "graphs_reused": None,
+    "draft_acceptance": None,
     "sched_sync_sites": {},
     "backend_sync_trace_samples": {},
-    "timing_lines": [
-        last_line(r"prompt eval time"),
-        last_line(r"eval time"),
-        last_line(r"total time"),
-        last_line(r"graphs reused"),
-        last_line(r"draft acceptance"),
-    ],
+    "timing_lines": {},
 }
-for line in text.splitlines():
-    m = re.search(r"sched-sync-site: site=([^ ]+) count=([0-9]+)", line)
-    if m:
-        data["sched_sync_sites"][m.group(1)] = int(m.group(2))
 
-for line in text.splitlines():
-    m = re.search(r"backend-sync-trace: count=([0-9]+) backend=([^ ]+) caller=(.+)", line)
-    if m:
-        caller = m.group(3).strip()
-        data["backend_sync_trace_samples"][caller] = data["backend_sync_trace_samples"].get(caller, 0) + 1
+with open(log_path, encoding="utf-8", errors="replace") as f:
+    for line in f:
+        for key, pattern in patterns.items():
+            m = pattern.search(line)
+            if m:
+                data[key] = float(m.group(1)) if key not in {"prompt_tokens", "eval_tokens", "graphs_reused"} else int(m.group(1))
+                data["timing_lines"][key] = line.rstrip("\n")
 
-json.dump(data, open(out_path, "w", encoding="utf-8"), indent=2)
+        m = re.search(r"sched-sync-site: site=([^ ]+) count=([0-9]+)", line)
+        if m:
+            data["sched_sync_sites"][m.group(1)] = int(m.group(2))
+
+        m = re.search(r"backend-sync-trace: count=([0-9]+) backend=([^ ]+) caller=(.+)", line)
+        if m:
+            caller = m.group(3).strip()
+            data["backend_sync_trace_samples"][caller] = data["backend_sync_trace_samples"].get(caller, 0) + 1
+
+with open(out_path, "w", encoding="utf-8") as f:
+    json.dump(data, f, indent=2)
 PY
 
 REQUEST_MS="$(awk -v a="${REQUEST_START_NS}" -v b="${REQUEST_END_NS}" 'BEGIN { printf "%.3f", (b-a)/1000000 }')"
