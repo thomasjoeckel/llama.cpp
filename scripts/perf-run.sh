@@ -3,15 +3,12 @@ set -Eeuo pipefail
 
 # Reproducible local llama.cpp performance run.
 #
-# The script:
-#   1. starts llama-server,
-#   2. waits for /health,
-#   3. sends one OpenAI-compatible chat completion request,
-#   4. records server output and structured benchmark metadata,
-#   5. optionally commits and pushes the three result files.
+# Produces exactly three tracked files per run:
+#   benchmarks/runs/<UTC-timestamp>/server.log
+#   benchmarks/runs/<UTC-timestamp>/meta.json
+#   benchmarks/runs/<UTC-timestamp>/performance.json
 #
-# Override any setting with an environment variable. The defaults match the
-# current RTX 3090 / Qwen3.8-Flash-Next setup used during sync investigation.
+# With PUSH_RESULTS=1 the three files are committed and pushed automatically.
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SERVER_BIN="${SERVER_BIN:-${REPO_ROOT}/build/bin/llama-server}"
@@ -34,7 +31,7 @@ POLL_SECONDS="${POLL_SECONDS:-2}"
 HEALTH_TIMEOUT="${HEALTH_TIMEOUT:-300}"
 KEEP_SERVER="${KEEP_SERVER:-0}"
 PUSH_RESULTS="${PUSH_RESULTS:-0}"
-GIT_REMOTE="${GIT_REMOTE:-origin}"
+GIT_REMOTE="${GIT_REMOTE:-github-fork}"
 GIT_BRANCH="${GIT_BRANCH:-}"
 
 RUN_ID="${RUN_ID:-$(date -u +%Y%m%dT%H%M%SZ)}"
@@ -76,8 +73,7 @@ command -v git >/dev/null || die "git is required"
 
 mkdir -p "${RUN_DIR}"
 
-# Default request. Set REQUEST_JSON to send a different request.
-REQUEST_JSON="${REQUEST_JSON:-$(cat <<'JSON'
+REQUEST_JSON="${REQUEST_JSON:-$(cat <<JSON
 {
   "messages": [
     {
@@ -85,9 +81,9 @@ REQUEST_JSON="${REQUEST_JSON:-$(cat <<'JSON'
       "content": "Explain briefly what makes a transformer model efficient during autoregressive decoding."
     }
   ],
-  "max_tokens": 1024,
-  "temperature": 0,
-  "seed": 42,
+  "max_tokens": ${MAX_TOKENS},
+  "temperature": ${TEMPERATURE},
+  "seed": ${SEED},
   "chat_template_kwargs": {
     "enable_thinking": false
   }
@@ -96,6 +92,8 @@ JSON
 )}"
 
 START_EPOCH_NS="$(date +%s%N)"
+GIT_COMMIT="$(git -C "${REPO_ROOT}" rev-parse HEAD)"
+GIT_BRANCH_CURRENT="$(git -C "${REPO_ROOT}" branch --show-current)"
 
 cat > "${META_JSON}" <<EOF
 {
@@ -103,8 +101,8 @@ cat > "${META_JSON}" <<EOF
   "started_at_utc": "$(date -u --iso-8601=seconds)",
   "host": "$(hostname)",
   "repo_root": "${REPO_ROOT}",
-  "git_branch": "$(git -C "${REPO_ROOT}" branch --show-current)",
-  "git_commit": "$(git -C "${REPO_ROOT}" rev-parse HEAD)",
+  "git_branch": "${GIT_BRANCH_CURRENT}",
+  "git_commit": "${GIT_COMMIT}",
   "server_bin": "${SERVER_BIN}",
   "model": "${MODEL}",
   "mtp_model": "${MTP_MODEL}",
@@ -132,7 +130,7 @@ EOF
 SERVER_ARGS=(
     --offline
     --model "${MODEL}"
-    --spec-type mtp
+    --spec-type draft-mtp
     --spec-draft-model "${MTP_MODEL}"
     --spec-draft-n-max "${MTP_N_MAX}"
     --spec-draft-ubatch-size "${UBATCH}"
@@ -180,11 +178,11 @@ until curl -fsS "${HEALTH_URL}" >/dev/null 2>&1; do
         tail -n 100 "${SERVER_LOG}" >&2 || true
         exit 1
     fi
-    (( SECONDS >= DEADLINE )) && {
+    if (( SECONDS >= DEADLINE )); then
         echo "Timed out waiting for ${HEALTH_URL}" >&2
         tail -n 100 "${SERVER_LOG}" >&2 || true
         exit 1
-    }
+    fi
     sleep "${POLL_SECONDS}"
 done
 
@@ -206,7 +204,6 @@ if [[ "${HTTP_CODE}" != "200" ]]; then
     exit 1
 fi
 
-# Give the server a moment to flush its final timing/experimental-log lines.
 sleep 1
 
 python3 - "${SERVER_LOG}" "${TMP_DIR}/server_timing.json" <<'PY'
@@ -218,15 +215,15 @@ log_path, out_path = sys.argv[1:3]
 text = open(log_path, encoding="utf-8", errors="replace").read()
 
 def last_float(pattern):
-    m = list(re.finditer(pattern, text))
-    return float(m[-1].group(1)) if m else None
+    matches = list(re.finditer(pattern, text))
+    return float(matches[-1].group(1)) if matches else None
 
 def last_int(pattern):
-    m = list(re.finditer(pattern, text))
-    return int(m[-1].group(1)) if m else None
+    matches = list(re.finditer(pattern, text))
+    return int(matches[-1].group(1)) if matches else None
 
 def last_line(pattern):
-    lines = [x for x in text.splitlines() if re.search(pattern, x)]
+    lines = [line for line in text.splitlines() if re.search(pattern, line)]
     return lines[-1] if lines else None
 
 data = {
@@ -253,9 +250,9 @@ PY
 REQUEST_MS="$(awk -v a="${REQUEST_START_NS}" -v b="${REQUEST_END_NS}" 'BEGIN { printf "%.3f", (b-a)/1000000 }')"
 RUN_MS="$(awk -v a="${START_EPOCH_NS}" -v b="${REQUEST_END_NS}" 'BEGIN { printf "%.3f", (b-a)/1000000 }')"
 
-GPU_JSON="${TMP_DIR}/gpu.json"
+GPU_CSV="${TMP_DIR}/gpu.csv"
 if command -v nvidia-smi >/dev/null 2>&1; then
-    nvidia-smi --query-gpu=name,driver_version,pstate,temperature.gpu,utilization.gpu,clocks.sm,clocks.mem,power.draw,memory.used,memory.total --format=csv,noheader,nounits > "${GPU_JSON}.csv" 2>/dev/null || true
+    nvidia-smi --query-gpu=name,driver_version,pstate,temperature.gpu,utilization.gpu,clocks.sm,clocks.mem,power.draw,memory.used,memory.total --format=csv,noheader,nounits >"${GPU_CSV}" 2>/dev/null || true
 fi
 
 jq \
@@ -280,33 +277,38 @@ jq \
       completion_tokens_api: ($response_tokens|tonumber),
       finish_reason: $finish_reason,
       server_timing: $server_timing
-    }' > "${PERF_JSON}"
+    }' >"${PERF_JSON}"
 
-if [[ -s "${GPU_JSON}.csv" ]]; then
-    jq -Rn --rawfile gpu "${GPU_JSON}.csv" '
-      . as $base |
-      $gpu
-      | split("\n")
-      | map(select(length > 0))
-      | map(split(", ") | {
-          name: .[0],
-          driver_version: .[1],
-          pstate: .[2],
-          temperature_c: (.[3]|tonumber),
-          utilization_pct: (.[4]|tonumber),
-          clocks_sm_mhz: (.[5]|tonumber),
-          clocks_mem_mhz: (.[6]|tonumber),
-          power_w: (.[7]|tonumber),
-          memory_used_mib: (.[8]|tonumber),
-          memory_total_mib: (.[9]|tonumber)
-        })' "${GPU_JSON}.csv" > "${TMP_DIR}/gpu_parsed.json"
+if [[ -s "${GPU_CSV}" ]]; then
+    python3 - "${GPU_CSV}" "${PERF_JSON}" <<'PY'
+import csv
+import json
+import sys
 
-    jq --slurpfile gpu "${TMP_DIR}/gpu_parsed.json" '. + {gpu_end: $gpu[0]}' "${PERF_JSON}" > "${PERF_JSON}.tmp"
-    mv "${PERF_JSON}.tmp" "${PERF_JSON}"
+csv_path, perf_path = sys.argv[1:3]
+with open(csv_path, newline="", encoding="utf-8") as f:
+    rows = list(csv.reader(f))
+if rows:
+    r = [x.strip() for x in rows[-1]]
+    gpu = {
+        "name": r[0],
+        "driver_version": r[1],
+        "pstate": r[2],
+        "temperature_c": float(r[3]),
+        "utilization_pct": float(r[4]),
+        "clocks_sm_mhz": float(r[5]),
+        "clocks_mem_mhz": float(r[6]),
+        "power_w": float(r[7]),
+        "memory_used_mib": float(r[8]),
+        "memory_total_mib": float(r[9]),
+    }
+    data = json.load(open(perf_path, encoding="utf-8"))
+    data["gpu_end"] = gpu
+    json.dump(data, open(perf_path, "w", encoding="utf-8"), indent=2)
+PY
 fi
 
-# Record the exact request without putting it into the potentially huge server log.
-jq --argjson request "${REQUEST_JSON}" '. + {request: $request}' "${PERF_JSON}" > "${PERF_JSON}.tmp"
+jq --argjson request "${REQUEST_JSON}" '. + {request: $request}' "${PERF_JSON}" >"${PERF_JSON}.tmp"
 mv "${PERF_JSON}.tmp" "${PERF_JSON}"
 
 echo
@@ -317,7 +319,7 @@ if [[ "${PUSH_RESULTS}" == "1" ]]; then
     if [[ -n "${GIT_BRANCH}" ]]; then
         git -C "${REPO_ROOT}" switch "${GIT_BRANCH}"
     else
-        GIT_BRANCH="$(git -C "${REPO_ROOT}" branch --show-current)"
+        GIT_BRANCH="${GIT_BRANCH_CURRENT}"
     fi
     [[ -n "${GIT_BRANCH}" ]] || die "Not on a git branch; set GIT_BRANCH explicitly."
 
