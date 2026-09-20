@@ -31,6 +31,7 @@ BATCH="${BATCH:-4096}"
 UBATCH="${UBATCH:-256}"
 EXPERT_CACHE="${EXPERT_CACHE:-152}"
 MTP_N_MAX="${MTP_N_MAX:-2}"
+NO_HOST="${NO_HOST:-0}"
 
 POLL_SECONDS="${POLL_SECONDS:-2}"
 HEALTH_TIMEOUT="${HEALTH_TIMEOUT:-300}"
@@ -169,6 +170,7 @@ cat > "${META_JSON}" <<EOF
   "ngl": "${NGL}",
   "expert_cache": ${EXPERT_CACHE},
   "mtp_n_max": ${MTP_N_MAX},
+  "no_host": ${NO_HOST},
   "max_tokens": ${MAX_TOKENS},
   "temperature": ${TEMPERATURE},
   "seed": ${SEED},
@@ -215,6 +217,10 @@ SERVER_ARGS=(
     --host "${HOST}"
     --port "${PORT}"
 )
+
+if [[ "${NO_HOST}" == "1" ]]; then
+    SERVER_ARGS+=(--no-host)
+fi
 
 echo "Starting llama-server..."
 echo "Run directory: ${RUN_DIR}"
