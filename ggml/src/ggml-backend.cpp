@@ -19,7 +19,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#if defined(__linux__) || defined(__APPLE__)
+#include <dlfcn.h>
+#endif
 #include <algorithm>
+#include <atomic>
 #include <unordered_map>
 #include <vector>
 
@@ -426,6 +430,42 @@ void ggml_backend_synchronize(ggml_backend_t backend) {
     GGML_ASSERT(backend);
     if (backend->iface.synchronize == NULL) {
         return;
+    }
+
+    // Optional synchronization tracing for performance investigations.
+    // Set GGML_TRACE_BACKEND_SYNC=1 to sample every 100th backend sync and
+    // report the calling function. This is intentionally disabled by default.
+    static const bool trace_sync = getenv("GGML_TRACE_BACKEND_SYNC") != nullptr;
+    if (trace_sync) {
+        static std::atomic<uint64_t> sync_count { 0 };
+        const uint64_t count = sync_count.fetch_add(1, std::memory_order_relaxed) + 1;
+        if (count % 100 == 0) {
+#if defined(__linux__) || defined(__APPLE__)
+            Dl_info info = {};
+            const void * caller = __builtin_return_address(0);
+            if (dladdr(caller, &info) != 0 && info.dli_sname != nullptr) {
+                const uintptr_t offset =
+                    (uintptr_t) caller - (uintptr_t) info.dli_saddr;
+                fprintf(stderr,
+                        "backend-sync-trace: count=%llu backend=%s caller=%s+0x%llx\\n",
+                        (unsigned long long) count,
+                        ggml_backend_name(backend),
+                        info.dli_sname,
+                        (unsigned long long) offset);
+            } else {
+                fprintf(stderr,
+                        "backend-sync-trace: count=%llu backend=%s caller=%p\\n",
+                        (unsigned long long) count,
+                        ggml_backend_name(backend),
+                        caller);
+            }
+#else
+            fprintf(stderr,
+                    "backend-sync-trace: count=%llu backend=%s\\n",
+                    (unsigned long long) count,
+                    ggml_backend_name(backend));
+#endif
+        }
     }
 
     backend->iface.synchronize(backend);
