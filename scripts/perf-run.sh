@@ -71,21 +71,36 @@ META_JSON="${RUN_DIR}/meta.json"
 PERF_JSON="${RUN_DIR}/performance.json"
 TMP_DIR="$(mktemp -d)"
 SERVER_PID=""
+TEE_PID=""
+LOG_FIFO=""
 
 cleanup() {
     local rc=$?
+
     if [[ -n "${SERVER_PID}" ]] && kill -0 "${SERVER_PID}" 2>/dev/null; then
         if [[ "${KEEP_SERVER}" == "1" ]]; then
             echo "Keeping llama-server (PID ${SERVER_PID})."
         else
             kill "${SERVER_PID}" 2>/dev/null || true
-            for _ in {1..20}; do
-                kill -0 "${SERVER_PID}" 2>/dev/null || break
+            for _ in {1..40}; do
+                if ! kill -0 "${SERVER_PID}" 2>/dev/null; then
+                    break
+                fi
                 sleep 0.25
             done
-            kill -9 "${SERVER_PID}" 2>/dev/null || true
+            if kill -0 "${SERVER_PID}" 2>/dev/null; then
+                echo "llama-server did not exit cleanly; sending SIGKILL." >&2
+                kill -9 "${SERVER_PID}" 2>/dev/null || true
+            fi
+            wait "${SERVER_PID}" 2>/dev/null || true
         fi
     fi
+
+    if [[ -n "${TEE_PID}" ]]; then
+        wait "${TEE_PID}" 2>/dev/null || true
+    fi
+
+    [[ -z "${LOG_FIFO}" ]] || rm -f "${LOG_FIFO}"
     rm -rf "${TMP_DIR}"
     exit "${rc}"
 }
@@ -210,9 +225,14 @@ echo "Starting llama-server..."
 echo "Run directory: ${RUN_DIR}"
 echo "Server log:    ${SERVER_LOG}"
 
-"${SERVER_BIN}" "${SERVER_ARGS[@]}" \
-    > >(tee "${SERVER_LOG}") \
-    2>&1 &
+LOG_FIFO="${TMP_DIR}/server.log.pipe"
+mkfifo "${LOG_FIFO}"
+
+# Keep tee as an explicit child process so log capture has a PID we can wait for.
+tee "${SERVER_LOG}" < "${LOG_FIFO}" &
+TEE_PID=$!
+
+"${SERVER_BIN}" "${SERVER_ARGS[@]}" > "${LOG_FIFO}" 2>&1 &
 SERVER_PID=$!
 
 HEALTH_URL="http://${HOST}:${PORT}/health"
@@ -268,6 +288,13 @@ if [[ -n "${SERVER_PID}" ]] && kill -0 "${SERVER_PID}" 2>/dev/null && [[ "${KEEP
     fi
     wait "${SERVER_PID}" 2>/dev/null || true
     SERVER_PID=""
+
+    # The server closed the FIFO writer, so tee receives EOF and exits cleanly.
+    if [[ -n "${TEE_PID}" ]]; then
+        wait "${TEE_PID}" 2>/dev/null || true
+        echo "Log capture stopped."
+        TEE_PID=""
+    fi
 fi
 
 python3 - "${SERVER_LOG}" "${TMP_DIR}/server_timing.json" <<'PY'
