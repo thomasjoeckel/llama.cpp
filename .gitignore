@@ -15,6 +15,7 @@
 *.gguf.json
 *.lastModified
 *.log
+!benchmarks/runs/**/*.log
 *.metallib
 *.o
 *.so
