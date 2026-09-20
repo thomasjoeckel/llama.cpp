@@ -453,7 +453,7 @@ struct ggml_cuda_moe_grouped_debug_telemetry {
     uint64_t completed_max = 0;
     uint64_t admitted_banks = 0;
     uint64_t fallback = 0;
-    uint64_t rollback = 0;
+    uint64_t rollback              = 0;  // Reserved legacy field; no graph-output rollback is implemented.
     uint64_t host_staged_calls = 0;
     uint64_t host_staged_ops = 0;
     uint64_t host_staged_split_ops = 0;
@@ -463,6 +463,14 @@ struct ggml_cuda_moe_grouped_debug_telemetry {
     uint64_t finish_error = 0;
     uint64_t h2d_banks = 0;
     uint64_t h2d_bytes = 0;
+    uint64_t decode_grouped        = 0;
+    uint64_t decode_legacy         = 0;
+    // Final readers submitted; completed counts successful completion-event recording, not a host wait.
+    uint64_t submitted             = 0;
+    // Group dispatches begun, before reader submission.
+    uint64_t direct                = 0;
+    uint64_t captures              = 0;
+    uint64_t replays               = 0;
 };
 
 struct ggml_cuda_moe_legacy_debug_telemetry {
@@ -925,6 +933,11 @@ public:
     bool finish_graph_dispatch(ggml_cuda_moe_graph_execution * execution);
     void configure_early_router(const ggml_cgraph * graph, ggml_cuda_moe_graph_execution * execution, ggml_cuda_moe_stream_t stream, bool capture, ggml_backend_cuda_context & parent);
     void launch_early_router(const ggml_tensor * node, ggml_cuda_moe_graph_execution * execution, ggml_cuda_moe_stream_t stream);
+    bool original_auxiliary_source(
+            const ggml_cuda_moe_graph_execution & execution,
+            const ggml_tensor * node,
+            ggml_cuda_moe_stream_t stream,
+            const float ** source) const;
     bool prefill_add_id_source(
             const ggml_cuda_moe_graph_execution & execution,
             const ggml_tensor * node,
@@ -980,6 +993,9 @@ private:
             uint64_t * cross_stream_waits,
             uint64_t * pending_declines) const;
     bool set_prefill_resident_budget_for_test(size_t byte_budget);
+    bool set_original_auxiliary_budget_for_test(size_t byte_budget);
+    size_t original_auxiliary_bytes_for_test() const;
+    void fail_device_resource_allocation_for_test(uint32_t stage);
     bool device_resource_complete_for_test(const ggml_cuda_moe_candidate_group_key & key) const;
     bool graph_clock_active_for_test(const ggml_cuda_moe_candidate_group_key & key) const;
     size_t legacy_backing_count_for_test(const ggml_cuda_moe_candidate_group_key & key) const;
