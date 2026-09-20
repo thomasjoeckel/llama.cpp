@@ -1,0 +1,328 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+# Reproducible local llama.cpp performance run.
+#
+# The script:
+#   1. starts llama-server,
+#   2. waits for /health,
+#   3. sends one OpenAI-compatible chat completion request,
+#   4. records server output and structured benchmark metadata,
+#   5. optionally commits and pushes the three result files.
+#
+# Override any setting with an environment variable. The defaults match the
+# current RTX 3090 / Qwen3.8-Flash-Next setup used during sync investigation.
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SERVER_BIN="${SERVER_BIN:-${REPO_ROOT}/build/bin/llama-server}"
+MODEL="${MODEL:-/opt/models/Qwen3.8-Flash-Next/UD-Q3_K_XL/}"
+MTP_MODEL="${MTP_MODEL:-/opt/models/Qwen3.8-Flash-Next/MTP/mtp-Qwen3.8-Flash-Next-Q4_K_M.gguf}"
+HOST="${HOST:-127.0.0.1}"
+PORT="${PORT:-8080}"
+NGL="${NGL:-all}"
+THREADS="${THREADS:-12}"
+THREADS_BATCH="${THREADS_BATCH:-12}"
+CTX="${CTX:-65536}"
+BATCH="${BATCH:-4096}"
+UBATCH="${UBATCH:-256}"
+EXPERT_CACHE="${EXPERT_CACHE:-152}"
+MTP_N_MAX="${MTP_N_MAX:-2}"
+MAX_TOKENS="${MAX_TOKENS:-1024}"
+TEMPERATURE="${TEMPERATURE:-0}"
+SEED="${SEED:-42}"
+POLL_SECONDS="${POLL_SECONDS:-2}"
+HEALTH_TIMEOUT="${HEALTH_TIMEOUT:-300}"
+KEEP_SERVER="${KEEP_SERVER:-0}"
+PUSH_RESULTS="${PUSH_RESULTS:-0}"
+GIT_REMOTE="${GIT_REMOTE:-origin}"
+GIT_BRANCH="${GIT_BRANCH:-}"
+
+RUN_ID="${RUN_ID:-$(date -u +%Y%m%dT%H%M%SZ)}"
+RUN_DIR="${REPO_ROOT}/benchmarks/runs/${RUN_ID}"
+SERVER_LOG="${RUN_DIR}/server.log"
+META_JSON="${RUN_DIR}/meta.json"
+PERF_JSON="${RUN_DIR}/performance.json"
+TMP_DIR="$(mktemp -d)"
+SERVER_PID=""
+
+cleanup() {
+    local rc=$?
+    if [[ -n "${SERVER_PID}" ]] && kill -0 "${SERVER_PID}" 2>/dev/null; then
+        if [[ "${KEEP_SERVER}" == "1" ]]; then
+            echo "Keeping llama-server (PID ${SERVER_PID})."
+        else
+            kill "${SERVER_PID}" 2>/dev/null || true
+            for _ in {1..20}; do
+                kill -0 "${SERVER_PID}" 2>/dev/null || break
+                sleep 0.25
+            done
+            kill -9 "${SERVER_PID}" 2>/dev/null || true
+        fi
+    fi
+    rm -rf "${TMP_DIR}"
+    exit "${rc}"
+}
+trap cleanup EXIT INT TERM
+
+die() {
+    echo "ERROR: $*" >&2
+    exit 1
+}
+
+command -v curl >/dev/null || die "curl is required"
+command -v jq >/dev/null || die "jq is required"
+command -v git >/dev/null || die "git is required"
+[[ -x "${SERVER_BIN}" ]] || die "llama-server not found/executable: ${SERVER_BIN}"
+
+mkdir -p "${RUN_DIR}"
+
+# Default request. Set REQUEST_JSON to send a different request.
+REQUEST_JSON="${REQUEST_JSON:-$(cat <<'JSON'
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "Explain briefly what makes a transformer model efficient during autoregressive decoding."
+    }
+  ],
+  "max_tokens": 1024,
+  "temperature": 0,
+  "seed": 42,
+  "chat_template_kwargs": {
+    "enable_thinking": false
+  }
+}
+JSON
+)}"
+
+START_EPOCH_NS="$(date +%s%N)"
+
+cat > "${META_JSON}" <<EOF
+{
+  "run_id": "${RUN_ID}",
+  "started_at_utc": "$(date -u --iso-8601=seconds)",
+  "host": "$(hostname)",
+  "repo_root": "${REPO_ROOT}",
+  "git_branch": "$(git -C "${REPO_ROOT}" branch --show-current)",
+  "git_commit": "$(git -C "${REPO_ROOT}" rev-parse HEAD)",
+  "server_bin": "${SERVER_BIN}",
+  "model": "${MODEL}",
+  "mtp_model": "${MTP_MODEL}",
+  "host_address": "${HOST}",
+  "port": ${PORT},
+  "ctx": ${CTX},
+  "batch": ${BATCH},
+  "ubatch": ${UBATCH},
+  "threads": ${THREADS},
+  "threads_batch": ${THREADS_BATCH},
+  "ngl": "${NGL}",
+  "expert_cache": ${EXPERT_CACHE},
+  "mtp_n_max": ${MTP_N_MAX},
+  "max_tokens": ${MAX_TOKENS},
+  "temperature": ${TEMPERATURE},
+  "seed": ${SEED},
+  "cuda_visible_devices": "${CUDA_VISIBLE_DEVICES:-}",
+  "ggml_cuda_moe_early_router": "${GGML_CUDA_MOE_EARLY_ROUTER:-}",
+  "ggml_cuda_moe_early_router_lookahead": "${GGML_CUDA_MOE_EARLY_ROUTER_LOOKAHEAD:-}",
+  "trace_sched_sync_sites": "${GGML_TRACE_SCHED_SYNC_SITES:-0}",
+  "trace_backend_sync": "${GGML_TRACE_BACKEND_SYNC:-0}"
+}
+EOF
+
+SERVER_ARGS=(
+    --offline
+    --model "${MODEL}"
+    --spec-type mtp
+    --spec-draft-model "${MTP_MODEL}"
+    --spec-draft-n-max "${MTP_N_MAX}"
+    --spec-draft-ubatch-size "${UBATCH}"
+    -c "${CTX}"
+    -b "${BATCH}"
+    -ub "${UBATCH}"
+    -np 1
+    -t "${THREADS}"
+    -tb "${THREADS_BATCH}"
+    -ngl "${NGL}"
+    -fa on
+    -fit off
+    --load-mode none
+    --lazy-mode on
+    --moe-expert-cache-size "${EXPERT_CACHE}"
+    -ctk q4_0
+    -ctv q4_0
+    -kvo
+    --cache-ram 0
+    --jinja
+    --no-warmup
+    --backend-sampling
+    --decode-overlap
+    --decode-boundary-overlap
+    --ple-prefetch
+    --phase-aware-workspace
+    --live-context-workspace
+    --experimental-logs
+    --host "${HOST}"
+    --port "${PORT}"
+)
+
+echo "Starting llama-server..."
+echo "Run directory: ${RUN_DIR}"
+echo "Server log:    ${SERVER_LOG}"
+
+"${SERVER_BIN}" "${SERVER_ARGS[@]}" >"${SERVER_LOG}" 2>&1 &
+SERVER_PID=$!
+
+HEALTH_URL="http://${HOST}:${PORT}/health"
+DEADLINE=$((SECONDS + HEALTH_TIMEOUT))
+until curl -fsS "${HEALTH_URL}" >/dev/null 2>&1; do
+    if ! kill -0 "${SERVER_PID}" 2>/dev/null; then
+        echo "llama-server exited during startup." >&2
+        tail -n 100 "${SERVER_LOG}" >&2 || true
+        exit 1
+    fi
+    (( SECONDS >= DEADLINE )) && {
+        echo "Timed out waiting for ${HEALTH_URL}" >&2
+        tail -n 100 "${SERVER_LOG}" >&2 || true
+        exit 1
+    }
+    sleep "${POLL_SECONDS}"
+done
+
+HEALTH_READY_AT="$(date -u --iso-8601=seconds)"
+echo "Server ready: ${HEALTH_READY_AT}"
+
+REQUEST_START_NS="$(date +%s%N)"
+HTTP_CODE="$(
+    curl -sS -o "${TMP_DIR}/response.json" -w '%{http_code}' \
+        -H 'Content-Type: application/json' \
+        --data "${REQUEST_JSON}" \
+        "http://${HOST}:${PORT}/v1/chat/completions"
+)"
+REQUEST_END_NS="$(date +%s%N)"
+
+if [[ "${HTTP_CODE}" != "200" ]]; then
+    echo "Request failed with HTTP ${HTTP_CODE}" >&2
+    cat "${TMP_DIR}/response.json" >&2 || true
+    exit 1
+fi
+
+# Give the server a moment to flush its final timing/experimental-log lines.
+sleep 1
+
+python3 - "${SERVER_LOG}" "${TMP_DIR}/server_timing.json" <<'PY'
+import json
+import re
+import sys
+
+log_path, out_path = sys.argv[1:3]
+text = open(log_path, encoding="utf-8", errors="replace").read()
+
+def last_float(pattern):
+    m = list(re.finditer(pattern, text))
+    return float(m[-1].group(1)) if m else None
+
+def last_int(pattern):
+    m = list(re.finditer(pattern, text))
+    return int(m[-1].group(1)) if m else None
+
+def last_line(pattern):
+    lines = [x for x in text.splitlines() if re.search(pattern, x)]
+    return lines[-1] if lines else None
+
+data = {
+    "prompt_eval_ms": last_float(r"prompt eval time\s*=\s*([0-9.]+) ms"),
+    "prompt_tokens": last_int(r"prompt eval time\s*=\s*[0-9.]+ ms /\s*([0-9]+) tokens"),
+    "prompt_tok_s": last_float(r"prompt eval time.*?([0-9.]+) tokens per second"),
+    "eval_ms": last_float(r"eval time\s*=\s*([0-9.]+) ms"),
+    "eval_tokens": last_int(r"eval time\s*=\s*[0-9.]+ ms /\s*([0-9]+) tokens"),
+    "eval_tok_s": last_float(r"eval time.*?([0-9.]+) tokens per second"),
+    "total_ms": last_float(r"total time\s*=\s*([0-9.]+) ms"),
+    "graphs_reused": last_int(r"graphs reused\s*=\s*([0-9]+)"),
+    "draft_acceptance": last_float(r"draft acceptance\s*=\s*([0-9.]+)"),
+    "timing_lines": [
+        last_line(r"prompt eval time"),
+        last_line(r"eval time"),
+        last_line(r"total time"),
+        last_line(r"graphs reused"),
+        last_line(r"draft acceptance"),
+    ],
+}
+json.dump(data, open(out_path, "w", encoding="utf-8"), indent=2)
+PY
+
+REQUEST_MS="$(awk -v a="${REQUEST_START_NS}" -v b="${REQUEST_END_NS}" 'BEGIN { printf "%.3f", (b-a)/1000000 }')"
+RUN_MS="$(awk -v a="${START_EPOCH_NS}" -v b="${REQUEST_END_NS}" 'BEGIN { printf "%.3f", (b-a)/1000000 }')"
+
+GPU_JSON="${TMP_DIR}/gpu.json"
+if command -v nvidia-smi >/dev/null 2>&1; then
+    nvidia-smi --query-gpu=name,driver_version,pstate,temperature.gpu,utilization.gpu,clocks.sm,clocks.mem,power.draw,memory.used,memory.total --format=csv,noheader,nounits > "${GPU_JSON}.csv" 2>/dev/null || true
+fi
+
+jq \
+    --arg run_id "${RUN_ID}" \
+    --arg started_at "$(jq -r .started_at_utc "${META_JSON}")" \
+    --arg health_ready_at "${HEALTH_READY_AT}" \
+    --arg http_code "${HTTP_CODE}" \
+    --arg request_ms "${REQUEST_MS}" \
+    --arg run_ms "${RUN_MS}" \
+    --argjson server_timing "$(cat "${TMP_DIR}/server_timing.json")" \
+    --arg response_tokens "$(jq -r '.usage.completion_tokens // 0' "${TMP_DIR}/response.json" 2>/dev/null || echo 0)" \
+    --arg prompt_tokens "$(jq -r '.usage.prompt_tokens // 0' "${TMP_DIR}/response.json" 2>/dev/null || echo 0)" \
+    --arg finish_reason "$(jq -r '.choices[0].finish_reason // ""' "${TMP_DIR}/response.json" 2>/dev/null || true)" \
+    '{
+      run_id: $run_id,
+      started_at_utc: $started_at,
+      health_ready_at_utc: $health_ready_at,
+      http_code: ($http_code|tonumber),
+      request_wall_ms: ($request_ms|tonumber),
+      run_wall_ms: ($run_ms|tonumber),
+      prompt_tokens_api: ($prompt_tokens|tonumber),
+      completion_tokens_api: ($response_tokens|tonumber),
+      finish_reason: $finish_reason,
+      server_timing: $server_timing
+    }' > "${PERF_JSON}"
+
+if [[ -s "${GPU_JSON}.csv" ]]; then
+    jq -Rn --rawfile gpu "${GPU_JSON}.csv" '
+      . as $base |
+      $gpu
+      | split("\n")
+      | map(select(length > 0))
+      | map(split(", ") | {
+          name: .[0],
+          driver_version: .[1],
+          pstate: .[2],
+          temperature_c: (.[3]|tonumber),
+          utilization_pct: (.[4]|tonumber),
+          clocks_sm_mhz: (.[5]|tonumber),
+          clocks_mem_mhz: (.[6]|tonumber),
+          power_w: (.[7]|tonumber),
+          memory_used_mib: (.[8]|tonumber),
+          memory_total_mib: (.[9]|tonumber)
+        })' "${GPU_JSON}.csv" > "${TMP_DIR}/gpu_parsed.json"
+
+    jq --slurpfile gpu "${TMP_DIR}/gpu_parsed.json" '. + {gpu_end: $gpu[0]}' "${PERF_JSON}" > "${PERF_JSON}.tmp"
+    mv "${PERF_JSON}.tmp" "${PERF_JSON}"
+fi
+
+# Record the exact request without putting it into the potentially huge server log.
+jq --argjson request "${REQUEST_JSON}" '. + {request: $request}' "${PERF_JSON}" > "${PERF_JSON}.tmp"
+mv "${PERF_JSON}.tmp" "${PERF_JSON}"
+
+echo
+echo "=== Performance result ==="
+jq '.server_timing, {request_wall_ms, prompt_tokens_api, completion_tokens_api, finish_reason}' "${PERF_JSON}"
+
+if [[ "${PUSH_RESULTS}" == "1" ]]; then
+    if [[ -n "${GIT_BRANCH}" ]]; then
+        git -C "${REPO_ROOT}" switch "${GIT_BRANCH}"
+    else
+        GIT_BRANCH="$(git -C "${REPO_ROOT}" branch --show-current)"
+    fi
+    [[ -n "${GIT_BRANCH}" ]] || die "Not on a git branch; set GIT_BRANCH explicitly."
+
+    git -C "${REPO_ROOT}" add "${RUN_DIR}"
+    git -C "${REPO_ROOT}" commit -m "bench: record performance run ${RUN_ID}"
+    git -C "${REPO_ROOT}" push "${GIT_REMOTE}" "${GIT_BRANCH}"
+    echo "Pushed ${RUN_DIR} to ${GIT_REMOTE}/${GIT_BRANCH}."
+fi
