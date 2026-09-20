@@ -2096,7 +2096,12 @@ ggml_backend_sched_t ggml_backend_sched_new(
         sched->bufts[b] = bufts ? bufts[b] : ggml_backend_get_default_buffer_type(backends[b]);
         GGML_ASSERT(ggml_backend_supports_buft(backends[b], sched->bufts[b]));
 
-        if (sched->n_copies > 1) {
+        // Keep a completion event for every scheduler copy, including the
+        // single-copy case. The split scheduler already uses these events to
+        // express cross-split dependencies without blocking the host. Creating
+        // them for one copy lets the same asynchronous dependency mechanism be
+        // used when n_copies == 1 instead of falling back to a full backend sync.
+        if (sched->n_copies > 0) {
             for (int c = 0; c < sched->n_copies; c++) {
                 sched->events[b][c] = ggml_backend_event_new(backends[b]->device);
             }
