@@ -360,7 +360,7 @@ if command -v nvidia-smi >/dev/null 2>&1; then
     nvidia-smi --query-gpu=name,driver_version,pstate,temperature.gpu,utilization.gpu,clocks.sm,clocks.mem,power.draw,memory.used,memory.total --format=csv,noheader,nounits >"${GPU_CSV}" 2>/dev/null || true
 fi
 
-jq \
+jq -n \
     --arg run_id "${RUN_ID}" \
     --arg started_at "$(jq -r .started_at_utc "${META_JSON}")" \
     --arg health_ready_at "${HEALTH_READY_AT}" \
