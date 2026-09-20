@@ -279,6 +279,8 @@ data = {
     "total_ms": last_float(r"total time\s*=\s*([0-9.]+) ms"),
     "graphs_reused": last_int(r"graphs reused\s*=\s*([0-9]+)"),
     "draft_acceptance": last_float(r"draft acceptance\s*=\s*([0-9.]+)"),
+    "sched_sync_sites": {},
+    "backend_sync_trace_samples": {},
     "timing_lines": [
         last_line(r"prompt eval time"),
         last_line(r"eval time"),
