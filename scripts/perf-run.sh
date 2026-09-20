@@ -11,11 +11,18 @@ set -Eeuo pipefail
 # With PUSH_RESULTS=1 the three files are committed and pushed automatically.
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+# ============================================================
+# SERVER VARIABLES
+# ============================================================
+
 SERVER_BIN="${SERVER_BIN:-${REPO_ROOT}/build/bin/llama-server}"
 MODEL="${MODEL:-/opt/models/Qwen3.8-Flash-Next/UD-Q3_K_XL/}"
 MTP_MODEL="${MTP_MODEL:-/opt/models/Qwen3.8-Flash-Next/MTP/mtp-Qwen3.8-Flash-Next-Q4_K_M.gguf}"
+
 HOST="${HOST:-127.0.0.1}"
 PORT="${PORT:-8080}"
+
 NGL="${NGL:-all}"
 THREADS="${THREADS:-12}"
 THREADS_BATCH="${THREADS_BATCH:-12}"
@@ -24,15 +31,38 @@ BATCH="${BATCH:-4096}"
 UBATCH="${UBATCH:-256}"
 EXPERT_CACHE="${EXPERT_CACHE:-152}"
 MTP_N_MAX="${MTP_N_MAX:-2}"
-MAX_TOKENS="${MAX_TOKENS:-1024}"
-TEMPERATURE="${TEMPERATURE:-0}"
-SEED="${SEED:-42}"
+
 POLL_SECONDS="${POLL_SECONDS:-2}"
 HEALTH_TIMEOUT="${HEALTH_TIMEOUT:-300}"
 KEEP_SERVER="${KEEP_SERVER:-0}"
 PUSH_RESULTS="${PUSH_RESULTS:-0}"
 GIT_REMOTE="${GIT_REMOTE:-github-fork}"
 GIT_BRANCH="${GIT_BRANCH:-}"
+
+
+# ============================================================
+# REQUEST VARIABLES
+# ============================================================
+
+TEMPERATURE="${TEMPERATURE:-0.0}"
+TOP_P="${TOP_P:-1.0}"
+MIN_P="${MIN_P:-0.0}"
+PRESENCE_PENALTY="${PRESENCE_PENALTY:-0.0}"
+FREQUENCY_PENALTY="${FREQUENCY_PENALTY:-0.0}"
+SEED="${SEED:-12345}"
+
+CACHE_PROMPT="${CACHE_PROMPT:-false}"
+STREAM="${STREAM:-false}"
+MAX_TOKENS="${MAX_TOKENS:-1024}"
+ENABLE_THINKING="${ENABLE_THINKING:-false}"
+
+USER_PROMPT="${USER_PROMPT:-Act as the release operator. First reason through the deployment hazards, dependencies, and rollback criteria. Then explicitly finish reasoning and produce a final executable rollout plan dominated by shell commands and configuration snippets. Deploy the payments API to the blue canary pool, hold traffic at ten percent, verify latency and error budgets, and publish a signed go-or-rollback decision. Keep the reasoning brief enough to leave most of the response budget for the final plan.
+Include concrete scripts with error handling, configuration examples, and verification commands rather than only prose.}"
+
+
+# ============================================================
+# RUN STATE
+# ============================================================
 
 RUN_ID="${RUN_ID:-$(date -u +%Y%m%dT%H%M%SZ)}"
 RUN_DIR="${REPO_ROOT}/benchmarks/runs/${RUN_ID}"
@@ -73,23 +103,36 @@ command -v git >/dev/null || die "git is required"
 
 mkdir -p "${RUN_DIR}"
 
-REQUEST_JSON="${REQUEST_JSON:-$(cat <<JSON
-{
-  "messages": [
-    {
-      "role": "user",
-      "content": "Explain briefly what makes a transformer model efficient during autoregressive decoding."
-    }
-  ],
-  "max_tokens": ${MAX_TOKENS},
-  "temperature": ${TEMPERATURE},
-  "seed": ${SEED},
-  "chat_template_kwargs": {
-    "enable_thinking": false
-  }
-}
-JSON
-)}"
+REQUEST_JSON="$(jq -n \
+    --arg content "${USER_PROMPT}" \
+    --argjson temperature "${TEMPERATURE}" \
+    --argjson top_p "${TOP_P}" \
+    --argjson min_p "${MIN_P}" \
+    --argjson presence_penalty "${PRESENCE_PENALTY}" \
+    --argjson frequency_penalty "${FREQUENCY_PENALTY}" \
+    --argjson seed "${SEED}" \
+    --argjson cache_prompt "${CACHE_PROMPT}" \
+    --argjson stream "${STREAM}" \
+    --argjson max_tokens "${MAX_TOKENS}" \
+    --argjson enable_thinking "${ENABLE_THINKING}" \
+    '{
+      temperature: $temperature,
+      top_p: $top_p,
+      min_p: $min_p,
+      presence_penalty: $presence_penalty,
+      frequency_penalty: $frequency_penalty,
+      seed: $seed,
+      cache_prompt: $cache_prompt,
+      stream: $stream,
+      max_tokens: $max_tokens,
+      messages: [{
+        role: "user",
+        content: $content
+      }],
+      chat_template_kwargs: {
+        enable_thinking: $enable_thinking
+      }
+    }')"
 
 START_EPOCH_NS="$(date +%s%N)"
 GIT_COMMIT="$(git -C "${REPO_ROOT}" rev-parse HEAD)"
