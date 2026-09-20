@@ -1673,7 +1673,7 @@ static bool ggml_backend_sched_alloc_splits(ggml_backend_sched_t sched, bool reu
         // the re-allocation may cause the split inputs to be moved to a different address
         // synchronize without ggml_backend_sched_synchronize to avoid changing cur_copy
         for (int i = 0; i < sched->n_backends; i++) {
-            ggml_backend_synchronize(sched->backends[i]);
+            ggml_backend_sched_trace_sync_site("alloc_splits.realloc");\n            ggml_backend_synchronize(sched->backends[i]);
         }
 
         if (!ggml_gallocr_reserve_n(sched->galloc, &sched->graph, sched->node_backend_ids, sched->leaf_backend_ids)) {
@@ -1815,7 +1815,7 @@ static enum ggml_status ggml_backend_sched_compute_splits(
             if (sched->events[prev_backend_id][sched->cur_copy] != NULL) {
                 ggml_backend_event_synchronize(sched->events[prev_backend_id][sched->cur_copy]);
             } else {
-                ggml_backend_synchronize(sched->backends[prev_backend_id]);
+                ggml_backend_sched_trace_sync_site("compute_splits.prev_split");\n                ggml_backend_synchronize(sched->backends[prev_backend_id]);
             }
         }
 
@@ -2263,6 +2263,7 @@ enum ggml_status ggml_backend_sched_graph_compute_async_ext(
 void ggml_backend_sched_synchronize(ggml_backend_sched_t sched) {
     GGML_ASSERT(sched);
     for (int i = 0; i < sched->n_backends; i++) {
+        ggml_backend_sched_trace_sync_site("sched_synchronize");
         ggml_backend_synchronize(sched->backends[i]);
     }
     if (!sched->is_alloc) {
