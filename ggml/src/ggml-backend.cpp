@@ -2298,7 +2298,14 @@ void ggml_backend_sched_synchronize(ggml_backend_sched_t sched) {
     GGML_ASSERT(sched);
     for (int i = 0; i < sched->n_backends; i++) {
         ggml_backend_sched_trace_sync_site("sched_synchronize");
-        ggml_backend_synchronize(sched->backends[i]);
+        if (sched->events[i][sched->cur_copy] != NULL) {
+            // The split scheduler records a completion event after each split.
+            // Waiting on that event preserves the scheduler's completion
+            // semantics while avoiding a full backend stream synchronize.
+            ggml_backend_event_synchronize(sched->events[i][sched->cur_copy]);
+        } else {
+            ggml_backend_synchronize(sched->backends[i]);
+        }
     }
     if (!sched->is_alloc) {
         // if the graph is not already allocated, always use copy 0 after a synchronization
