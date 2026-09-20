@@ -54,7 +54,6 @@ SEED="${SEED:-12345}"
 CACHE_PROMPT="${CACHE_PROMPT:-false}"
 STREAM="${STREAM:-false}"
 MAX_TOKENS="${MAX_TOKENS:-1024}"
-ENABLE_THINKING="${ENABLE_THINKING:-false}"
 
 USER_PROMPT="${USER_PROMPT:-Act as the release operator. First reason through the deployment hazards, dependencies, and rollback criteria. Then explicitly finish reasoning and produce a final executable rollout plan dominated by shell commands and configuration snippets. Deploy the payments API to the blue canary pool, hold traffic at ten percent, verify latency and error budgets, and publish a signed go-or-rollback decision. Keep the reasoning brief enough to leave most of the response budget for the final plan.
 Include concrete scripts with error handling, configuration examples, and verification commands rather than only prose.}"
@@ -129,7 +128,6 @@ REQUEST_JSON="$(jq -n \
     --argjson cache_prompt "${CACHE_PROMPT}" \
     --argjson stream "${STREAM}" \
     --argjson max_tokens "${MAX_TOKENS}" \
-    --argjson enable_thinking "${ENABLE_THINKING}" \
     '{
       temperature: $temperature,
       top_p: $top_p,
@@ -143,10 +141,7 @@ REQUEST_JSON="$(jq -n \
       messages: [{
         role: "user",
         content: $content
-      }],
-      chat_template_kwargs: {
-        enable_thinking: $enable_thinking
-      }
+      }]
     }')"
 
 START_EPOCH_NS="$(date +%s%N)"
