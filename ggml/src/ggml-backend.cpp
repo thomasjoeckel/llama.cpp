@@ -1834,7 +1834,7 @@ static enum ggml_status ggml_backend_sched_compute_splits(
             if (sched->events[prev_backend_id][sched->cur_copy] != NULL) {
                 ggml_backend_event_synchronize(sched->events[prev_backend_id][sched->cur_copy]);
             } else {
-                ggml_backend_sched_trace_sync_site("compute_splits.prev_split");\n                ggml_backend_sched_trace_sync_site("compute_splits.prev_split");
+                ggml_backend_sched_trace_sync_site("compute_splits.prev_split");
                 ggml_backend_synchronize(sched->backends[prev_backend_id]);
             }
         }
@@ -2016,6 +2016,7 @@ static enum ggml_status ggml_backend_sched_compute_splits(
                 }
 
                 // TODO: pass backend to the callback, then the user can decide if they want to synchronize
+                ggml_backend_sched_trace_sync_site("compute_splits.callback");
                 ggml_backend_synchronize(split_backend);
 
                 if (need && !sched->callback_eval(t, false, sched->callback_eval_user_data)) {
