@@ -29,6 +29,7 @@ THREADS_BATCH="${THREADS_BATCH:-12}"
 CTX="${CTX:-65536}"
 BATCH="${BATCH:-4096}"
 UBATCH="${UBATCH:-256}"
+SPEC_DRAFT_UBATCH="${SPEC_DRAFT_UBATCH:-256}"
 EXPERT_CACHE="${EXPERT_CACHE:-152}"
 MTP_N_MAX="${MTP_N_MAX:-2}"
 NO_HOST="${NO_HOST:-0}"
@@ -166,6 +167,7 @@ cat > "${META_JSON}" <<EOF
   "ctx": ${CTX},
   "batch": ${BATCH},
   "ubatch": ${UBATCH},
+  "spec_draft_ubatch": ${SPEC_DRAFT_UBATCH},
   "threads": ${THREADS},
   "threads_batch": ${THREADS_BATCH},
   "ngl": "${NGL}",
@@ -190,7 +192,7 @@ SERVER_ARGS=(
     --spec-type draft-mtp
     --spec-draft-model "${MTP_MODEL}"
     --spec-draft-n-max "${MTP_N_MAX}"
-    --spec-draft-ubatch-size "${UBATCH}"
+    --spec-draft-ubatch-size "${SPEC_DRAFT_UBATCH}"
     -c "${CTX}"
     -b "${BATCH}"
     -ub "${UBATCH}"
