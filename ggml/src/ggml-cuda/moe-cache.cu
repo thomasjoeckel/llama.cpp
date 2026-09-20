@@ -3973,27 +3973,7 @@ struct moe_router_program {
 };
 
 static bool moe_early_router_enabled() {
-    static const bool enabled = [] {
-        const char * value = getenv("GGML_CUDA_MOE_EARLY_ROUTER");
-        if (value == nullptr || strcmp(value, "1") != 0) {
-            return false;
-        }
-        const char * distance = getenv("GGML_CUDA_MOE_EARLY_ROUTER_LOOKAHEAD");
-        if (distance != nullptr && strcmp(distance, "1") != 0) {
-            fprintf(stderr, "moe-prepack: disabled reason=only lookahead 1 is supported\n");
-            return false;
-        }
-        for (const char * name : {"NATIVE", "COPY_ENGINE", "COPY_MAILBOX", "COPY_POLL", "COPY_BATCH", "COPY_SPLIT", "COPY_READY_ONLY", "COPY_BANKS", "COPY_DEBUG", "STAGE_BLOCKS"}) {
-            const std::string setting = std::string("GGML_CUDA_MOE_EARLY_ROUTER_") + name;
-            const char * detail = getenv(setting.c_str());
-            if (detail != nullptr && strcmp(detail, "0") != 0) {
-                fprintf(stderr, "moe-prepack: disabled reason=retired setting %s\n", setting.c_str());
-                return false;
-            }
-        }
-        return true;
-    }();
-    return enabled;
+    return false; // EXPERIMENT: isolated revert of 77b733d5 (previous-layer prefetch)
 }
 
 static __global__ void moe_early_router_scores(
