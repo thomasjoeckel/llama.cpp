@@ -1,0 +1,1001 @@
+0.00.049.973 I cmn  common_param: common_params_print_info: verbosity = 3 (adjust with the `-lv N` CLI arg)
+0.00.050.262 W srv  llama_server: -----------------
+0.00.050.263 W srv  llama_server: CORS is set to allow all origins ('*') and no API key is set
+0.00.050.263 W srv  llama_server: this can be a security risk (cross-origin attacks)
+0.00.050.263 W srv  llama_server: more info: https://github.com/ggml-org/llama.cpp/pull/25655
+0.00.050.263 W srv  llama_server: -----------------
+0.00.051.470 I srv    load_model: loading model '/opt/models/Qwen3.8-Flash-Next/UD-Q3_K_XL/Qwen3.8-Flash-Next-UD-Q3_K_XL-00001-of-00003.gguf'
+sched-sync-site: site=sched_synchronize count=1
+0.57.335.070 I cmn          init: llama threadpool init, n_threads = 12
+0.57.335.151 I common_speculative_init_result: loading draft model '/opt/models/Qwen3.8-Flash-Next/MTP/mtp-Qwen3.8-Flash-Next-Q4_K_M.gguf'
+sched-sync-site: site=alloc_splits.realloc count=1
+sched-sync-site: site=compute_splits.input_reuse count=1
+sched-sync-site: site=compute_splits.input_copy_src count=1
+sched-sync-site: site=compute_splits.input_copy_dst count=1
+sched-sync-site: site=compute_splits.user_input count=1
+1.00.229.871 I srv    load_model: MTP recurrent-plane policy: draft depth = 2, total planes = 3, direct rollback horizon = 2, full-shape GPU replay = disabled
+1.00.229.875 I srv    load_model: initializing, n_slots = 1, n_ctx_slot = 65536, kv_unified = 'false'
+1.00.237.796 W srv          init: --cache-idle-slots requires --cache-ram, disabling
+1.00.242.553 W srv          init: chat template supports preserving reasoning, it is enabled by default (may use more tokens, disable via --no-reasoning-preserve)
+1.00.242.597 I srv  llama_server: model loaded
+1.00.242.601 I srv  llama_server: listening on http://127.0.0.1:8080
+1.00.242.601 W srv  llama_server: NOTICE: server default port will be changed to :9931 in a future release
+1.00.242.601 W srv  llama_server:         ref: https://github.com/ggml-org/llama.cpp/pull/26508
+1.01.139.672 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = -1
+1.01.139.765 I slot launch_slot_: id  0 | task -1 | decode overlap: MTP draft enabled after target acceptance
+1.01.139.768 I slot launch_slot_: id  0 | task 0 | processing task, is_child = 0
+backend-sync-trace: count=100 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=100
+sched-sync-site: site=sched_synchronize count=200
+backend-sync-trace: count=200 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=300
+backend-sync-trace: count=300 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=400
+backend-sync-trace: count=400 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=compute_splits.user_input count=100
+sched-sync-site: site=sched_synchronize count=500
+backend-sync-trace: count=500 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=sched_synchronize count=600
+backend-sync-trace: count=600 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=700
+backend-sync-trace: count=700 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=compute_splits.user_input count=200
+backend-sync-trace: count=800 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=800
+backend-sync-trace: count=900 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=900
+sched-sync-site: site=compute_splits.input_reuse count=100
+sched-sync-site: site=compute_splits.input_copy_src count=100
+sched-sync-site: site=compute_splits.input_copy_dst count=100
+backend-sync-trace: count=1000 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=1000
+sched-sync-site: site=compute_splits.user_input count=300
+backend-sync-trace: count=1100 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=1100
+backend-sync-trace: count=1200 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=1200
+backend-sync-trace: count=1300 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=compute_splits.user_input count=400
+sched-sync-site: site=sched_synchronize count=1300
+backend-sync-trace: count=1400 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+backend-sync-trace: count=1500 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=1400
+backend-sync-trace: count=1600 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=1500
+sched-sync-site: site=compute_splits.user_input count=500
+backend-sync-trace: count=1700 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=1600
+backend-sync-trace: count=1800 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=compute_splits.input_reuse count=200
+sched-sync-site: site=compute_splits.input_copy_src count=200
+sched-sync-site: site=compute_splits.input_copy_dst count=200
+sched-sync-site: site=sched_synchronize count=1700
+backend-sync-trace: count=1900 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=sched_synchronize count=1800
+sched-sync-site: site=compute_splits.user_input count=600
+backend-sync-trace: count=2000 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+backend-sync-trace: count=2100 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=1900
+sched-sync-site: site=sched_synchronize count=2000
+backend-sync-trace: count=2200 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=alloc_splits.realloc count=100
+backend-sync-trace: count=2300 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=2100
+sched-sync-site: site=compute_splits.user_input count=700
+backend-sync-trace: count=2400 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=2200
+backend-sync-trace: count=2500 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=sched_synchronize count=2300
+backend-sync-trace: count=2600 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=compute_splits.user_input count=800
+sched-sync-site: site=sched_synchronize count=2400
+sched-sync-site: site=compute_splits.input_reuse count=300
+sched-sync-site: site=compute_splits.input_copy_src count=300
+sched-sync-site: site=compute_splits.input_copy_dst count=300
+backend-sync-trace: count=2700 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=2500
+backend-sync-trace: count=2800 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+backend-sync-trace: count=2900 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+sched-sync-site: site=sched_synchronize count=2600
+sched-sync-site: site=compute_splits.user_input count=900
+backend-sync-trace: count=3000 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=sched_synchronize count=2700
+backend-sync-trace: count=3100 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=2800
+backend-sync-trace: count=3200 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=2900
+sched-sync-site: site=compute_splits.user_input count=1000
+backend-sync-trace: count=3300 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=3000
+backend-sync-trace: count=3400 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=3100
+backend-sync-trace: count=3500 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=compute_splits.input_reuse count=400
+sched-sync-site: site=compute_splits.input_copy_src count=400
+sched-sync-site: site=compute_splits.input_copy_dst count=400
+1.06.824.079 I slot print_timing: id  0 | task 0 | n_gen =    111, tg =  36.41 t/s, tg_3s =  36.74 t/s
+sched-sync-site: site=compute_splits.user_input count=1100
+backend-sync-trace: count=3600 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=3200
+backend-sync-trace: count=3700 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=3300
+backend-sync-trace: count=3800 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=compute_splits.user_input count=1200
+sched-sync-site: site=sched_synchronize count=3400
+backend-sync-trace: count=3900 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+sched-sync-site: site=sched_synchronize count=3500
+backend-sync-trace: count=4000 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+backend-sync-trace: count=4100 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=3600
+sched-sync-site: site=compute_splits.user_input count=1300
+backend-sync-trace: count=4200 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=3700
+sched-sync-site: site=alloc_splits.realloc count=200
+backend-sync-trace: count=4300 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=compute_splits.input_reuse count=500
+sched-sync-site: site=compute_splits.input_copy_src count=500
+sched-sync-site: site=compute_splits.input_copy_dst count=500
+sched-sync-site: site=sched_synchronize count=3800
+backend-sync-trace: count=4400 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=compute_splits.user_input count=1400
+backend-sync-trace: count=4500 backend=CUDA0 caller=0x78c6e2f5228a
+sched-sync-site: site=sched_synchronize count=3900
+backend-sync-trace: count=4600 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=4000
+backend-sync-trace: count=4700 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=compute_splits.user_input count=1500
+sched-sync-site: site=sched_synchronize count=4100
+backend-sync-trace: count=4800 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+backend-sync-trace: count=4900 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=4200
+backend-sync-trace: count=5000 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=4300
+sched-sync-site: site=compute_splits.user_input count=1600
+backend-sync-trace: count=5100 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=4400
+sched-sync-site: site=compute_splits.input_reuse count=600
+sched-sync-site: site=compute_splits.input_copy_src count=600
+sched-sync-site: site=compute_splits.input_copy_dst count=600
+backend-sync-trace: count=5200 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=sched_synchronize count=4500
+backend-sync-trace: count=5300 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=compute_splits.user_input count=1700
+backend-sync-trace: count=5400 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+sched-sync-site: site=sched_synchronize count=4600
+backend-sync-trace: count=5500 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=4700
+backend-sync-trace: count=5600 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=4800
+sched-sync-site: site=compute_splits.user_input count=1800
+backend-sync-trace: count=5700 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=4900
+backend-sync-trace: count=5800 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+backend-sync-trace: count=5900 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=5000
+sched-sync-site: site=compute_splits.input_reuse count=700
+sched-sync-site: site=compute_splits.input_copy_src count=700
+sched-sync-site: site=compute_splits.input_copy_dst count=700
+sched-sync-site: site=compute_splits.user_input count=1900
+backend-sync-trace: count=6000 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=5100
+backend-sync-trace: count=6100 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=5200
+backend-sync-trace: count=6200 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=5300
+sched-sync-site: site=compute_splits.user_input count=2000
+backend-sync-trace: count=6300 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=alloc_splits.realloc count=300
+sched-sync-site: site=sched_synchronize count=5400
+backend-sync-trace: count=6400 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=5500
+backend-sync-trace: count=6500 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+sched-sync-site: site=compute_splits.user_input count=2100
+backend-sync-trace: count=6600 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=5600
+backend-sync-trace: count=6700 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=5700
+sched-sync-site: site=compute_splits.input_reuse count=800
+sched-sync-site: site=compute_splits.input_copy_src count=800
+sched-sync-site: site=compute_splits.input_copy_dst count=800
+backend-sync-trace: count=6800 backend=CUDA0 caller=0x78c6e2f5228a
+sched-sync-site: site=sched_synchronize count=5800
+sched-sync-site: site=compute_splits.user_input count=2200
+backend-sync-trace: count=6900 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+backend-sync-trace: count=7000 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=5900
+backend-sync-trace: count=7100 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=6000
+backend-sync-trace: count=7200 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+sched-sync-site: site=compute_splits.user_input count=2300
+sched-sync-site: site=sched_synchronize count=6100
+backend-sync-trace: count=7300 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=6200
+backend-sync-trace: count=7400 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+sched-sync-site: site=sched_synchronize count=6300
+backend-sync-trace: count=7500 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=compute_splits.user_input count=2400
+sched-sync-site: site=compute_splits.input_reuse count=900
+sched-sync-site: site=compute_splits.input_copy_src count=900
+sched-sync-site: site=compute_splits.input_copy_dst count=900
+backend-sync-trace: count=7600 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+sched-sync-site: site=sched_synchronize count=6400
+backend-sync-trace: count=7700 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=6500
+backend-sync-trace: count=7800 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+sched-sync-site: site=compute_splits.user_input count=2500
+sched-sync-site: site=sched_synchronize count=6600
+backend-sync-trace: count=7900 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+backend-sync-trace: count=8000 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=6700
+sched-sync-site: site=compute_splits.user_input count=2600
+backend-sync-trace: count=8100 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+sched-sync-site: site=sched_synchronize count=6800
+backend-sync-trace: count=8200 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+sched-sync-site: site=sched_synchronize count=6900
+backend-sync-trace: count=8300 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=alloc_splits.realloc count=400
+sched-sync-site: site=compute_splits.input_reuse count=1000
+sched-sync-site: site=compute_splits.input_copy_src count=1000
+sched-sync-site: site=compute_splits.input_copy_dst count=1000
+sched-sync-site: site=compute_splits.user_input count=2700
+backend-sync-trace: count=8400 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=7000
+backend-sync-trace: count=8500 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=7100
+backend-sync-trace: count=8600 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=7200
+backend-sync-trace: count=8700 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=compute_splits.user_input count=2800
+sched-sync-site: site=sched_synchronize count=7300
+backend-sync-trace: count=8800 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+backend-sync-trace: count=8900 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=7400
+sched-sync-site: site=compute_splits.user_input count=2900
+backend-sync-trace: count=9000 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=7500
+backend-sync-trace: count=9100 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=7600
+backend-sync-trace: count=9200 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+sched-sync-site: site=compute_splits.input_reuse count=1100
+sched-sync-site: site=compute_splits.input_copy_src count=1100
+sched-sync-site: site=compute_splits.input_copy_dst count=1100
+sched-sync-site: site=compute_splits.user_input count=3000
+backend-sync-trace: count=9300 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+sched-sync-site: site=sched_synchronize count=7700
+backend-sync-trace: count=9400 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=7800
+backend-sync-trace: count=9500 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=7900
+1.09.857.130 I slot print_timing: id  0 | task 0 | n_gen =    270, tg =  44.43 t/s, tg_3s =  52.42 t/s
+sched-sync-site: site=compute_splits.user_input count=3100
+backend-sync-trace: count=9600 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+backend-sync-trace: count=9700 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=8000
+backend-sync-trace: count=9800 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+sched-sync-site: site=sched_synchronize count=8100
+sched-sync-site: site=compute_splits.user_input count=3200
+backend-sync-trace: count=9900 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=8200
+sched-sync-site: site=compute_splits.input_reuse count=1200
+sched-sync-site: site=compute_splits.input_copy_src count=1200
+sched-sync-site: site=compute_splits.input_copy_dst count=1200
+backend-sync-trace: count=10000 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+backend-sync-trace: count=10100 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=8300
+sched-sync-site: site=compute_splits.user_input count=3300
+backend-sync-trace: count=10200 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=8400
+backend-sync-trace: count=10300 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=8500
+sched-sync-site: site=alloc_splits.realloc count=500
+backend-sync-trace: count=10400 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=compute_splits.user_input count=3400
+sched-sync-site: site=sched_synchronize count=8600
+backend-sync-trace: count=10500 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+backend-sync-trace: count=10600 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=8700
+backend-sync-trace: count=10700 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=8800
+sched-sync-site: site=compute_splits.user_input count=3500
+sched-sync-site: site=compute_splits.input_reuse count=1300
+sched-sync-site: site=compute_splits.input_copy_src count=1300
+sched-sync-site: site=compute_splits.input_copy_dst count=1300
+backend-sync-trace: count=10800 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+sched-sync-site: site=sched_synchronize count=8900
+backend-sync-trace: count=10900 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=9000
+backend-sync-trace: count=11000 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=compute_splits.user_input count=3600
+sched-sync-site: site=sched_synchronize count=9100
+backend-sync-trace: count=11100 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+backend-sync-trace: count=11200 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=9200
+backend-sync-trace: count=11300 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=9300
+sched-sync-site: site=compute_splits.user_input count=3700
+backend-sync-trace: count=11400 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+sched-sync-site: site=sched_synchronize count=9400
+backend-sync-trace: count=11500 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=9500
+backend-sync-trace: count=11600 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=compute_splits.input_reuse count=1400
+sched-sync-site: site=compute_splits.input_copy_src count=1400
+sched-sync-site: site=compute_splits.input_copy_dst count=1400
+sched-sync-site: site=sched_synchronize count=9600
+sched-sync-site: site=compute_splits.user_input count=3800
+backend-sync-trace: count=11700 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+backend-sync-trace: count=11800 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=9700
+backend-sync-trace: count=11900 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=compute_splits.user_input count=3900
+sched-sync-site: site=sched_synchronize count=9800
+backend-sync-trace: count=12000 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+sched-sync-site: site=sched_synchronize count=9900
+backend-sync-trace: count=12100 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+backend-sync-trace: count=12200 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=10000
+sched-sync-site: site=compute_splits.user_input count=4000
+backend-sync-trace: count=12300 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=10100
+sched-sync-site: site=alloc_splits.realloc count=600
+backend-sync-trace: count=12400 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+sched-sync-site: site=compute_splits.input_reuse count=1500
+sched-sync-site: site=compute_splits.input_copy_src count=1500
+sched-sync-site: site=compute_splits.input_copy_dst count=1500
+sched-sync-site: site=sched_synchronize count=10200
+backend-sync-trace: count=12500 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=10300
+backend-sync-trace: count=12600 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+sched-sync-site: site=compute_splits.user_input count=4100
+backend-sync-trace: count=12700 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=sched_synchronize count=10400
+backend-sync-trace: count=12800 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=10500
+sched-sync-site: site=compute_splits.user_input count=4200
+backend-sync-trace: count=12900 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=10600
+backend-sync-trace: count=13000 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=10700
+backend-sync-trace: count=13100 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=compute_splits.user_input count=4300
+backend-sync-trace: count=13200 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=10800
+sched-sync-site: site=compute_splits.input_reuse count=1600
+sched-sync-site: site=compute_splits.input_copy_src count=1600
+sched-sync-site: site=compute_splits.input_copy_dst count=1600
+backend-sync-trace: count=13300 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=10900
+backend-sync-trace: count=13400 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=11000
+backend-sync-trace: count=13500 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=compute_splits.user_input count=4400
+sched-sync-site: site=sched_synchronize count=11100
+backend-sync-trace: count=13600 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=sched_synchronize count=11200
+backend-sync-trace: count=13700 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+backend-sync-trace: count=13800 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=11300
+sched-sync-site: site=compute_splits.user_input count=4500
+backend-sync-trace: count=13900 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=11400
+backend-sync-trace: count=14000 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=11500
+sched-sync-site: site=compute_splits.input_reuse count=1700
+sched-sync-site: site=compute_splits.input_copy_src count=1700
+sched-sync-site: site=compute_splits.input_copy_dst count=1700
+backend-sync-trace: count=14100 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=compute_splits.user_input count=4600
+sched-sync-site: site=sched_synchronize count=11600
+backend-sync-trace: count=14200 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+1.12.905.164 I slot print_timing: id  0 | task 0 | n_gen =    402, tg =  44.06 t/s, tg_3s =  43.31 t/s
+backend-sync-trace: count=14300 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=11700
+backend-sync-trace: count=14400 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=11800
+sched-sync-site: site=compute_splits.user_input count=4700
+sched-sync-site: site=alloc_splits.realloc count=700
+backend-sync-trace: count=14500 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+sched-sync-site: site=sched_synchronize count=11900
+backend-sync-trace: count=14600 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=12000
+backend-sync-trace: count=14700 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=compute_splits.user_input count=4800
+backend-sync-trace: count=14800 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=12100
+backend-sync-trace: count=14900 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=compute_splits.input_reuse count=1800
+sched-sync-site: site=compute_splits.input_copy_src count=1800
+sched-sync-site: site=compute_splits.input_copy_dst count=1800
+sched-sync-site: site=sched_synchronize count=12200
+backend-sync-trace: count=15000 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=compute_splits.user_input count=4900
+sched-sync-site: site=sched_synchronize count=12300
+backend-sync-trace: count=15100 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=12400
+backend-sync-trace: count=15200 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+backend-sync-trace: count=15300 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=compute_splits.user_input count=5000
+sched-sync-site: site=sched_synchronize count=12500
+backend-sync-trace: count=15400 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=12600
+backend-sync-trace: count=15500 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=12700
+backend-sync-trace: count=15600 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=compute_splits.user_input count=5100
+sched-sync-site: site=sched_synchronize count=12800
+backend-sync-trace: count=15700 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+sched-sync-site: site=compute_splits.input_reuse count=1900
+sched-sync-site: site=compute_splits.input_copy_src count=1900
+sched-sync-site: site=compute_splits.input_copy_dst count=1900
+backend-sync-trace: count=15800 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=12900
+backend-sync-trace: count=15900 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=compute_splits.user_input count=5200
+sched-sync-site: site=sched_synchronize count=13000
+backend-sync-trace: count=16000 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=13100
+backend-sync-trace: count=16100 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=13200
+backend-sync-trace: count=16200 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=compute_splits.user_input count=5300
+sched-sync-site: site=sched_synchronize count=13300
+backend-sync-trace: count=16300 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+backend-sync-trace: count=16400 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=13400
+backend-sync-trace: count=16500 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=alloc_splits.realloc count=800
+sched-sync-site: site=compute_splits.input_reuse count=2000
+sched-sync-site: site=compute_splits.input_copy_src count=2000
+sched-sync-site: site=compute_splits.input_copy_dst count=2000
+sched-sync-site: site=compute_splits.user_input count=5400
+sched-sync-site: site=sched_synchronize count=13500
+backend-sync-trace: count=16600 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=13600
+backend-sync-trace: count=16700 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+backend-sync-trace: count=16800 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=13700
+sched-sync-site: site=compute_splits.user_input count=5500
+backend-sync-trace: count=16900 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=13800
+backend-sync-trace: count=17000 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=13900
+backend-sync-trace: count=17100 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=compute_splits.user_input count=5600
+backend-sync-trace: count=17200 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=14000
+backend-sync-trace: count=17300 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=14100
+sched-sync-site: site=compute_splits.input_reuse count=2100
+sched-sync-site: site=compute_splits.input_copy_src count=2100
+sched-sync-site: site=compute_splits.input_copy_dst count=2100
+backend-sync-trace: count=17400 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=compute_splits.user_input count=5700
+sched-sync-site: site=sched_synchronize count=14200
+backend-sync-trace: count=17500 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+backend-sync-trace: count=17600 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=14300
+backend-sync-trace: count=17700 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=14400
+sched-sync-site: site=compute_splits.user_input count=5800
+backend-sync-trace: count=17800 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=sched_synchronize count=14500
+backend-sync-trace: count=17900 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=14600
+backend-sync-trace: count=18000 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=compute_splits.user_input count=5900
+backend-sync-trace: count=18100 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=14700
+sched-sync-site: site=compute_splits.input_reuse count=2200
+sched-sync-site: site=compute_splits.input_copy_src count=2200
+sched-sync-site: site=compute_splits.input_copy_dst count=2200
+backend-sync-trace: count=18200 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=sched_synchronize count=14800
+backend-sync-trace: count=18300 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+sched-sync-site: site=compute_splits.user_input count=6000
+sched-sync-site: site=sched_synchronize count=14900
+backend-sync-trace: count=18400 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=sched_synchronize count=15000
+backend-sync-trace: count=18500 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=alloc_splits.realloc count=900
+sched-sync-site: site=sched_synchronize count=15100
+backend-sync-trace: count=18600 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=compute_splits.user_input count=6100
+backend-sync-trace: count=18700 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=15200
+backend-sync-trace: count=18800 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+sched-sync-site: site=sched_synchronize count=15300
+backend-sync-trace: count=18900 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=compute_splits.user_input count=6200
+sched-sync-site: site=sched_synchronize count=15400
+sched-sync-site: site=compute_splits.input_reuse count=2300
+sched-sync-site: site=compute_splits.input_copy_src count=2300
+sched-sync-site: site=compute_splits.input_copy_dst count=2300
+backend-sync-trace: count=19000 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=15500
+backend-sync-trace: count=19100 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+backend-sync-trace: count=19200 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=compute_splits.user_input count=6300
+sched-sync-site: site=sched_synchronize count=15600
+backend-sync-trace: count=19300 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=15700
+backend-sync-trace: count=19400 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=15800
+backend-sync-trace: count=19500 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=compute_splits.user_input count=6400
+backend-sync-trace: count=19600 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=sched_synchronize count=15900
+backend-sync-trace: count=19700 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=sched_synchronize count=16000
+sched-sync-site: site=compute_splits.input_reuse count=2400
+sched-sync-site: site=compute_splits.input_copy_src count=2400
+sched-sync-site: site=compute_splits.input_copy_dst count=2400
+backend-sync-trace: count=19800 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=compute_splits.user_input count=6500
+sched-sync-site: site=sched_synchronize count=16100
+backend-sync-trace: count=19900 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+1.15.937.076 I slot print_timing: id  0 | task 0 | n_gen =    552, tg =  45.41 t/s, tg_3s =  49.47 t/s
+backend-sync-trace: count=20000 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=sched_synchronize count=16200
+backend-sync-trace: count=20100 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=compute_splits.user_input count=6600
+sched-sync-site: site=sched_synchronize count=16300
+backend-sync-trace: count=20200 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=16400
+backend-sync-trace: count=20300 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+backend-sync-trace: count=20400 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=compute_splits.user_input count=6700
+sched-sync-site: site=sched_synchronize count=16500
+backend-sync-trace: count=20500 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=alloc_splits.realloc count=1000
+sched-sync-site: site=sched_synchronize count=16600
+sched-sync-site: site=compute_splits.input_reuse count=2500
+sched-sync-site: site=compute_splits.input_copy_src count=2500
+sched-sync-site: site=compute_splits.input_copy_dst count=2500
+backend-sync-trace: count=20600 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=sched_synchronize count=16700
+backend-sync-trace: count=20700 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=compute_splits.user_input count=6800
+backend-sync-trace: count=20800 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=16800
+backend-sync-trace: count=20900 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=16900
+sched-sync-site: site=compute_splits.user_input count=6900
+backend-sync-trace: count=21000 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=17000
+backend-sync-trace: count=21100 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+backend-sync-trace: count=21200 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=17100
+sched-sync-site: site=compute_splits.user_input count=7000
+backend-sync-trace: count=21300 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=17200
+sched-sync-site: site=compute_splits.input_reuse count=2600
+sched-sync-site: site=compute_splits.input_copy_src count=2600
+sched-sync-site: site=compute_splits.input_copy_dst count=2600
+backend-sync-trace: count=21400 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=sched_synchronize count=17300
+backend-sync-trace: count=21500 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+sched-sync-site: site=sched_synchronize count=17400
+backend-sync-trace: count=21600 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=compute_splits.user_input count=7100
+sched-sync-site: site=sched_synchronize count=17500
+backend-sync-trace: count=21700 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+backend-sync-trace: count=21800 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=17600
+backend-sync-trace: count=21900 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=compute_splits.user_input count=7200
+sched-sync-site: site=sched_synchronize count=17700
+backend-sync-trace: count=22000 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=17800
+backend-sync-trace: count=22100 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=sched_synchronize count=17900
+sched-sync-site: site=compute_splits.input_reuse count=2700
+sched-sync-site: site=compute_splits.input_copy_src count=2700
+sched-sync-site: site=compute_splits.input_copy_dst count=2700
+sched-sync-site: site=compute_splits.user_input count=7300
+backend-sync-trace: count=22200 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+backend-sync-trace: count=22300 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=18000
+backend-sync-trace: count=22400 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=18100
+backend-sync-trace: count=22500 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=compute_splits.user_input count=7400
+sched-sync-site: site=alloc_splits.realloc count=1100
+sched-sync-site: site=sched_synchronize count=18200
+backend-sync-trace: count=22600 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=18300
+backend-sync-trace: count=22700 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+backend-sync-trace: count=22800 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=18400
+sched-sync-site: site=compute_splits.user_input count=7500
+backend-sync-trace: count=22900 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=18500
+sched-sync-site: site=compute_splits.input_reuse count=2800
+sched-sync-site: site=compute_splits.input_copy_src count=2800
+sched-sync-site: site=compute_splits.input_copy_dst count=2800
+backend-sync-trace: count=23000 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=sched_synchronize count=18600
+backend-sync-trace: count=23100 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=compute_splits.user_input count=7600
+sched-sync-site: site=sched_synchronize count=18700
+backend-sync-trace: count=23200 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=18800
+backend-sync-trace: count=23300 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+backend-sync-trace: count=23400 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=compute_splits.user_input count=7700
+sched-sync-site: site=sched_synchronize count=18900
+backend-sync-trace: count=23500 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=19000
+backend-sync-trace: count=23600 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=19100
+backend-sync-trace: count=23700 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=compute_splits.user_input count=7800
+backend-sync-trace: count=23800 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=19200
+sched-sync-site: site=compute_splits.input_reuse count=2900
+sched-sync-site: site=compute_splits.input_copy_src count=2900
+sched-sync-site: site=compute_splits.input_copy_dst count=2900
+backend-sync-trace: count=23900 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=19300
+backend-sync-trace: count=24000 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=compute_splits.user_input count=7900
+sched-sync-site: site=sched_synchronize count=19400
+backend-sync-trace: count=24100 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=19500
+backend-sync-trace: count=24200 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+backend-sync-trace: count=24300 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=compute_splits.user_input count=8000
+sched-sync-site: site=sched_synchronize count=19600
+backend-sync-trace: count=24400 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=sched_synchronize count=19700
+backend-sync-trace: count=24500 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=19800
+sched-sync-site: site=alloc_splits.realloc count=1200
+backend-sync-trace: count=24600 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=compute_splits.input_reuse count=3000
+sched-sync-site: site=compute_splits.input_copy_src count=3000
+sched-sync-site: site=compute_splits.input_copy_dst count=3000
+sched-sync-site: site=compute_splits.user_input count=8100
+sched-sync-site: site=sched_synchronize count=19900
+backend-sync-trace: count=24700 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+backend-sync-trace: count=24800 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=sched_synchronize count=20000
+backend-sync-trace: count=24900 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=compute_splits.user_input count=8200
+sched-sync-site: site=sched_synchronize count=20100
+backend-sync-trace: count=25000 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+1.18.955.482 I slot print_timing: id  0 | task 0 | n_gen =    688, tg =  45.34 t/s, tg_3s =  45.06 t/s
+sched-sync-site: site=sched_synchronize count=20200
+backend-sync-trace: count=25100 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+backend-sync-trace: count=25200 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=compute_splits.user_input count=8300
+sched-sync-site: site=sched_synchronize count=20300
+backend-sync-trace: count=25300 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=20400
+backend-sync-trace: count=25400 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=20500
+sched-sync-site: site=compute_splits.input_reuse count=3100
+sched-sync-site: site=compute_splits.input_copy_src count=3100
+sched-sync-site: site=compute_splits.input_copy_dst count=3100
+backend-sync-trace: count=25500 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=compute_splits.user_input count=8400
+sched-sync-site: site=sched_synchronize count=20600
+backend-sync-trace: count=25600 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+backend-sync-trace: count=25700 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=sched_synchronize count=20700
+backend-sync-trace: count=25800 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=20800
+sched-sync-site: site=compute_splits.user_input count=8500
+backend-sync-trace: count=25900 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=20900
+backend-sync-trace: count=26000 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=21000
+backend-sync-trace: count=26100 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=compute_splits.user_input count=8600
+backend-sync-trace: count=26200 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=21100
+sched-sync-site: site=compute_splits.input_reuse count=3200
+sched-sync-site: site=compute_splits.input_copy_src count=3200
+sched-sync-site: site=compute_splits.input_copy_dst count=3200
+backend-sync-trace: count=26300 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=21200
+backend-sync-trace: count=26400 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=21300
+sched-sync-site: site=compute_splits.user_input count=8700
+backend-sync-trace: count=26500 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=21400
+backend-sync-trace: count=26600 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=alloc_splits.realloc count=1300
+sched-sync-site: site=sched_synchronize count=21500
+backend-sync-trace: count=26700 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=21600
+sched-sync-site: site=compute_splits.user_input count=8800
+backend-sync-trace: count=26800 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=21700
+backend-sync-trace: count=26900 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+backend-sync-trace: count=27000 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=21800
+sched-sync-site: site=compute_splits.user_input count=8900
+backend-sync-trace: count=27100 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=compute_splits.input_reuse count=3300
+sched-sync-site: site=compute_splits.input_copy_src count=3300
+sched-sync-site: site=compute_splits.input_copy_dst count=3300
+sched-sync-site: site=sched_synchronize count=21900
+backend-sync-trace: count=27200 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=22000
+backend-sync-trace: count=27300 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=compute_splits.user_input count=9000
+sched-sync-site: site=sched_synchronize count=22100
+backend-sync-trace: count=27400 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+backend-sync-trace: count=27500 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=sched_synchronize count=22200
+backend-sync-trace: count=27600 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=22300
+sched-sync-site: site=compute_splits.user_input count=9100
+backend-sync-trace: count=27700 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=22400
+backend-sync-trace: count=27800 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=sched_synchronize count=22500
+backend-sync-trace: count=27900 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=compute_splits.input_reuse count=3400
+sched-sync-site: site=compute_splits.input_copy_src count=3400
+sched-sync-site: site=compute_splits.input_copy_dst count=3400
+sched-sync-site: site=compute_splits.user_input count=9200
+backend-sync-trace: count=28000 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=22600
+backend-sync-trace: count=28100 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=22700
+backend-sync-trace: count=28200 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=22800
+sched-sync-site: site=compute_splits.user_input count=9300
+backend-sync-trace: count=28300 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=22900
+backend-sync-trace: count=28400 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=23000
+backend-sync-trace: count=28500 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+backend-sync-trace: count=28600 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=compute_splits.user_input count=9400
+sched-sync-site: site=sched_synchronize count=23100
+backend-sync-trace: count=28700 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=sched_synchronize count=23200
+sched-sync-site: site=alloc_splits.realloc count=1400
+sched-sync-site: site=compute_splits.input_reuse count=3500
+sched-sync-site: site=compute_splits.input_copy_src count=3500
+sched-sync-site: site=compute_splits.input_copy_dst count=3500
+backend-sync-trace: count=28800 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=23300
+backend-sync-trace: count=28900 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=compute_splits.user_input count=9500
+sched-sync-site: site=sched_synchronize count=23400
+backend-sync-trace: count=29000 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=23500
+backend-sync-trace: count=29100 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+backend-sync-trace: count=29200 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=23600
+sched-sync-site: site=compute_splits.user_input count=9600
+backend-sync-trace: count=29300 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=23700
+backend-sync-trace: count=29400 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=23800
+backend-sync-trace: count=29500 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=compute_splits.user_input count=9700
+sched-sync-site: site=sched_synchronize count=23900
+sched-sync-site: site=compute_splits.input_reuse count=3600
+sched-sync-site: site=compute_splits.input_copy_src count=3600
+sched-sync-site: site=compute_splits.input_copy_dst count=3600
+backend-sync-trace: count=29600 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+backend-sync-trace: count=29700 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=24000
+backend-sync-trace: count=29800 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=compute_splits.user_input count=9800
+sched-sync-site: site=sched_synchronize count=24100
+backend-sync-trace: count=29900 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=24200
+backend-sync-trace: count=30000 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=sched_synchronize count=24300
+backend-sync-trace: count=30100 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=compute_splits.user_input count=9900
+backend-sync-trace: count=30200 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=24400
+backend-sync-trace: count=30300 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=24500
+1.21.977.722 I slot print_timing: id  0 | task 0 | n_gen =    849, tg =  46.66 t/s, tg_3s =  53.27 t/s
+backend-sync-trace: count=30400 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+sched-sync-site: site=compute_splits.input_reuse count=3700
+sched-sync-site: site=compute_splits.input_copy_src count=3700
+sched-sync-site: site=compute_splits.input_copy_dst count=3700
+sched-sync-site: site=compute_splits.user_input count=10000
+sched-sync-site: site=sched_synchronize count=24600
+backend-sync-trace: count=30500 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=sched_synchronize count=24700
+backend-sync-trace: count=30600 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=24800
+backend-sync-trace: count=30700 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=compute_splits.user_input count=10100
+sched-sync-site: site=alloc_splits.realloc count=1500
+backend-sync-trace: count=30800 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=24900
+backend-sync-trace: count=30900 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=25000
+backend-sync-trace: count=31000 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=25100
+sched-sync-site: site=compute_splits.user_input count=10200
+backend-sync-trace: count=31100 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=25200
+backend-sync-trace: count=31200 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=compute_splits.input_reuse count=3800
+sched-sync-site: site=compute_splits.input_copy_src count=3800
+sched-sync-site: site=compute_splits.input_copy_dst count=3800
+sched-sync-site: site=sched_synchronize count=25300
+backend-sync-trace: count=31300 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+sched-sync-site: site=compute_splits.user_input count=10300
+backend-sync-trace: count=31400 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=sched_synchronize count=25400
+backend-sync-trace: count=31500 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+sched-sync-site: site=sched_synchronize count=25500
+backend-sync-trace: count=31600 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=25600
+sched-sync-site: site=compute_splits.user_input count=10400
+backend-sync-trace: count=31700 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=25700
+backend-sync-trace: count=31800 backend=CUDA0 caller=0x78c6e2f5228a
+sched-sync-site: site=sched_synchronize count=25800
+backend-sync-trace: count=31900 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+backend-sync-trace: count=32000 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=25900
+sched-sync-site: site=compute_splits.user_input count=10500
+sched-sync-site: site=compute_splits.input_reuse count=3900
+sched-sync-site: site=compute_splits.input_copy_src count=3900
+sched-sync-site: site=compute_splits.input_copy_dst count=3900
+backend-sync-trace: count=32100 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=26000
+backend-sync-trace: count=32200 backend=CUDA0 caller=0x78c6e2f5228a
+sched-sync-site: site=sched_synchronize count=26100
+backend-sync-trace: count=32300 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=compute_splits.user_input count=10600
+sched-sync-site: site=sched_synchronize count=26200
+backend-sync-trace: count=32400 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+backend-sync-trace: count=32500 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=26300
+sched-sync-site: site=compute_splits.user_input count=10700
+backend-sync-trace: count=32600 backend=CUDA0 caller=0x78c6e2f5228a
+sched-sync-site: site=sched_synchronize count=26400
+backend-sync-trace: count=32700 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=26500
+backend-sync-trace: count=32800 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+sched-sync-site: site=sched_synchronize count=26600
+sched-sync-site: site=alloc_splits.realloc count=1600
+backend-sync-trace: count=32900 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=compute_splits.input_reuse count=4000
+sched-sync-site: site=compute_splits.input_copy_src count=4000
+sched-sync-site: site=compute_splits.input_copy_dst count=4000
+sched-sync-site: site=compute_splits.user_input count=10800
+backend-sync-trace: count=33000 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=26700
+backend-sync-trace: count=33100 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+sched-sync-site: site=sched_synchronize count=26800
+backend-sync-trace: count=33200 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+sched-sync-site: site=compute_splits.user_input count=10900
+sched-sync-site: site=sched_synchronize count=26900
+backend-sync-trace: count=33300 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=sched_synchronize count=27000
+backend-sync-trace: count=33400 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+backend-sync-trace: count=33500 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+sched-sync-site: site=compute_splits.user_input count=11000
+sched-sync-site: site=sched_synchronize count=27100
+backend-sync-trace: count=33600 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=27200
+backend-sync-trace: count=33700 backend=CUDA0 caller=0x78c6e2f5228a
+sched-sync-site: site=compute_splits.input_reuse count=4100
+sched-sync-site: site=compute_splits.input_copy_src count=4100
+sched-sync-site: site=compute_splits.input_copy_dst count=4100
+sched-sync-site: site=sched_synchronize count=27300
+backend-sync-trace: count=33800 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=compute_splits.user_input count=11100
+sched-sync-site: site=sched_synchronize count=27400
+backend-sync-trace: count=33900 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+backend-sync-trace: count=34000 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=27500
+backend-sync-trace: count=34100 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=compute_splits.user_input count=11200
+sched-sync-site: site=sched_synchronize count=27600
+backend-sync-trace: count=34200 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=27700
+backend-sync-trace: count=34300 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=compute_splits.user_input count=11300
+backend-sync-trace: count=34400 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=27800
+backend-sync-trace: count=34500 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=compute_splits.input_reuse count=4200
+sched-sync-site: site=compute_splits.input_copy_src count=4200
+sched-sync-site: site=compute_splits.input_copy_dst count=4200
+sched-sync-site: site=sched_synchronize count=27900
+backend-sync-trace: count=34600 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+sched-sync-site: site=sched_synchronize count=28000
+sched-sync-site: site=compute_splits.user_input count=11400
+backend-sync-trace: count=34700 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+backend-sync-trace: count=34800 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=28100
+sched-sync-site: site=alloc_splits.realloc count=1700
+backend-sync-trace: count=34900 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xc98
+sched-sync-site: site=sched_synchronize count=28200
+sched-sync-site: site=compute_splits.user_input count=11500
+backend-sync-trace: count=35000 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=28300
+backend-sync-trace: count=35100 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+sched-sync-site: site=sched_synchronize count=28400
+backend-sync-trace: count=35200 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+backend-sync-trace: count=35300 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=compute_splits.user_input count=11600
+sched-sync-site: site=sched_synchronize count=28500
+sched-sync-site: site=compute_splits.input_reuse count=4300
+sched-sync-site: site=compute_splits.input_copy_src count=4300
+sched-sync-site: site=compute_splits.input_copy_dst count=4300
+backend-sync-trace: count=35400 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+sched-sync-site: site=sched_synchronize count=28600
+backend-sync-trace: count=35500 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+1.25.013.928 I slot print_timing: id  0 | task 0 | n_gen =    990, tg =  46.63 t/s, tg_3s =  46.44 t/s
+sched-sync-site: site=compute_splits.user_input count=11700
+sched-sync-site: site=sched_synchronize count=28700
+backend-sync-trace: count=35600 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+backend-sync-trace: count=35700 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=28800
+backend-sync-trace: count=35800 backend=CUDA0 caller=0x78c6e2f5228a
+sched-sync-site: site=sched_synchronize count=28900
+sched-sync-site: site=compute_splits.user_input count=11800
+backend-sync-trace: count=35900 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=29000
+backend-sync-trace: count=36000 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcd5
+backend-sync-trace: count=36100 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=compute_splits.input_reuse count=4400
+sched-sync-site: site=compute_splits.input_copy_src count=4400
+sched-sync-site: site=compute_splits.input_copy_dst count=4400
+sched-sync-site: site=sched_synchronize count=29100
+sched-sync-site: site=compute_splits.user_input count=11900
+backend-sync-trace: count=36200 backend=CUDA0 caller=0x78c6e2f5228a
+sched-sync-site: site=sched_synchronize count=29200
+backend-sync-trace: count=36300 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=29300
+backend-sync-trace: count=36400 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=compute_splits.user_input count=12000
+sched-sync-site: site=sched_synchronize count=29400
+backend-sync-trace: count=36500 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+sched-sync-site: site=sched_synchronize count=29500
+backend-sync-trace: count=36600 backend=CUDA0 caller=ggml_backend_sched_synchronize+0x3a
+backend-sync-trace: count=36700 backend=CUDA0 caller=ggml_backend_sched_graph_compute_async_ext+0xcb8
+sched-sync-site: site=sched_synchronize count=29600
+sched-sync-site: site=compute_splits.user_input count=12100
+1.25.823.426 I slot print_timing: id  0 | task 0 | prompt eval time =    2662.84 ms /   159 tokens (   16.75 ms per token,    59.71 tokens per second)
+1.25.823.429 I slot print_timing: id  0 | task 0 |        eval time =   22020.79 ms /  1024 tokens (   21.53 ms per token,    46.46 tokens per second)
+1.25.823.429 I slot print_timing: id  0 | task 0 |       total time =   24683.64 ms /  1183 tokens
+1.25.823.433 I slot print_timing: id  0 | task 0 |    graphs reused =        440
+1.25.823.435 I slot print_timing: id  0 | task 0 | draft acceptance = 0.64831 (  577 accepted /   890 generated), mean len =  2.30
+moe-grouped-decode: registered=49 covered=49 plan_calls=1337 plan_compiles=453 plan_reuses=884 calls=22299 ready=22299 ready_min=446 ready_max=891 completed=22299 completed_min=446 completed_max=891 admitted_banks=66897 fallback=0 rollback=0 host_calls=0 host_ops=0 host_split_ops=0 strategy_switches=0 required_unsupported=0 prepare_error=0 finish_error=0 h2d_banks=172314 h2d_bytes=133564211200
+moe-cache-experts: tensors=144 experts=73728 unique=29313 unique_pct=39.76 accesses=96832 first_touches=29313 first_touch_pct=30.27 touched_once=3968 touched_ge2=25345 reuse_le_l1=61964 reuse_le_l1_pct=91.77 reuse_gt_l1=5555 reuse_gt_l1_pct=8.23 top1_pct=6.80 top5_pct=26.06 top10_pct=43.56
+moe-cache-experts-hot: tensor=blk.3.ffn_down_exps.weight experts=512 unique=195 unique_pct=38.09 accesses=876 touched_once=0 touched_ge2=195 top10_pct=40.75 reuse_gt_l1_pct=2.94
+moe-cache-tensor-hot-decode-miss: tensor=blk.47.ffn_down_exps.weight l1_hits=20 l1_misses=10 l1_evictions=0 l1_hit_rate=66.67% h2d_copies=10 h2d_mib=16.60 h2d_enqueue_ms=0.016 prefetch_used=10 prefetch_h2d_copies=10 prefetch_h2d_mib=16.60 reuse_gt_l1_pct=0.00
+moe-cache-tensor-top-decode-miss: rank=1 tensor=blk.47.ffn_down_exps.weight phase=decode l1_hits=20 l1_misses=10 l1_hit_rate=66.67% l1_evictions=0 h2d_copies=10 h2d_mib=16.60 reuse_gt_l1_pct=0.00 reuse_le_l1_pct=100.00 unique_experts=10 unique_pct=1.95 touched_once=0 touched_ge2=10 top1_pct=60.00 top5_pct=100.00 top10_pct=100.00 demand_h2d_copies=0 prefetch_h2d_copies=10 prefetch_used=10 prefetch_unused=0 prefetch_use_rate=100.00% demand_evictions=0 prefetch_evictions=0 evicted_prefetched=0 evicted_hit_count_le1=0 evicted_hit_count_ge2=0 evicted_age_le_l1=0 evicted_age_gt_l1=0 rd_first_touch=10 rd_le8=0 rd_le16=20 rd_le32=0 rd_le_l1=0 rd_le_2xl1=0 rd_gt_2xl1=0
+moe-cache-tensor-top-decode-miss: rank=2 tensor=blk.47.ffn_up_exps.weight phase=decode l1_hits=20 l1_misses=10 l1_hit_rate=66.67% l1_evictions=0 h2d_copies=10 h2d_mib=5.98 reuse_gt_l1_pct=0.00 reuse_le_l1_pct=100.00 unique_experts=10 unique_pct=1.95 touched_once=0 touched_ge2=10 top1_pct=60.00 top5_pct=100.00 top10_pct=100.00 demand_h2d_copies=0 prefetch_h2d_copies=10 prefetch_used=10 prefetch_unused=0 prefetch_use_rate=100.00% demand_evictions=0 prefetch_evictions=0 evicted_prefetched=0 evicted_hit_count_le1=0 evicted_hit_count_ge2=0 evicted_age_le_l1=0 evicted_age_gt_l1=0 rd_first_touch=10 rd_le8=0 rd_le16=20 rd_le32=0 rd_le_l1=0 rd_le_2xl1=0 rd_gt_2xl1=0
+moe-cache-tensor-top-decode-miss: rank=3 tensor=blk.47.ffn_gate_exps.weight phase=decode l1_hits=20 l1_misses=10 l1_hit_rate=66.67% l1_evictions=0 h2d_copies=10 h2d_mib=5.98 reuse_gt_l1_pct=0.00 reuse_le_l1_pct=100.00 unique_experts=10 unique_pct=1.95 touched_once=0 touched_ge2=10 top1_pct=60.00 top5_pct=100.00 top10_pct=100.00 demand_h2d_copies=10 prefetch_h2d_copies=0 prefetch_used=0 prefetch_unused=0 prefetch_use_rate=0.00% demand_evictions=0 prefetch_evictions=0 evicted_prefetched=0 evicted_hit_count_le1=0 evicted_hit_count_ge2=0 evicted_age_le_l1=0 evicted_age_gt_l1=0 rd_first_touch=10 rd_le8=0 rd_le16=20 rd_le32=0 rd_le_l1=0 rd_le_2xl1=0 rd_gt_2xl1=0
+moe-cache-tensor-donor-candidate: rank=1 tensor=blk.47.ffn_up_exps.weight l1_hit_rate=66.67% h2d_mib=5.98 l1_misses=10 reuse_gt_l1_pct=0.00 unique_pct=1.95 top10_pct=100.00
+moe-cache-tensor-donor-candidate: rank=2 tensor=blk.47.ffn_gate_exps.weight l1_hit_rate=66.67% h2d_mib=5.98 l1_misses=10 reuse_gt_l1_pct=0.00 unique_pct=1.95 top10_pct=100.00
+moe-cache-tensor-donor-candidate: rank=3 tensor=blk.47.ffn_down_exps.weight l1_hit_rate=66.67% h2d_mib=16.60 l1_misses=10 reuse_gt_l1_pct=0.00 unique_pct=1.95 top10_pct=100.00
+moe-cache-phase: phase=prefill ops=573 staged_ops=156 split_staged_ops=156 overflow_ops=156 unique_avg=87.58 unique_max=276 ids_mib=44.17 ids_d2h_mib=44.17 ids_d2h_ms=908.102 ids_d2h_syncs=139 ids_cache_hits=382 acquire_ms=81.800 remap_ms=0.717 copy_wait_events=417 copy_wait_event_ms=0.636 op_cpu_ms=1231.614 l1_hits=65983 l1_misses=30759 l1_evictions=8901 l1_hit_rate=68.21% h2d_copies=30759 h2d_mib=22274.44 h2d_enqueue_ms=43.426 prefetch_hits=51134 prefetch_misses=21378 prefetch_used=11591 prefetch_h2d_copies=21378 prefetch_h2d_mib=16615.00 prefetch_h2d_enqueue_ms=31.073 upload_calls=36777 upload_mib=26630.52 staging_tiles=0 pipeline_tiles=0 tile_wait_calls=0 tile_wait_ms=0.000 cpu_pack_mib=0.00 cpu_pack_ms=0.000 pre_sync_calls=0 pre_sync_ms=0.000 h2d_submit_calls=36777 h2d_submit_mib=26630.52 h2d_submit_ms=43.456 post_sync_calls=0 post_sync_ms=0.000 upload_errors=0
+moe-cache-phase: phase=decode ops=3 staged_ops=0 split_staged_ops=0 overflow_ops=0 unique_avg=10.00 unique_max=10 ids_mib=0.00 ids_d2h_mib=0.00 ids_d2h_ms=0.000 ids_d2h_syncs=0 ids_cache_hits=2 acquire_ms=0.781 remap_ms=0.008 copy_wait_events=3 copy_wait_event_ms=0.004 op_cpu_ms=5.310 l1_hits=60 l1_misses=30 l1_evictions=0 l1_hit_rate=66.67% h2d_copies=30 h2d_mib=28.56 h2d_enqueue_ms=0.048 prefetch_hits=40 prefetch_misses=20 prefetch_used=20 prefetch_h2d_copies=20 prefetch_h2d_mib=22.58 prefetch_h2d_enqueue_ms=0.034 upload_calls=30 upload_mib=28.56 staging_tiles=0 pipeline_tiles=0 tile_wait_calls=0 tile_wait_ms=0.000 cpu_pack_mib=0.00 cpu_pack_ms=0.000 pre_sync_calls=0 pre_sync_ms=0.000 h2d_submit_calls=30 h2d_submit_mib=28.56 h2d_submit_ms=0.044 post_sync_calls=0 post_sync_ms=0.000 upload_errors=0
+moe-cache-mm: h2d_copies=30789 h2d_mib=22303.00 h2d_enqueue_ms=43.474 mincore_sampled=481 resident_pages=89650/89650 resident_pct=100.00 nonresident_experts=0 mincore_fail=0 proc_minflt=0 proc_majflt=0 vm_pswpin=0 vm_pswpout=0 vm_pgfault=0 vm_pgmajfault=0 vm_pgpgin=0 vm_pgpgout=0 vm_refault_file=0 vm_refault_anon=0
+1.25.828.436 I slot      release: id  0 | task 0 | stop processing: n_tokens = 1182, truncated = 0
+1.26.834.643 I srv    operator(): operator(): cleaning up before exit...
+1.26.835.678 I spec ~common_spec: MTP decode overlap: queued = 444, reused = 444, discarded = 0
+moe-grouped-decode: registered=49 covered=0 plan_calls=0 plan_compiles=0 plan_reuses=0 calls=0 ready=0 ready_min=0 ready_max=0 completed=0 completed_min=0 completed_max=0 admitted_banks=0 fallback=0 rollback=0 host_calls=0 host_ops=0 host_split_ops=0 strategy_switches=0 required_unsupported=0 prepare_error=0 finish_error=0 h2d_banks=0 h2d_bytes=0
+moe-cache-experts: tensors=144 experts=73728 unique=0 unique_pct=0.00 accesses=0 first_touches=0 first_touch_pct=0.00 touched_once=0 touched_ge2=0 reuse_le_l1=0 reuse_le_l1_pct=0.00 reuse_gt_l1=0 reuse_gt_l1_pct=0.00 top1_pct=0.00 top5_pct=0.00 top10_pct=0.00
+moe-cache-experts-hot: tensor=? experts=0 unique=0 unique_pct=0.00 accesses=0 touched_once=0 touched_ge2=0 top10_pct=0.00 reuse_gt_l1_pct=0.00
+moe-cache-tensor-hot-decode-miss: tensor=? l1_hits=0 l1_misses=0 l1_evictions=0 l1_hit_rate=0.00% h2d_copies=0 h2d_mib=0.00 h2d_enqueue_ms=0.000 prefetch_used=0 prefetch_h2d_copies=0 prefetch_h2d_mib=0.00 reuse_gt_l1_pct=0.00
+moe-cache-phase: phase=prefill ops=0 staged_ops=0 split_staged_ops=0 overflow_ops=0 unique_avg=0.00 unique_max=0 ids_mib=0.00 ids_d2h_mib=0.00 ids_d2h_ms=0.000 ids_d2h_syncs=0 ids_cache_hits=0 acquire_ms=0.000 remap_ms=0.000 copy_wait_events=0 copy_wait_event_ms=0.000 op_cpu_ms=0.000 l1_hits=0 l1_misses=0 l1_evictions=0 l1_hit_rate=0.00% h2d_copies=0 h2d_mib=0.00 h2d_enqueue_ms=0.000 prefetch_hits=0 prefetch_misses=0 prefetch_used=0 prefetch_h2d_copies=0 prefetch_h2d_mib=0.00 prefetch_h2d_enqueue_ms=0.000 upload_calls=0 upload_mib=0.00 staging_tiles=0 pipeline_tiles=0 tile_wait_calls=0 tile_wait_ms=0.000 cpu_pack_mib=0.00 cpu_pack_ms=0.000 pre_sync_calls=0 pre_sync_ms=0.000 h2d_submit_calls=0 h2d_submit_mib=0.00 h2d_submit_ms=0.000 post_sync_calls=0 post_sync_ms=0.000 upload_errors=0
+moe-cache-phase: phase=decode ops=0 staged_ops=0 split_staged_ops=0 overflow_ops=0 unique_avg=0.00 unique_max=0 ids_mib=0.00 ids_d2h_mib=0.00 ids_d2h_ms=0.000 ids_d2h_syncs=0 ids_cache_hits=0 acquire_ms=0.000 remap_ms=0.000 copy_wait_events=0 copy_wait_event_ms=0.000 op_cpu_ms=0.000 l1_hits=0 l1_misses=0 l1_evictions=0 l1_hit_rate=0.00% h2d_copies=0 h2d_mib=0.00 h2d_enqueue_ms=0.000 prefetch_hits=0 prefetch_misses=0 prefetch_used=0 prefetch_h2d_copies=0 prefetch_h2d_mib=0.00 prefetch_h2d_enqueue_ms=0.000 upload_calls=0 upload_mib=0.00 staging_tiles=0 pipeline_tiles=0 tile_wait_calls=0 tile_wait_ms=0.000 cpu_pack_mib=0.00 cpu_pack_ms=0.000 pre_sync_calls=0 pre_sync_ms=0.000 h2d_submit_calls=0 h2d_submit_mib=0.00 h2d_submit_ms=0.000 post_sync_calls=0 post_sync_ms=0.000 upload_errors=0
+moe-cache-mm: h2d_copies=0 h2d_mib=0.00 h2d_enqueue_ms=0.000 mincore_sampled=0 resident_pages=0/0 resident_pct=0.00 nonresident_experts=0 mincore_fail=0 proc_minflt=12 proc_majflt=0 vm_pswpin=0 vm_pswpout=0 vm_pgfault=16966 vm_pgmajfault=0 vm_pgpgin=0 vm_pgpgout=0 vm_refault_file=0 vm_refault_anon=0
+moe-grouped-decode: registered=48 covered=0 plan_calls=0 plan_compiles=0 plan_reuses=0 calls=0 ready=0 ready_min=0 ready_max=0 completed=0 completed_min=0 completed_max=0 admitted_banks=0 fallback=0 rollback=0 host_calls=0 host_ops=0 host_split_ops=0 strategy_switches=0 required_unsupported=0 prepare_error=0 finish_error=0 h2d_banks=0 h2d_bytes=0
+moe-cache-experts: tensors=144 experts=73728 unique=0 unique_pct=0.00 accesses=0 first_touches=0 first_touch_pct=0.00 touched_once=0 touched_ge2=0 reuse_le_l1=0 reuse_le_l1_pct=0.00 reuse_gt_l1=0 reuse_gt_l1_pct=0.00 top1_pct=0.00 top5_pct=0.00 top10_pct=0.00
+moe-cache-experts-hot: tensor=? experts=0 unique=0 unique_pct=0.00 accesses=0 touched_once=0 touched_ge2=0 top10_pct=0.00 reuse_gt_l1_pct=0.00
+moe-cache-tensor-hot-decode-miss: tensor=? l1_hits=0 l1_misses=0 l1_evictions=0 l1_hit_rate=0.00% h2d_copies=0 h2d_mib=0.00 h2d_enqueue_ms=0.000 prefetch_used=0 prefetch_h2d_copies=0 prefetch_h2d_mib=0.00 reuse_gt_l1_pct=0.00
+moe-cache-phase: phase=prefill ops=0 staged_ops=0 split_staged_ops=0 overflow_ops=0 unique_avg=0.00 unique_max=0 ids_mib=0.00 ids_d2h_mib=0.00 ids_d2h_ms=0.000 ids_d2h_syncs=0 ids_cache_hits=0 acquire_ms=0.000 remap_ms=0.000 copy_wait_events=0 copy_wait_event_ms=0.000 op_cpu_ms=0.000 l1_hits=0 l1_misses=0 l1_evictions=0 l1_hit_rate=0.00% h2d_copies=0 h2d_mib=0.00 h2d_enqueue_ms=0.000 prefetch_hits=0 prefetch_misses=0 prefetch_used=0 prefetch_h2d_copies=0 prefetch_h2d_mib=0.00 prefetch_h2d_enqueue_ms=0.000 upload_calls=0 upload_mib=0.00 staging_tiles=0 pipeline_tiles=0 tile_wait_calls=0 tile_wait_ms=0.000 cpu_pack_mib=0.00 cpu_pack_ms=0.000 pre_sync_calls=0 pre_sync_ms=0.000 h2d_submit_calls=0 h2d_submit_mib=0.00 h2d_submit_ms=0.000 post_sync_calls=0 post_sync_ms=0.000 upload_errors=0
+moe-cache-phase: phase=decode ops=0 staged_ops=0 split_staged_ops=0 overflow_ops=0 unique_avg=0.00 unique_max=0 ids_mib=0.00 ids_d2h_mib=0.00 ids_d2h_ms=0.000 ids_d2h_syncs=0 ids_cache_hits=0 acquire_ms=0.000 remap_ms=0.000 copy_wait_events=0 copy_wait_event_ms=0.000 op_cpu_ms=0.000 l1_hits=0 l1_misses=0 l1_evictions=0 l1_hit_rate=0.00% h2d_copies=0 h2d_mib=0.00 h2d_enqueue_ms=0.000 prefetch_hits=0 prefetch_misses=0 prefetch_used=0 prefetch_h2d_copies=0 prefetch_h2d_mib=0.00 prefetch_h2d_enqueue_ms=0.000 upload_calls=0 upload_mib=0.00 staging_tiles=0 pipeline_tiles=0 tile_wait_calls=0 tile_wait_ms=0.000 cpu_pack_mib=0.00 cpu_pack_ms=0.000 pre_sync_calls=0 pre_sync_ms=0.000 h2d_submit_calls=0 h2d_submit_mib=0.00 h2d_submit_ms=0.000 post_sync_calls=0 post_sync_ms=0.000 upload_errors=0
+moe-cache-mm: h2d_copies=0 h2d_mib=0.00 h2d_enqueue_ms=0.000 mincore_sampled=0 resident_pages=0/0 resident_pct=0.00 nonresident_experts=0 mincore_fail=0 proc_minflt=0 proc_majflt=0 vm_pswpin=0 vm_pswpout=0 vm_pgfault=657 vm_pgmajfault=0 vm_pgpgin=0 vm_pgpgout=0 vm_refault_file=0 vm_refault_anon=0
