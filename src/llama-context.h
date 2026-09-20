@@ -12,6 +12,7 @@
 #include "ggml-opt.h"
 #include "../ggml/src/ggml-backend-moe.h"
 
+#include <array>
 #include <map>
 #include <memory>
 #include <vector>
@@ -34,6 +35,7 @@ struct llama_speculative_grouped_intent_test_access {
     static bool matches_ubatch(
         llama_context_type context_type, const llama_ubatch & ubatch, uint32_t row_semantics);
     static bool backend_supported(ggml_backend_t backend);
+    static bool                               graph_supported(ggml_backend_sched_t sched, ggml_cgraph * gf);
     static uint32_t flags(uint32_t cache_slots, bool backend_supported);
     static llama_speculative_execution_policy policy(
         const llama_batch & batch, uint32_t cache_slots, bool backend_supported);
@@ -334,12 +336,16 @@ public:
 
 private:
     void place_sampled_inputs(llm_graph_result * res);
+    void            refresh_moe_layer_owners();
+    void            place_moe_regions(llm_graph_result * res);
+    bool            moe_graph_supports_required_grouped(ggml_cgraph * gf) const;
     void finish_compute(int64_t n_tokens, int64_t elapsed_us);
     void set_sampled_inputs(llm_graph_result * res, const llama_ubatch & ubatch);
     void reset_sched_workspace();
     llama_context * shared_workspace_peer() const;
     void acquire_shared_workspace();
     void refresh_moe_candidates();
+    llm_graph_result * get_gf_res_prev();
 
     llm_graph_params graph_params(
                         llm_graph_result * res,
@@ -485,6 +491,7 @@ private:
     std::vector<std::pair<ggml_backend_t, ggml_backend_set_n_threads_t>> set_n_threads_fns;
     std::vector<std::pair<ggml_backend_t, ggml_backend_moe_candidate_replace_v2_t>> moe_candidate_replace_fns;
     bool moe_required_grouped_execution_supported = false;
+    std::vector<ggml_backend_t> moe_layer_owners;
     uint64_t graph_execution_owner_namespace = 0;
     uint64_t graph_execution_owner_generation = 1;
     bool moe_candidate_refresh_pending = true;
@@ -494,8 +501,11 @@ private:
     std::vector<ggml_backend_buffer_type_t> backend_buft;
     std::vector<size_t>                     backend_buf_exp_size; // expected buffer sizes
 
-    llm_graph_result_ptr gf_res_prev;
+    // Separate arenas give batches with and without outputs distinct CUDA graph cache keys.
+    std::array<llm_graph_result_ptr, 2> gf_res_prev;
     llm_graph_result_ptr gf_res_reserve;
+
+    llm_graph_result * gf_res_prev_active = nullptr;
 
     // host buffer for the model output (logits and embeddings)
     ggml_backend_buffer_ptr buf_output;

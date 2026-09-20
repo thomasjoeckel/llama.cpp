@@ -1696,7 +1696,7 @@ static bool ggml_backend_sched_alloc_splits(ggml_backend_sched_t sched, bool reu
         }
 
         if (!ggml_gallocr_reserve_n(sched->galloc, &sched->graph, sched->node_backend_ids, sched->leaf_backend_ids)) {
-            GGML_LOG_ERROR("%s: failed to allocate graph\n", __func__);
+            GGML_LOG_ERROR("%s: failed to reserve graph buffers\n", __func__);
             return false;
         }
         if (!ggml_gallocr_alloc_graph(sched->galloc, &sched->graph)) {
@@ -2176,8 +2176,6 @@ void ggml_backend_sched_reserve_size(ggml_backend_sched_t sched, struct ggml_cgr
     GGML_ASSERT(sched);
     GGML_ASSERT((int)sched->hash_set.size >= measure_graph->n_nodes + measure_graph->n_leafs);
     GGML_ASSERT(sizes);
-
-    ggml_backend_sched_reset(sched);
 
     ggml_backend_sched_synchronize(sched);
 

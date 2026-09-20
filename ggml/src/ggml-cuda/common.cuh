@@ -329,6 +329,12 @@ static bool fp16_mma_hardware_available(const int cc) {
         (GGML_CUDA_CC_IS_MTHREADS(cc) && cc >= GGML_CUDA_CC_QY2);
 }
 
+// To be used for feature selection of external libraries, e.g. cuBLAS.
+static bool fast_bf16_hardware_available(const int cc) {
+        return (GGML_CUDA_CC_IS_AMD(cc) && (cc >= GGML_CUDA_CC_RDNA3 || GGML_CUDA_CC_IS_CDNA(cc)))
+            || (GGML_CUDA_CC_IS_NVIDIA(cc) && cc >= GGML_CUDA_CC_AMPERE);
+}
+
 static bool bf16_mma_hardware_available(const int cc) {
     return (GGML_CUDA_CC_IS_NVIDIA(cc) && cc >= GGML_CUDA_CC_AMPERE) ||
         GGML_CUDA_CC_IS_CDNA(cc) || cc >= GGML_CUDA_CC_RDNA3 ||
@@ -1272,6 +1278,7 @@ struct ggml_cuda_graph {
     uint64_t moe_coverage_epoch = 0;
     uint64_t moe_coverage_mmid_fingerprint = 0;
     uint64_t moe_resource_fingerprint = 0;
+    uint64_t moe_registry_generation = 0;
     std::vector<std::weak_ptr<void>> moe_resource_witnesses;
     int32_t moe_coverage_n_nodes = 0;
     uint32_t moe_coverage_mmid_count = 0;

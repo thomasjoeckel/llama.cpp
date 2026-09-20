@@ -49,9 +49,21 @@ bool grouped_frequency_enabled();
 
 void test_speculative_grouped_intent_splits();
 
+int  test_grouped_multigpu();
+void test_grouped_layer_placement();
+
 void test_speculative_required_grouped_backend_capability(int device);
 
 struct ggml_cuda_moe_grouped_context_test_access {
+    static bool set_original_auxiliary_budget(ggml_cuda_moe_grouped_context & context, size_t bytes) {
+        return context.set_original_auxiliary_budget_for_test(bytes);
+    }
+    static size_t original_auxiliary_bytes(const ggml_cuda_moe_grouped_context & context) {
+        return context.original_auxiliary_bytes_for_test();
+    }
+    static void fail_device_resource_allocation(ggml_cuda_moe_grouped_context & context, uint32_t stage) {
+        context.fail_device_resource_allocation_for_test(stage);
+    }
     static bool early_graph(ggml_cuda_moe_grouped_context & context) {
         return context.early_graph_for_test();
     }
@@ -486,6 +498,11 @@ void test_grouped_graph_mixed_phase();
 
 std::vector<uint8_t> cached_fusion_test_data(const ggml_tensor * tensor, size_t salt);
 
+ggml_backend_buffer_type_t pageable_cached_buffer_type();
+void test_active_grouped_materialization();
+void test_pageable_separate_draft_lifecycle();
+void test_pageable_auxiliaries();
+
 #ifdef __linux__
 ggml_backend_buffer_type_t file_mmap_cached_buffer_type();
 #endif
@@ -627,7 +644,7 @@ void check_active_grouped_contract(
         bool auxiliary_first = false,
         bool expect_compact_mmvq = false);
 
-void test_grouped_graph_replay_lifecycle(int device, size_t host_budget = 0, size_t expected_host_nodes = 0, uint32_t n_dim = 256);
+void test_grouped_graph_replay_lifecycle(int device, size_t host_budget = 0, size_t expected_host_nodes = 0, uint32_t n_dim = 256, bool pageable = false);
 
 std::vector<float> run_active_grouped_dispatch(
         ggml_backend_t backend,
@@ -678,6 +695,7 @@ void test_active_grouped_nvfp4_scales();
 void test_prefill_resident_biases();
 
 void test_active_grouped_dispatch();
+void test_moe_tensor_split_rejection();
 
 void test_cached_mmid_fusion_decline();
 
