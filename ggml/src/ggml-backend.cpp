@@ -1691,7 +1691,8 @@ static bool ggml_backend_sched_alloc_splits(ggml_backend_sched_t sched, bool reu
         // the re-allocation may cause the split inputs to be moved to a different address
         // synchronize without ggml_backend_sched_synchronize to avoid changing cur_copy
         for (int i = 0; i < sched->n_backends; i++) {
-            ggml_backend_sched_trace_sync_site("alloc_splits.realloc");\n            ggml_backend_synchronize(sched->backends[i]);
+            ggml_backend_sched_trace_sync_site("alloc_splits.realloc");
+            ggml_backend_synchronize(sched->backends[i]);
         }
 
         if (!ggml_gallocr_reserve_n(sched->galloc, &sched->graph, sched->node_backend_ids, sched->leaf_backend_ids)) {
