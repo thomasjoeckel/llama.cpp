@@ -251,24 +251,24 @@ sleep 1
 
 # Stop the server before parsing the log so the file is closed and no more
 # diagnostic output can race with the parser.
-if [[ -n "\${SERVER_PID}" ]] && kill -0 "\${SERVER_PID}" 2>/dev/null && [[ "\${KEEP_SERVER}" != "1" ]]; then
+if [[ -n "${SERVER_PID}" ]] && kill -0 "${SERVER_PID}" 2>/dev/null && [[ "${KEEP_SERVER}" != "1" ]]; then
     echo "Stopping llama-server..."
-    kill "\${SERVER_PID}" 2>/dev/null || true
+    kill "${SERVER_PID}" 2>/dev/null || true
     for _ in {1..40}; do
-        if ! kill -0 "\${SERVER_PID}" 2>/dev/null; then
+        if ! kill -0 "${SERVER_PID}" 2>/dev/null; then
             break
         fi
         sleep 0.25
     done
-    if kill -0 "\${SERVER_PID}" 2>/dev/null; then
+    if kill -0 "${SERVER_PID}" 2>/dev/null; then
         echo "llama-server did not exit cleanly; sending SIGKILL." >&2
-        kill -9 "\${SERVER_PID}" 2>/dev/null || true
+        kill -9 "${SERVER_PID}" 2>/dev/null || true
     fi
-    wait "\${SERVER_PID}" 2>/dev/null || true
+    wait "${SERVER_PID}" 2>/dev/null || true
     SERVER_PID=""
 fi
 
-python3 - "\${SERVER_LOG}" "\${TMP_DIR}/server_timing.json" <<'PY'
+python3 - "${SERVER_LOG}" "${TMP_DIR}/server_timing.json" <<'PY'
 import json
 import re
 import sys
