@@ -449,21 +449,21 @@ void ggml_backend_synchronize(ggml_backend_t backend) {
                 const uintptr_t offset =
                     (uintptr_t) caller - (uintptr_t) info.dli_saddr;
                 fprintf(stderr,
-                        "backend-sync-trace: count=%llu backend=%s caller=%s+0x%llx\\n",
+                        "backend-sync-trace: count=%llu backend=%s caller=%s+0x%llx\n",
                         (unsigned long long) count,
                         ggml_backend_name(backend),
                         info.dli_sname,
                         (unsigned long long) offset);
             } else {
                 fprintf(stderr,
-                        "backend-sync-trace: count=%llu backend=%s caller=%p\\n",
+                        "backend-sync-trace: count=%llu backend=%s caller=%p\n",
                         (unsigned long long) count,
                         ggml_backend_name(backend),
                         caller);
             }
 #else
             fprintf(stderr,
-                    "backend-sync-trace: count=%llu backend=%s\\n",
+                    "backend-sync-trace: count=%llu backend=%s\n",
                     (unsigned long long) count,
                     ggml_backend_name(backend));
 #endif
@@ -1790,6 +1790,7 @@ static enum ggml_status ggml_backend_sched_compute_splits(
     const auto fail = [&](enum ggml_status status) {
         if (required_grouped) {
             for (int i = 0; i < sched->n_backends; ++i) {
+                ggml_backend_sched_trace_sync_site("compute_splits.fail");
                 ggml_backend_synchronize(sched->backends[i]);
             }
         }
@@ -1849,6 +1850,7 @@ static enum ggml_status ggml_backend_sched_compute_splits(
                 if (sched->events[split_backend_id][sched->cur_copy] != NULL) {
                     ggml_backend_event_synchronize(sched->events[split_backend_id][sched->cur_copy]);
                 } else {
+                    ggml_backend_sched_trace_sync_site("compute_splits.user_input");
                     ggml_backend_synchronize(split_backend);
                 }
                 ggml_backend_tensor_copy(input, input_cpy);
@@ -1857,6 +1859,7 @@ static enum ggml_status ggml_backend_sched_compute_splits(
                 if (sched->events[split_backend_id][sched->cur_copy] != NULL) {
                     ggml_backend_event_wait(split_backend, sched->events[split_backend_id][sched->cur_copy]);
                 } else {
+                    ggml_backend_sched_trace_sync_site("compute_splits.input_reuse");
                     ggml_backend_synchronize(split_backend);
                 }
 
