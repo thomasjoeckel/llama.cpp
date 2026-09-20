@@ -210,7 +210,9 @@ echo "Starting llama-server..."
 echo "Run directory: ${RUN_DIR}"
 echo "Server log:    ${SERVER_LOG}"
 
-"${SERVER_BIN}" "${SERVER_ARGS[@]}" >"${SERVER_LOG}" 2>&1 &
+"${SERVER_BIN}" "${SERVER_ARGS[@]}" \
+    > >(tee "${SERVER_LOG}") \
+    2>&1 &
 SERVER_PID=$!
 
 HEALTH_URL="http://${HOST}:${PORT}/health"
