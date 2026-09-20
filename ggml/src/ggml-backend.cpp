@@ -24,7 +24,9 @@
 #endif
 #include <algorithm>
 #include <atomic>
+#include <mutex>
 #include <unordered_map>
+#include <string>
 #include <vector>
 
 #ifdef __APPLE__
@@ -799,6 +801,22 @@ static bool ggml_is_view_op(enum ggml_op op) {
 }
 
 // scheduler
+
+// Optional scheduler sync-site tracing for performance investigations.
+static void ggml_backend_sched_trace_sync_site(const char * site) {
+    static const bool trace = getenv("GGML_TRACE_SCHED_SYNC_SITES") != nullptr;
+    if (!trace) {
+        return;
+    }
+    static std::mutex mutex;
+    static std::unordered_map<std::string, uint64_t> counts;
+    std::lock_guard<std::mutex> lock(mutex);
+    const uint64_t count = ++counts[site];
+    if (count == 1 || count % 100 == 0) {
+        fprintf(stderr, "sched-sync-site: site=%s count=%llu\n", site, (unsigned long long) count);
+    }
+}
+
 
 #ifndef GGML_SCHED_MAX_BACKENDS
 #define GGML_SCHED_MAX_BACKENDS 16
@@ -1815,7 +1833,8 @@ static enum ggml_status ggml_backend_sched_compute_splits(
             if (sched->events[prev_backend_id][sched->cur_copy] != NULL) {
                 ggml_backend_event_synchronize(sched->events[prev_backend_id][sched->cur_copy]);
             } else {
-                ggml_backend_sched_trace_sync_site("compute_splits.prev_split");\n                ggml_backend_synchronize(sched->backends[prev_backend_id]);
+                ggml_backend_sched_trace_sync_site("compute_splits.prev_split");\n                ggml_backend_sched_trace_sync_site("compute_splits.prev_split");
+                ggml_backend_synchronize(sched->backends[prev_backend_id]);
             }
         }
 
@@ -1853,6 +1872,7 @@ static enum ggml_status ggml_backend_sched_compute_splits(
                     const int64_t n_expert   = node->op == GGML_OP_MUL_MAT_ID ? input->ne[2] : input->ne[1];
                     const size_t expert_size = node->op == GGML_OP_MUL_MAT_ID ? input->nb[2] : input->nb[1];
 
+                    ggml_backend_sched_trace_sync_site("compute_splits.moe_input");
                     ggml_backend_synchronize(input_backend);
 
                     // get the ids
@@ -1876,6 +1896,7 @@ static enum ggml_status ggml_backend_sched_compute_splits(
                     if (ids_tensor != prev_ids_tensor) {
                         ids.resize(ggml_nbytes(ids_tensor) / sizeof(int32_t));
                         ggml_backend_tensor_get_async(ids_backend, ids_tensor, ids.data(), 0, ggml_nbytes(ids_tensor));
+                        ggml_backend_sched_trace_sync_site("compute_splits.moe_ids");
                         ggml_backend_synchronize(ids_backend);
 
                         // find the used experts
@@ -1940,15 +1961,18 @@ static enum ggml_status ggml_backend_sched_compute_splits(
                     // try async copy, but if not possible, we can still use a sync copy without synchronizing the dst backend, since we handle the synchronization here with multiple copies and events
                     // TODO: add public function to facilitate this, since applications do not have direct access to the backend interface
                     if (ranged || !split_backend->iface.cpy_tensor_async || !split_backend->iface.cpy_tensor_async(input_backend, split_backend, input, input_cpy)) {
+                        ggml_backend_sched_trace_sync_site("compute_splits.input_copy_src");
                         ggml_backend_synchronize(input_backend);
                         if (sched->events[split_backend_id][sched->cur_copy] != NULL) {
                             ggml_backend_event_synchronize(sched->events[split_backend_id][sched->cur_copy]);
                         } else {
+                            ggml_backend_sched_trace_sync_site("compute_splits.input_copy_dst");
                             ggml_backend_synchronize(split_backend);
                         }
                         if (ranged) {
                             // blocking like the copy it replaces: the split backend is idle here, so the ranges go on its own stream and the host waits for them
                             ggml_backend_tensor_set_2d_async(split_backend, input_cpy, input->data, 0, rg.used, rg.n, rg.stride, rg.stride);
+                            ggml_backend_sched_trace_sync_site("compute_splits.ranged_dst");
                             ggml_backend_synchronize(split_backend);
                         } else {
                             ggml_backend_tensor_copy(input, input_cpy);
