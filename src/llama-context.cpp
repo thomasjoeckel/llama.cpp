@@ -1370,10 +1370,12 @@ void llama_context::prepare_sched_reserve(const sched_reserve_plan & plan) {
     if (generation != sched_buffer_generation) {
         synchronize();
         ggml_backend_sched_reset(sched.get());
-        if (gf_res_prev) {
-            for (auto & res : gf_res_prev) { if (res) res->reset(); }
-        gf_res_prev_active = nullptr;
+        for (auto & res : gf_res_prev) {
+            if (res) {
+                res->reset();
+            }
         }
+        gf_res_prev_active = nullptr;
         sched_buffer_generation = generation;
         sched_need_reserve = true;
     }
