@@ -2352,6 +2352,20 @@ ggml_backend_cuda_context::~ggml_backend_cuda_context() {
     cuda_graphs.clear();
     delete moe_grouped_context;
 
+    if (moe_ids_copy_stream != nullptr) {
+        CUDA_CHECK(cudaStreamSynchronize(moe_ids_copy_stream));
+        CUDA_CHECK(cudaStreamDestroy(moe_ids_copy_stream));
+        moe_ids_copy_stream = nullptr;
+    }
+    if (moe_ids_ready_event != nullptr) {
+        CUDA_CHECK(cudaEventDestroy(moe_ids_ready_event));
+        moe_ids_ready_event = nullptr;
+    }
+    if (moe_ids_done_event != nullptr) {
+        CUDA_CHECK(cudaEventDestroy(moe_ids_done_event));
+        moe_ids_done_event = nullptr;
+    }
+
     if (copy_event != nullptr) {
         CUDA_CHECK(cudaEventDestroy(copy_event));
     }
@@ -2645,15 +2659,33 @@ static ggml_cuda_moe_ids_host ggml_cuda_moe_read_ids(
             }
         }
         if (!ready) {
+            // The routing IDs are produced on the compute stream, but the host needs
+            // them immediately. Use a dedicated copy stream so waiting for the D2H
+            // transfer does not synchronize unrelated work queued after the routing op.
+            if (ctx.moe_ids_copy_stream == nullptr) {
+                ggml_cuda_set_device(ctx.device);
+                CUDA_CHECK(cudaStreamCreateWithFlags(&ctx.moe_ids_copy_stream, cudaStreamNonBlocking));
+            }
+            if (ctx.moe_ids_ready_event == nullptr) {
+                ggml_cuda_set_device(ctx.device);
+                CUDA_CHECK(cudaEventCreateWithFlags(&ctx.moe_ids_ready_event, cudaEventDisableTiming));
+            }
+            if (ctx.moe_ids_done_event == nullptr) {
+                ggml_cuda_set_device(ctx.device);
+                CUDA_CHECK(cudaEventCreateWithFlags(&ctx.moe_ids_done_event, cudaEventDisableTiming));
+            }
+            CUDA_CHECK(cudaEventRecord(ctx.moe_ids_ready_event, ctx.stream()));
+            CUDA_CHECK(cudaStreamWaitEvent(ctx.moe_ids_copy_stream, ctx.moe_ids_ready_event, 0));
             if (compact_ids) {
                 const size_t rows = (size_t) ids->ne[1] * ids->ne[2];
                 CUDA_CHECK(cudaMemcpy2DAsync(
                     target->data(), row_bytes, ids->data, ids->nb[1],
-                    row_bytes, rows, cudaMemcpyDeviceToHost, ctx.stream()));
+                    row_bytes, rows, cudaMemcpyDeviceToHost, ctx.moe_ids_copy_stream));
             } else {
-                CUDA_CHECK(cudaMemcpyAsync(target->data(), ids->data, ggml_nbytes(ids), cudaMemcpyDeviceToHost, ctx.stream()));
+                CUDA_CHECK(cudaMemcpyAsync(target->data(), ids->data, ggml_nbytes(ids), cudaMemcpyDeviceToHost, ctx.moe_ids_copy_stream));
             }
-            CUDA_CHECK(cudaStreamSynchronize(ctx.stream()));
+            CUDA_CHECK(cudaEventRecord(ctx.moe_ids_done_event, ctx.moe_ids_copy_stream));
+            CUDA_CHECK(cudaEventSynchronize(ctx.moe_ids_done_event));
             result.d2h_sync_count = 1;
         }
         if (can_use_published) {
