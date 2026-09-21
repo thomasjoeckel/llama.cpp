@@ -68,8 +68,6 @@ struct llama_moe_candidate_snapshot {
     const ggml_backend_moe_candidate_snapshot_v2 & get() const;
 
 private:
-    llm_graph_result * get_gf_res_prev();
-
     std::vector<ggml_backend_moe_candidate_group_v2> groups;
     std::vector<ggml_backend_moe_candidate_tensor_v2> tensors;
     ggml_backend_moe_candidate_snapshot_v2 snapshot = {};
@@ -343,6 +341,7 @@ private:
     llama_context * shared_workspace_peer() const;
     void acquire_shared_workspace();
     void refresh_moe_candidates();
+    llm_graph_result * get_gf_res_prev();
 
     llm_graph_params graph_params(
                         llm_graph_result * res,
