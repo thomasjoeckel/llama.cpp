@@ -1471,6 +1471,9 @@ struct ggml_backend_cuda_context {
     ggml_cuda_moe_grouped_context * moe_grouped_context = nullptr;
     std::vector<std::unique_ptr<ggml_backend_cuda_context>> moe_router_contexts;
     std::unique_ptr<ggml_cuda_moe_ids_cache_state> moe_ids_cache;
+    cudaStream_t moe_ids_copy_stream = nullptr;
+    cudaEvent_t moe_ids_ready_event = nullptr;
+    cudaEvent_t moe_ids_done_event = nullptr;
 
     cudaStream_t streams[GGML_CUDA_MAX_DEVICES][GGML_CUDA_MAX_STREAMS] = { { nullptr } };
     cublasHandle_t cublas_handles[GGML_CUDA_MAX_DEVICES][GGML_CUDA_MAX_STREAMS] = {nullptr};
