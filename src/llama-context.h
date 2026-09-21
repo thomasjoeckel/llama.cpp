@@ -12,6 +12,7 @@
 #include "ggml-opt.h"
 #include "../ggml/src/ggml-backend-moe.h"
 
+#include <array>
 #include <map>
 #include <memory>
 #include <vector>
@@ -67,6 +68,8 @@ struct llama_moe_candidate_snapshot {
     const ggml_backend_moe_candidate_snapshot_v2 & get() const;
 
 private:
+    llm_graph_result * get_gf_res_prev();
+
     std::vector<ggml_backend_moe_candidate_group_v2> groups;
     std::vector<ggml_backend_moe_candidate_tensor_v2> tensors;
     ggml_backend_moe_candidate_snapshot_v2 snapshot = {};
@@ -494,8 +497,11 @@ private:
     std::vector<ggml_backend_buffer_type_t> backend_buft;
     std::vector<size_t>                     backend_buf_exp_size; // expected buffer sizes
 
-    llm_graph_result_ptr gf_res_prev;
+    // Separate arenas give batches with and without outputs distinct CUDA graph cache keys.
+    std::array<llm_graph_result_ptr, 2> gf_res_prev;
     llm_graph_result_ptr gf_res_reserve;
+
+    llm_graph_result * gf_res_prev_active = nullptr;
 
     // host buffer for the model output (logits and embeddings)
     ggml_backend_buffer_ptr buf_output;
