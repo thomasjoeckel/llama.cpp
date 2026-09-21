@@ -1439,20 +1439,21 @@ void llama_context::sched_reserve(uint32_t n_tokens_req, uint32_t n_kv_req) {
     LLAMA_LOG_DEBUG("%s: max_nodes = %zu\n", __func__, max_nodes);
 
     if (sched_resizable) {
-        if (!gf_res_prev) {
-            for (auto & res : gf_res_prev) { res.reset(new llm_graph_result(max_nodes)); }
-        gf_res_prev_active = nullptr;
-        } else {
-            for (auto & res : gf_res_prev) { if (res) res->reset(); }
-        gf_res_prev_active = nullptr;
+        for (auto & res : gf_res_prev) {
+            if (res) {
+                res->reset();
+            }
         }
+        gf_res_prev_active = nullptr;
         if (!gf_res_reserve) {
             gf_res_reserve.reset(new llm_graph_result(max_nodes));
         } else {
             gf_res_reserve->reset();
         }
     } else {
-        for (auto & res : gf_res_prev) { res.reset(new llm_graph_result(max_nodes)); }
+        for (auto & res : gf_res_prev) {
+            res.reset(new llm_graph_result(max_nodes));
+        }
         gf_res_prev_active = nullptr;
         gf_res_reserve.reset(new llm_graph_result(max_nodes));
     }
