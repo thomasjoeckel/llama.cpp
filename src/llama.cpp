@@ -367,12 +367,8 @@ static std::pair<int, llama_model *> llama_model_load(struct gguf_context * meta
                 }
                 buft = moe_buffer_type.type;
             }
-            // Pattern matches the same expert tensors that --cpu-moe / --n-cpu-moe target.
-            // Kept inline (not pulled from common.h) so libllama keeps no common/ dep.
-            static const char * MOE_EXPS_PATTERN =
-                "\\.ffn_(up|down|gate|gate_up)_(ch|)exps";
-            effective_overrides.push_back({MOE_EXPS_PATTERN, buft});
-
+            // User-provided tensor overrides take precedence over the automatic
+            // MoE cache override. The loader uses the first matching regex.
             bool had_user_overrides = false;
             if (params.tensor_buft_overrides) {
                 for (const auto * o = params.tensor_buft_overrides; o->pattern != nullptr; ++o) {
@@ -380,6 +376,12 @@ static std::pair<int, llama_model *> llama_model_load(struct gguf_context * meta
                     had_user_overrides = true;
                 }
             }
+
+            // Pattern matches the same expert tensors that --cpu-moe / --n-cpu-moe target.
+            // Kept inline (not pulled from common.h) so libllama keeps no common/ dep.
+            static const char * MOE_EXPS_PATTERN =
+                "\\.ffn_(up|down|gate|gate_up)_(ch|)exps";
+            effective_overrides.push_back({MOE_EXPS_PATTERN, buft});
             if (had_user_overrides) {
                 LLAMA_LOG_WARN("--moe-expert-cache-size is set; expert tensors route through "
                                "the GPU LRU cache regardless of --cpu-moe / --n-cpu-moe.\n");
