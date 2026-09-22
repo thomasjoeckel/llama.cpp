@@ -4167,10 +4167,11 @@ private:
                     execution_intent_ptr = &execution_intent;
                 }
                 ret = consume_decode_overlap ? 0 : llama_decode_ext(ctx_tgt, batch_view, execution_intent_ptr);
-                const bool defer_output = params_base.decode_overlap && !spec && !mctx && !sparse_snapshots;
-                if (ret == 0 && (has_output || sparse_snapshots) && !defer_output) {
-                    llama_synchronize(ctx_tgt);
-                }
+                // Do not eagerly synchronize here. Output accessors such as
+                // llama_get_sampled_token_ith() and llama_get_logits_ith() synchronize
+                // the context when their results are actually consumed. Keeping the
+                // wait deferred lets CPU-side post-decode work overlap with GPU work
+                // instead of paying an unconditional scheduler synchronization here.
             } catch (...) {
                 if (snapshot_mode_enabled) {
                     snapshot_mode_restored = llama_recurrent_set_sparse_snapshot_mode(ctx_tgt, false, -1);
