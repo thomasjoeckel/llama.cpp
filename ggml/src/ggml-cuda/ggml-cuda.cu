@@ -2831,6 +2831,16 @@ static void ggml_cuda_mul_mat_id_staged(ggml_backend_cuda_context & ctx, ggml_te
         }
     }
 
+    // Prefill sees many experts per operation. Keep decode's routing order unchanged,
+    // but sort the prefill expert set by physical expert id so contiguous experts can
+    // be coalesced by the host staging path into larger H2D transfers.
+    if (!single_row) {
+        std::sort(unique_experts.begin(), unique_experts.end());
+        for (int32_t pos = 0; pos < (int32_t) unique_experts.size(); ++pos) {
+            expert_to_pos[unique_experts[pos]] = pos;
+        }
+    }
+
     const int n_unique = (int)unique_experts.size();
     GGML_ASSERT(n_unique > 0);
     const bool compact_mmvq = !single_row && ggml_cuda_moe_use_compact_mmvq(dst, n_unique);
