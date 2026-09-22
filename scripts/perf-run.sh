@@ -47,7 +47,6 @@ export CUDA_VISIBLE_DEVICES
 export GGML_CUDA_MOE_EARLY_ROUTER
 export GGML_CUDA_MOE_EARLY_ROUTER_LOOKAHEAD
 
-
 # ============================================================
 # REQUEST VARIABLES
 # ============================================================
@@ -65,7 +64,6 @@ MAX_TOKENS="${MAX_TOKENS:-1024}"
 
 USER_PROMPT="${USER_PROMPT:-Act as the release operator. First reason through the deployment hazards, dependencies, and rollback criteria. Then explicitly finish reasoning and produce a final executable rollout plan dominated by shell commands and configuration snippets. Deploy the payments API to the blue canary pool, hold traffic at ten percent, verify latency and error budgets, and publish a signed go-or-rollback decision. Keep the reasoning brief enough to leave most of the response budget for the final plan.
 Include concrete scripts with error handling, configuration examples, and verification commands rather than only prose.}"
-
 
 # ============================================================
 # RUN STATE
@@ -125,8 +123,18 @@ command -v git >/dev/null || die "git is required"
 
 mkdir -p "${RUN_DIR}"
 
+# Large prompts are accepted through stdin so they never become a shell
+# environment variable or exec argument. If stdin is a terminal, use the
+# legacy USER_PROMPT/default path.
+PROMPT_FILE="${TMP_DIR}/user_prompt.txt"
+if [[ ! -t 0 ]]; then
+    cat > "${PROMPT_FILE}"
+else
+    printf '%s' "${USER_PROMPT}" > "${PROMPT_FILE}"
+fi
+
 REQUEST_JSON="$(jq -n \
-    --arg content "${USER_PROMPT}" \
+    --rawfile content "${PROMPT_FILE}" \
     --argjson temperature "${TEMPERATURE}" \
     --argjson top_p "${TOP_P}" \
     --argjson min_p "${MIN_P}" \
@@ -241,7 +249,6 @@ echo "Server log:    ${SERVER_LOG}"
 LOG_FIFO="${TMP_DIR}/server.log.pipe"
 mkfifo "${LOG_FIFO}"
 
-# Keep tee as an explicit child process so log capture has a PID we can wait for.
 tee "${SERVER_LOG}" < "${LOG_FIFO}" &
 TEE_PID=$!
 
@@ -271,7 +278,7 @@ REQUEST_START_NS="$(date +%s%N)"
 HTTP_CODE="$(
     curl -sS -o "${TMP_DIR}/response.json" -w '%{http_code}' \
         -H 'Content-Type: application/json' \
-        --data "${REQUEST_JSON}" \
+        --data-binary "${REQUEST_JSON}" \
         "http://${HOST}:${PORT}/v1/chat/completions"
 )"
 REQUEST_END_NS="$(date +%s%N)"
@@ -284,8 +291,6 @@ fi
 
 sleep 1
 
-# Stop the server before parsing the log so the file is closed and no more
-# diagnostic output can race with the parser.
 if [[ -n "${SERVER_PID}" ]] && kill -0 "${SERVER_PID}" 2>/dev/null && [[ "${KEEP_SERVER}" != "1" ]]; then
     echo "Stopping llama-server..."
     kill "${SERVER_PID}" 2>/dev/null || true
@@ -302,7 +307,6 @@ if [[ -n "${SERVER_PID}" ]] && kill -0 "${SERVER_PID}" 2>/dev/null && [[ "${KEEP
     wait "${SERVER_PID}" 2>/dev/null || true
     SERVER_PID=""
 
-    # The server closed the FIFO writer, so tee receives EOF and exits cleanly.
     if [[ -n "${TEE_PID}" ]]; then
         wait "${TEE_PID}" 2>/dev/null || true
         echo "Log capture stopped."
