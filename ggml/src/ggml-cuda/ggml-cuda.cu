@@ -2909,13 +2909,24 @@ static void ggml_cuda_mul_mat_id_staged(ggml_backend_cuda_context & ctx, ggml_te
 
     if (!cache_staged && !split_staged) {
         char * dst_base = (char *)scratch_experts.get();
-        for (int i = 0; i < n_unique; ++i) {
-            const int32_t eid = unique_experts[i];
+
+        // unique_experts is sorted during prefill, so adjacent physical expert
+        // slabs are contiguous in the host weights. Merge each contiguous run
+        // into one H2D transfer instead of issuing one cudaMemcpyAsync per expert.
+        for (int i = 0; i < n_unique;) {
+            const int32_t first_eid = unique_experts[i];
+            int run = 1;
+            while (i + run < n_unique &&
+                   unique_experts[i + run] == first_eid + run) {
+                ++run;
+            }
+
             CUDA_CHECK(cudaMemcpyAsync(
                 dst_base + (size_t)i * expert_stride,
-                src_base + (size_t)eid * expert_stride,
-                expert_stride,
+                src_base + (size_t)first_eid * expert_stride,
+                (size_t)run * expert_stride,
                 cudaMemcpyHostToDevice, stream));
+            i += run;
         }
     }
     if (!split_staged && source_padding > 0) {
