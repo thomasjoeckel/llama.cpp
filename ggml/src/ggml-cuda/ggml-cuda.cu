@@ -103,6 +103,7 @@
 static_assert(sizeof(half) == sizeof(ggml_fp16_t), "wrong fp16 size");
 
 static cudaError_t ggml_cuda_profiled_stream_synchronize(cudaStream_t stream, const char * file, int line);
+static cudaError_t ggml_cuda_direct_stream_synchronize(cudaStream_t stream, const char * file, int line);
 
 #define GGML_LOG_WARN_ONCE(str) \
     { static std::once_flag warn_flag; std::call_once(warn_flag, []() { GGML_LOG_WARN(str); }); }
@@ -4376,6 +4377,16 @@ static ggml_cuda_sync_profile_atexit_reg g_ggml_cuda_sync_profile_atexit_reg;
 
 static void ggml_cuda_sync_profile_report() {
     g_ggml_cuda_sync_profile.report_snapshot();
+}
+
+static cudaError_t ggml_cuda_direct_stream_synchronize(cudaStream_t stream, const char * file, int line) {
+    if (!g_ggml_cuda_sync_profile.enabled) {
+        return cudaStreamSynchronize(stream);
+    }
+    const uint64_t start_us = (uint64_t) ggml_time_us();
+    const cudaError_t err = cudaStreamSynchronize(stream);
+    g_ggml_cuda_sync_profile.record_direct(file, line, (uint64_t) ggml_time_us() - start_us);
+    return err;
 }
 
 static cudaError_t ggml_cuda_profiled_stream_synchronize(cudaStream_t stream, const char * file, int line) {
