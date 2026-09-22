@@ -1316,6 +1316,22 @@ struct ggml_tensor * llama_model_loader::create_tensor(
             }
         }
 
+        const bool is_moe_expert_name =
+            tn.suffix != nullptr &&
+            (strcmp(tn.suffix, "exps") == 0 || tn.str().find("_exps.") != std::string::npos);
+
+        if (is_moe_expert_name) {
+            size_t override_count = 0;
+            if (tensor_buft_overrides) {
+                for (const auto * p = tensor_buft_overrides; p->pattern != nullptr; ++p) {
+                    ++override_count;
+                }
+            }
+            LLAMA_LOG_INFO("moe-buft-select: tensor=%s overrides=%zu matched=%d selected=%s\n",
+                    tn.str().c_str(), override_count, buft_overridden ? 1 : 0,
+                    buft ? ggml_backend_buft_name(buft) : "(null)");
+        }
+
         if (!buft) {
             buft = select_weight_buft(hparams, t_meta, op, buft_list);
             if (!buft) {
