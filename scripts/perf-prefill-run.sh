@@ -43,7 +43,10 @@ import sys
 target = int(sys.argv[1])
 block = sys.argv[2]
 words = block.split()
-n_words = max(1, target * 2)
+# This synthetic block tokenizes at well above one token per word.
+# Use a conservative word count so the requested prefill stays below
+# the 64K context limit.
+n_words = max(1, int(target * 0.75))
 out = (words * ((n_words + len(words) - 1) // len(words)))[:n_words]
 print(" ".join(out))
 PY
