@@ -1729,6 +1729,12 @@ bool llama_model_loader::load_all_data(
                 auto & mmap_used = mmaps_used[weight->idx];
                 mmap_used.first  = std::min(mmap_used.first,  weight->offs);
                 mmap_used.second = std::max(mmap_used.second, weight->offs + n_size);
+            } else if (ggml_backend_buffer_is_host(cur->buffer)) {
+                // Explicit CUDA_Host overrides under mmap are real pinned copies.
+                // Read directly from the file instead of faulting the mmap page by page.
+                const auto & file = files.at(weight->idx);
+                file->seek(weight->offs, SEEK_SET);
+                file->read_raw(cur->data, n_size);
             } else {
                 ggml_backend_tensor_set(cur, data, 0, n_size);
             }
