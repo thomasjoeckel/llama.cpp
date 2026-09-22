@@ -133,7 +133,8 @@ else
     printf '%s' "${USER_PROMPT}" > "${PROMPT_FILE}"
 fi
 
-REQUEST_JSON="$(jq -n \
+REQUEST_FILE="${TMP_DIR}/request.json"
+jq -n \
     --rawfile content "${PROMPT_FILE}" \
     --argjson temperature "${TEMPERATURE}" \
     --argjson top_p "${TOP_P}" \
@@ -278,7 +279,7 @@ REQUEST_START_NS="$(date +%s%N)"
 HTTP_CODE="$(
     curl -sS -o "${TMP_DIR}/response.json" -w '%{http_code}' \
         -H 'Content-Type: application/json' \
-        --data-binary "${REQUEST_JSON}" \
+        --data-binary "@${REQUEST_FILE}" \
         "http://${HOST}:${PORT}/v1/chat/completions"
 )"
 REQUEST_END_NS="$(date +%s%N)"
@@ -430,7 +431,7 @@ if rows:
 PY
 fi
 
-jq --argjson request "${REQUEST_JSON}" '. + {request: $request}' "${PERF_JSON}" >"${PERF_JSON}.tmp"
+jq --slurpfile request "${REQUEST_FILE}" '. + {request: $request[0]}' "${PERF_JSON}" >"${PERF_JSON}.tmp"
 mv "${PERF_JSON}.tmp" "${PERF_JSON}"
 
 echo
