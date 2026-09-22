@@ -159,7 +159,7 @@ jq -n \
         role: "user",
         content: $content
       }]
-    }')"
+    }' > "${REQUEST_FILE}"
 
 START_EPOCH_NS="$(date +%s%N)"
 GIT_COMMIT="$(git -C "${REPO_ROOT}" rev-parse HEAD)"
