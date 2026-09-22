@@ -3822,6 +3822,13 @@ static bool ggml_cuda_mul_mat_id(
             return true;
         }
 
+        if (src0_cuda_host && is_decode) {
+            static std::once_flag decode_once;
+            std::call_once(decode_once, [&]() {
+                GGML_LOG_INFO("moe-cache: CUDA_Host decode path ACTIVE -> persistent cache\\n");
+            });
+        }
+
         ggml_cuda_mul_mat_id_cached(ctx, dst, authority);
         return true;
     }
