@@ -3275,6 +3275,32 @@ static bool ggml_cuda_mul_mat_id_grouped_host_staged(
 //
 // Cache misses cost one cudaMemcpyAsync per slab (slot_size bytes on PCIe).
 // Cache hits cost zero PCIe traffic; only the kernel reads the resident slot.
+// Explicit CUDA_Host expert tensors bypass the persistent cache during prefill.
+// Decode continues through ggml_cuda_mul_mat_id_cached(), so the existing LRU remains active.
+static void ggml_cuda_mul_mat_id_host_prefill(
+        ggml_backend_cuda_context & ctx,
+        ggml_tensor * dst,
+        const ggml_cuda_moe_group_call_lease * authority) {
+    ggml_tensor * src0 = dst->src[0];
+    ggml_tensor * ids = dst->src[2];
+    const bool single_row = ids->ne[1] * ids->ne[2] == 1;
+    const bool telemetry_is_decode = authority != nullptr ?
+        authority->legacy_telemetry_is_decode(single_row) : single_row;
+
+    std::vector<char> ids_host_storage;
+    const ggml_cuda_moe_ids_host ids_host = ggml_cuda_moe_read_ids(ctx, ids, src0->name, ids_host_storage);
+
+    static std::once_flag once;
+    std::call_once(once, [&]() {
+        GGML_LOG_INFO("moe-cache: CUDA_Host prefill path ACTIVE src0=%s buft=%s decode=%d\\n",
+            src0->name, ggml_backend_buft_name(src0->buffer->buft), telemetry_is_decode ? 1 : 0);
+    });
+
+    ggml_cuda_mul_mat_id_staged(
+        ctx, dst, *ids_host.bytes, ids_host.nb0, ids_host.nb1, ids_host.nb2,
+        single_row, telemetry_is_decode, false, nullptr, nullptr, ids_host.cache_hit);
+}
+
 static void ggml_cuda_mul_mat_id_cached(
         ggml_backend_cuda_context & ctx,
         ggml_tensor * dst,
