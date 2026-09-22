@@ -4334,6 +4334,18 @@ static ggml_cuda_sync_profile g_ggml_cuda_sync_profile;
 static void ggml_cuda_sync_profile_report() {
     g_ggml_cuda_sync_profile.report();
 }
+
+static void ggml_cuda_sync_profile_report_atexit() {
+    g_ggml_cuda_sync_profile.report();
+}
+
+struct ggml_cuda_sync_profile_atexit_reg {
+    ggml_cuda_sync_profile_atexit_reg() {
+        std::atexit(ggml_cuda_sync_profile_report_atexit);
+    }
+};
+
+static ggml_cuda_sync_profile_atexit_reg g_ggml_cuda_sync_profile_atexit_reg;
 }
 
 static void ggml_backend_cuda_synchronize(ggml_backend_t backend) {
