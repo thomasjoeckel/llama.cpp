@@ -4167,10 +4167,6 @@ private:
                     execution_intent_ptr = &execution_intent;
                 }
                 ret = consume_decode_overlap ? 0 : llama_decode_ext(ctx_tgt, batch_view, execution_intent_ptr);
-                const bool defer_output = params_base.decode_overlap && !spec && !mctx && !sparse_snapshots;
-                if (ret == 0 && (has_output || sparse_snapshots) && !defer_output) {
-                    llama_synchronize(ctx_tgt);
-                }
             } catch (...) {
                 if (snapshot_mode_enabled) {
                     snapshot_mode_restored = llama_recurrent_set_sparse_snapshot_mode(ctx_tgt, false, -1);
@@ -4181,6 +4177,14 @@ private:
                 snapshot_mode_restored = llama_recurrent_set_sparse_snapshot_mode(ctx_tgt, false, -1);
             }
         });
+
+        // Keep the decode scheduler callback free of the expensive synchronization.
+        // The result still has to be ready before post_decode consumes it, but moving
+        // the wait out of yield_to_queue avoids holding the queue callback while the GPU runs.
+        const bool defer_output = params_base.decode_overlap && !spec && !mctx && !sparse_snapshots;
+        if (ret == 0 && (has_output || sparse_snapshots) && !defer_output) {
+            llama_synchronize(ctx_tgt);
+        }
 
         if (!snapshot_mode_restored) {
             if (replay_slot != nullptr) {
