@@ -810,9 +810,16 @@ struct ggml_backend_sched_sync_profile {
         uint64_t total_us = 0;
         uint64_t max_us = 0;
     };
+    struct caller_site {
+        const char * name = nullptr;
+        uint64_t calls = 0;
+    };
     static constexpr size_t MAX_SITES = 32;
+    static constexpr size_t MAX_CALLERS = 32;
     site sites[MAX_SITES] = {};
+    caller_site callers[MAX_CALLERS] = {};
     size_t n_sites = 0;
+    size_t n_callers = 0;
     bool enabled = false;
     ggml_backend_sched_sync_profile() {
         const char * e = getenv("GGML_TRACE_SCHED_SYNC_SITES");
@@ -830,6 +837,28 @@ struct ggml_backend_sched_sync_profile {
         }
         if (n_sites < MAX_SITES) sites[n_sites++] = { name, 1, us, us };
     }
+    void record_caller(const void * caller) {
+        if (!enabled || caller == nullptr) return;
+        const char * name = nullptr;
+#if defined(__linux__) || defined(__APPLE__)
+        Dl_info info = {};
+        if (dladdr(caller, &info) != 0 && info.dli_sname != nullptr) {
+            name = info.dli_sname;
+        }
+#endif
+        if (name == nullptr) {
+            name = "<unknown>";
+        }
+        for (size_t i = 0; i < n_callers; ++i) {
+            if (strcmp(callers[i].name, name) == 0) {
+                callers[i].calls++;
+                return;
+            }
+        }
+        if (n_callers < MAX_CALLERS) {
+            callers[n_callers++] = { name, 1 };
+        }
+    }
     ~ggml_backend_sched_sync_profile() { report(); }
     void report() {
         if (!enabled) return;
@@ -840,6 +869,12 @@ struct ggml_backend_sched_sync_profile {
                 s.name, (unsigned long long) s.calls, (double) s.total_us / 1000.0,
                 s.calls ? (double) s.total_us / (double) s.calls : 0.0,
                 (unsigned long long) s.max_us);
+        }
+        fprintf(stderr, "--- SCHEDULER SYNC CALLERS ---\n");
+        for (size_t i = 0; i < n_callers; ++i) {
+            const caller_site & s = callers[i];
+            fprintf(stderr, "caller=%s calls=%llu\\n",
+                s.name, (unsigned long long) s.calls);
         }
         fprintf(stderr, "=== END SCHEDULER SYNC PROFILE ===\n");
         fflush(stderr);
@@ -2314,6 +2349,9 @@ enum ggml_status ggml_backend_sched_graph_compute_async_ext(
 
 void ggml_backend_sched_synchronize(ggml_backend_sched_t sched) {
     GGML_ASSERT(sched);
+    if (g_ggml_backend_sched_sync_profile.enabled) {
+        g_ggml_backend_sched_sync_profile.record_caller(__builtin_return_address(0));
+    }
     for (int i = 0; i < sched->n_backends; i++) {
         { const uint64_t sync_start_us = (uint64_t) ggml_time_us(); ggml_backend_sched_trace_sync_site("sched_synchronize"); ggml_backend_synchronize(sched->backends[i]); g_ggml_backend_sched_sync_profile.record("sched_synchronize", (uint64_t) ggml_time_us() - sync_start_us); }
     }
