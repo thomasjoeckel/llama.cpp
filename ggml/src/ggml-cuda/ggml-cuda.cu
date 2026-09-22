@@ -4307,15 +4307,21 @@ struct ggml_cuda_sync_profile {
     uint64_t total_calls=0,total_us=0,max_us=0; uint64_t hist[24]={};
     bool enabled=false,reported=false;
     ggml_cuda_sync_profile() { const char * e=getenv("GGML_TRACE_BACKEND_SYNC"); enabled=e&&std::atoi(e)!=0; }
+    static constexpr uint64_t REPORT_EVERY = 5000;
+
     void record(const void * caller,uint64_t us) {
         if(!enabled)return; ++total_calls; total_us+=us; max_us=std::max(max_us,us);
         size_t b=0; for(uint64_t v=us;v>1&&b+1<24;v>>=1)++b; ++hist[b];
-        for(size_t i=0;i<n_sites;++i) if(sites[i].caller==caller){++sites[i].calls;sites[i].total_us+=us;sites[i].max_us=std::max(sites[i].max_us,us);return;}
+        for(size_t i=0;i<n_sites;++i) if(sites[i].caller==caller){++sites[i].calls;sites[i].total_us+=us;sites[i].max_us=std::max(sites[i].max_us,us); goto maybe_report;}
         if(n_sites<MAX_SITES){sites[n_sites]={caller,1,us,us};++n_sites;}
+    maybe_report:
+        if ((total_calls % REPORT_EVERY) == 0) report_snapshot();
     }
-    ~ggml_cuda_sync_profile() { report(); }
-    void report() {
-        if(!enabled||reported||!total_calls)return; reported=true;
+
+    ~ggml_cuda_sync_profile() { report_snapshot(); }
+
+    void report_snapshot() {
+        if(!enabled||!total_calls)return;
         GGML_LOG_INFO("\\n=== CUDA SYNC PROFILE (instrumentation only) ===\\n");
         GGML_LOG_INFO("total_syncs = %" PRIu64 "\\n",total_calls);
         GGML_LOG_INFO("total_wait_ms = %.3f\\n",total_us/1000.0);
@@ -4323,16 +4329,20 @@ struct ggml_cuda_sync_profile {
         GGML_LOG_INFO("sites = %zu\\n",n_sites);
         GGML_LOG_INFO("wait_hist_us = logarithmic buckets\\n");
         for(size_t i=0;i<24;++i) if(hist[i]) GGML_LOG_INFO("  hist[%zu] = %" PRIu64 "\\n",i,hist[i]);
-        std::sort(sites,sites+n_sites,[](const site&a,const site&b){return a.total_us>b.total_us;});
+
+        std::array<site, MAX_SITES> sorted_sites{};
+        std::copy_n(sites, n_sites, sorted_sites.begin());
+        std::sort(sorted_sites.begin(), sorted_sites.begin() + n_sites,
+                  [](const site & a,const site & b){return a.total_us>b.total_us;});
         GGML_LOG_INFO("by_callsite (caller PC; symbolize with addr2line):\\n");
-        for(size_t i=0;i<n_sites;++i){const site&s=sites[i];GGML_LOG_INFO("  %2zu caller=%p calls=%" PRIu64 " total_ms=%.3f avg_us=%.3f max_us=%" PRIu64 "\\n",i,s.caller,s.calls,s.total_us/1000.0,s.calls?(double)s.total_us/s.calls:0.0,s.max_us);}
+        for(size_t i=0;i<n_sites;++i){const site&s=sorted_sites[i];GGML_LOG_INFO("  %2zu caller=%p calls=%" PRIu64 " total_ms=%.3f avg_us=%.3f max_us=%" PRIu64 "\\n",i,s.caller,s.calls,s.total_us/1000.0,s.calls?(double)s.total_us/s.calls:0.0,s.max_us);}
         GGML_LOG_INFO("=== END CUDA SYNC PROFILE ===\\n");
     }
 };
 static ggml_cuda_sync_profile g_ggml_cuda_sync_profile;
 
 static void ggml_cuda_sync_profile_report_atexit() {
-    g_ggml_cuda_sync_profile.report();
+    g_ggml_cuda_sync_profile.report_snapshot();
 }
 
 struct ggml_cuda_sync_profile_atexit_reg {
@@ -4345,7 +4355,7 @@ static ggml_cuda_sync_profile_atexit_reg g_ggml_cuda_sync_profile_atexit_reg;
 }
 
 static void ggml_cuda_sync_profile_report() {
-    g_ggml_cuda_sync_profile.report();
+    g_ggml_cuda_sync_profile.report_snapshot();
 }
 
 static void ggml_backend_cuda_synchronize(ggml_backend_t backend) {
