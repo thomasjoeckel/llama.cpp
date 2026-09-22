@@ -28,6 +28,83 @@
 #include <string>
 #include <unordered_set>
 
+#if defined(__linux__) || defined(__APPLE__)
+#include <dlfcn.h>
+#endif
+
+struct llama_context_sync_profile {
+    struct site {
+        const char * name = nullptr;
+        uint64_t calls = 0;
+        uint64_t total_us = 0;
+        uint64_t max_us = 0;
+    };
+
+    static constexpr size_t MAX_SITES = 64;
+    site sites[MAX_SITES] = {};
+    size_t n_sites = 0;
+    uint64_t total_calls = 0;
+    uint64_t total_us = 0;
+    uint64_t max_us = 0;
+    bool enabled = false;
+
+    llama_context_sync_profile() {
+        const char * e = getenv("GGML_TRACE_LLAMA_SYNC_CALLERS");
+        enabled = e && std::atoi(e) != 0;
+    }
+
+    void record(const void * caller, uint64_t elapsed_us) {
+        if (!enabled) {
+            return;
+        }
+
+        total_calls++;
+        total_us += elapsed_us;
+        max_us = std::max(max_us, elapsed_us);
+
+        const char * name = "<unknown>";
+#if defined(__linux__) || defined(__APPLE__)
+        Dl_info info = {};
+        if (dladdr(caller, &info) != 0 && info.dli_sname != nullptr) {
+            name = info.dli_sname;
+        }
+#endif
+
+        for (size_t i = 0; i < n_sites; ++i) {
+            if (strcmp(sites[i].name, name) == 0) {
+                sites[i].calls++;
+                sites[i].total_us += elapsed_us;
+                sites[i].max_us = std::max(sites[i].max_us, elapsed_us);
+                return;
+            }
+        }
+
+        if (n_sites < MAX_SITES) {
+            sites[n_sites++] = { name, 1, elapsed_us, elapsed_us };
+        }
+    }
+
+    ~llama_context_sync_profile() {
+        if (!enabled) {
+            return;
+        }
+
+        fprintf(stderr, "=== LLAMA CONTEXT SYNC CALLERS ===\\n");
+        fprintf(stderr, "total_calls=%" PRIu64 " total_wait_ms=%.3f max_wait_us=%" PRIu64 "\\n",
+                total_calls, total_us / 1000.0, max_us);
+        for (size_t i = 0; i < n_sites; ++i) {
+            fprintf(stderr, "caller=%s calls=%" PRIu64 " total_ms=%.3f avg_us=%.3f max_us=%" PRIu64 "\\n",
+                    sites[i].name, sites[i].calls, sites[i].total_us / 1000.0,
+                    sites[i].calls ? (double) sites[i].total_us / sites[i].calls : 0.0,
+                    sites[i].max_us);
+        }
+        fprintf(stderr, "=== END LLAMA CONTEXT SYNC CALLERS ===\\n");
+        fflush(stderr);
+    }
+};
+
+static llama_context_sync_profile g_llama_context_sync_profile;
+
 //
 // llama_context
 //
@@ -1650,7 +1727,15 @@ void llama_context::synchronize() {
         return;
     }
 
+    const void * caller = __builtin_return_address(0);
+    const uint64_t start_us = g_llama_context_sync_profile.enabled ? (uint64_t) ggml_time_us() : 0;
+
     ggml_backend_sched_synchronize(sched.get());
+
+    if (g_llama_context_sync_profile.enabled) {
+        g_llama_context_sync_profile.record(caller, (uint64_t) ggml_time_us() - start_us);
+    }
+
     workspace_in_flight = false;
 
     finish_compute(n_queued_tokens, ggml_time_us() - t_compute_start_us);
