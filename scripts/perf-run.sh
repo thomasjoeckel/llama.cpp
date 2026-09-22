@@ -39,6 +39,14 @@ PUSH_RESULTS="${PUSH_RESULTS:-0}"
 GIT_REMOTE="${GIT_REMOTE:-github-fork}"
 GIT_BRANCH="${GIT_BRANCH:-}"
 
+# Golden benchmark defaults; explicit environment values still win.
+CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0}"
+GGML_CUDA_MOE_EARLY_ROUTER="${GGML_CUDA_MOE_EARLY_ROUTER:-1}"
+GGML_CUDA_MOE_EARLY_ROUTER_LOOKAHEAD="${GGML_CUDA_MOE_EARLY_ROUTER_LOOKAHEAD:-1}"
+export CUDA_VISIBLE_DEVICES
+export GGML_CUDA_MOE_EARLY_ROUTER
+export GGML_CUDA_MOE_EARLY_ROUTER_LOOKAHEAD
+
 
 # ============================================================
 # REQUEST VARIABLES
@@ -180,6 +188,9 @@ cat > "${META_JSON}" <<EOF
 }
 EOF
 
+# Optional extra llama-server arguments, forwarded verbatim.
+SERVER_EXTRA_ARGS=( "$@" )
+
 SERVER_ARGS=(
     --offline
     --model "${MODEL}"
@@ -214,7 +225,14 @@ SERVER_ARGS=(
     --experimental-logs
     --host "${HOST}"
     --port "${PORT}"
+    "${SERVER_EXTRA_ARGS[@]}"
 )
+
+if (( ${#SERVER_EXTRA_ARGS[@]} )); then
+    printf "Extra server args:"
+    printf " %q" "${SERVER_EXTRA_ARGS[@]}"
+    printf "\n"
+fi
 
 echo "Starting llama-server..."
 echo "Run directory: ${RUN_DIR}"
