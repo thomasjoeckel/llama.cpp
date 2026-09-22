@@ -1,0 +1,850 @@
+tensor-override-parse: pattern='ffn_gate_exps\.weight' buffer='CUDA_Host' buft='CUDA_Host'
+tensor-override-parse: pattern='ffn_up_exps\.weight' buffer='CUDA_Host' buft='CUDA_Host'
+tensor-override-parse: pattern='ffn_down_exps\.weight' buffer='CUDA_Host' buft='CUDA_Host'
+tensor-override-parse: total=3
+0.00.122.804 I cmn  common_param: common_params_print_info: build 11345 (a4def6bc5) with GNU 15.2.0 for Linux x86_64
+0.00.122.807 I cmn  common_param: common_params_print_info: verbosity = 4 (adjust with the `-lv N` CLI arg)
+0.00.122.807 I cmn  common_param: device_info:
+0.00.203.765 I cmn  common_param:   - CUDA0   : NVIDIA GeForce RTX 3090 (24123 MiB, 23778 MiB free)
+0.00.203.773 I cmn  common_param:   - CPU     : Intel(R) Core(TM) i9-10900 CPU @ 2.80GHz (94115 MiB, 94115 MiB free)
+0.00.203.866 I cmn  common_param: system_info: n_threads = 12 (n_threads_batch = 12) / 20 | CUDA : ARCHS = 860 | USE_GRAPHS = 1 | FA_QUANTS = q4_0-q4_0,q8_0-q8_0,f16-f16,bf16-bf16 | CPU : SSE3 = 1 | SSSE3 = 1 | AVX = 1 | AVX2 = 1 | F16C = 1 | FMA = 1 | BMI2 = 1 | LLAMAFILE = 1 | OPENMP = 1 | REPACK = 1 | 
+0.00.203.999 I srv          init: using 19 threads for HTTP server
+0.00.204.283 W srv  llama_server: -----------------
+0.00.204.284 W srv  llama_server: CORS is set to allow all origins ('*') and no API key is set
+0.00.204.284 W srv  llama_server: this can be a security risk (cross-origin attacks)
+0.00.204.284 W srv  llama_server: more info: https://github.com/ggml-org/llama.cpp/pull/25655
+0.00.204.284 W srv  llama_server: -----------------
+0.00.204.296 I srv         start: binding port with default address family
+0.00.205.560 I srv    load_model: loading model '/opt/models/Qwen3.8-Flash-Next/UD-Q3_K_XL/Qwen3.8-Flash-Next-UD-Q3_K_XL-00001-of-00003.gguf'
+0.00.205.561 I srv    load_model: local path '/opt/models/Qwen3.8-Flash-Next/UD-Q3_K_XL/Qwen3.8-Flash-Next-UD-Q3_K_XL-00001-of-00003.gguf'
+0.00.205.581 W --moe-expert-cache-size is set; expert tensors route through the GPU LRU cache regardless of --cpu-moe / --n-cpu-moe.
+0.00.261.745 I llama_model_loader: additional 2 GGUFs metadata loaded.
+0.00.261.756 I llama_model_loader: loaded meta data with 67 key-value pairs and 1224 tensors from /opt/models/Qwen3.8-Flash-Next/UD-Q3_K_XL/Qwen3.8-Flash-Next-UD-Q3_K_XL-00001-of-00003.gguf (version GGUF V3 (latest))
+0.00.261.785 I llama_model_loader: Dumping metadata keys/values. Note: KV overrides do not apply in this output.
+0.00.261.791 I llama_model_loader: - kv   0:                       general.architecture str              = qwen4exp
+0.00.261.791 I llama_model_loader: - kv   1:                               general.type str              = model
+0.00.261.792 I llama_model_loader: - kv   2:                     general.sampling.top_k i32              = 20
+0.00.261.795 I llama_model_loader: - kv   3:                     general.sampling.top_p f32              = 0.950000
+0.00.261.796 I llama_model_loader: - kv   4:                      general.sampling.temp f32              = 1.000000
+0.00.261.797 I llama_model_loader: - kv   5:                               general.name str              = Qwen3.8 Flash Next
+0.00.261.797 I llama_model_loader: - kv   6:                        general.description str              = A Preview of the Qwen4 Architecture
+0.00.261.798 I llama_model_loader: - kv   7:                         general.size_label str              = 512x56B
+0.00.261.798 I llama_model_loader: - kv   8:                       qwen4exp.block_count u32              = 48
+0.00.261.798 I llama_model_loader: - kv   9:                    qwen4exp.context_length u32              = 262144
+0.00.261.799 I llama_model_loader: - kv  10:                  qwen4exp.embedding_length u32              = 2560
+0.00.261.799 I llama_model_loader: - kv  11:              qwen4exp.attention.head_count u32              = 24
+0.00.261.799 I llama_model_loader: - kv  12:           qwen4exp.attention.head_count_kv u32              = 2
+0.00.261.809 I llama_model_loader: - kv  13:           qwen4exp.rope.dimension_sections arr[i32,4]       = [11, 11, 10, 0]
+0.00.261.810 I llama_model_loader: - kv  14:                    qwen4exp.rope.freq_base f32              = 10000000.000000
+0.00.261.811 I llama_model_loader: - kv  15:  qwen4exp.attention.layer_norm_rms_epsilon f32              = 0.000001
+0.00.261.812 I llama_model_loader: - kv  16:                      qwen4exp.expert_count u32              = 512
+0.00.261.812 I llama_model_loader: - kv  17:                 qwen4exp.expert_used_count u32              = 10
+0.00.261.812 I llama_model_loader: - kv  18:              qwen4exp.attention.key_length u32              = 256
+0.00.261.812 I llama_model_loader: - kv  19:            qwen4exp.attention.value_length u32              = 256
+0.00.261.813 I llama_model_loader: - kv  20:        qwen4exp.expert_feed_forward_length u32              = 640
+0.00.261.813 I llama_model_loader: - kv  21: qwen4exp.expert_shared_feed_forward_length u32              = 640
+0.00.261.813 I llama_model_loader: - kv  22:                   qwen4exp.ssm.conv_kernel u32              = 4
+0.00.261.813 I llama_model_loader: - kv  23:                    qwen4exp.ssm.state_size u32              = 128
+0.00.261.814 I llama_model_loader: - kv  24:                   qwen4exp.ssm.group_count u32              = 16
+0.00.261.814 I llama_model_loader: - kv  25:                qwen4exp.ssm.time_step_rank u32              = 48
+0.00.261.814 I llama_model_loader: - kv  26:                    qwen4exp.ssm.inner_size u32              = 6144
+0.00.261.815 I llama_model_loader: - kv  27:           qwen4exp.full_attention_interval u32              = 4
+0.00.261.815 I llama_model_loader: - kv  28:              qwen4exp.rope.dimension_count u32              = 64
+0.00.261.815 I llama_model_loader: - kv  29:            qwen4exp.hyper_connection.count u32              = 4
+0.00.261.815 I llama_model_loader: - kv  30:         qwen4exp.hyper_connection.low_rank u32              = 320
+0.00.261.816 I llama_model_loader: - kv  31:      qwen4exp.attention.indexer.head_count u32              = 4
+0.00.261.816 I llama_model_loader: - kv  32:      qwen4exp.attention.indexer.key_length u32              = 128
+0.00.261.816 I llama_model_loader: - kv  33:           qwen4exp.attention.indexer.top_k u32              = 2048
+0.00.261.820 I llama_model_loader: - kv  34:         qwen4exp.attention.compress_ratios arr[i32,48]      = [0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, ...
+0.00.261.820 I llama_model_loader: - kv  35:                        qwen4exp.ple.layers arr[i32,1]       = [1]
+0.00.261.821 I llama_model_loader: - kv  36:                    qwen4exp.ple.ngram_size u32              = 3
+0.00.261.821 I llama_model_loader: - kv  37:               qwen4exp.ple.heads_per_ngram u32              = 8
+0.00.261.821 I llama_model_loader: - kv  38:                   qwen4exp.ple.conv_kernel u32              = 4
+0.00.261.821 I llama_model_loader: - kv  39:                  qwen4exp.ple.eos_token_id u32              = 248044
+0.00.261.822 I llama_model_loader: - kv  40:  qwen4exp.embedding_length_per_layer_input u32              = 160
+0.00.261.823 I llama_model_loader: - kv  41:             qwen4exp.ple.layer_multipliers arr[u64,3]       = [23703573157769, 20109073645365, 8052...
+0.00.261.825 I llama_model_loader: - kv  42:                  qwen4exp.ple.head_offsets arr[u64,16]      = [0, 20000003, 40000026, 60000059, 800...
+0.00.261.827 I llama_model_loader: - kv  43:              qwen4exp.ple.head_vocab_sizes arr[u64,16]      = [20000003, 20000023, 20000033, 200000...
+0.00.261.827 I llama_model_loader: - kv  44:                       tokenizer.ggml.model str              = gpt2
+0.00.261.827 I llama_model_loader: - kv  45:                         tokenizer.ggml.pre str              = qwen35
+0.00.282.516 I llama_model_loader: - kv  46:                      tokenizer.ggml.tokens arr[str,248320]  = ["!", "\"", "#", "$", "%", "&", "'", ...
+0.00.287.420 I llama_model_loader: - kv  47:                  tokenizer.ggml.token_type arr[i32,248320]  = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ...
+0.00.307.231 I llama_model_loader: - kv  48:                      tokenizer.ggml.merges arr[str,247587]  = ["Ġ Ġ", "ĠĠ ĠĠ", "i n", "Ġ t",...
+0.00.307.234 I llama_model_loader: - kv  49:                tokenizer.ggml.eos_token_id u32              = 248046
+0.00.307.235 I llama_model_loader: - kv  50:            tokenizer.ggml.padding_token_id u32              = 248044
+0.00.307.235 I llama_model_loader: - kv  51:                tokenizer.ggml.bos_token_id u32              = 248044
+0.00.307.236 I llama_model_loader: - kv  52:               tokenizer.ggml.add_bos_token bool             = false
+0.00.307.238 I llama_model_loader: - kv  53:                    tokenizer.chat_template str              = {%- set image_count = namespace(value...
+0.00.307.238 I llama_model_loader: - kv  54:                qwen4exp.ple.image_token_id u32              = 248056
+0.00.307.239 I llama_model_loader: - kv  55:                       general.quantized_by str              = Unsloth
+0.00.307.239 I llama_model_loader: - kv  56:                           general.repo_url str              = https://huggingface.co/unsloth
+0.00.307.241 I llama_model_loader: - kv  57:                               general.tags arr[str,1]       = ["unsloth"]
+0.00.307.242 I llama_model_loader: - kv  58:               general.quantization_version u32              = 2
+0.00.307.242 I llama_model_loader: - kv  59:                          general.file_type u32              = 12
+0.00.307.243 I llama_model_loader: - kv  60:                      quantize.imatrix.file str              = Qwen3.8-Flash-Next-GGUF/imatrix_unslo...
+0.00.307.243 I llama_model_loader: - kv  61:                   quantize.imatrix.dataset str              = unsloth_calibration_Qwen3.8-Flash-Nex...
+0.00.307.244 I llama_model_loader: - kv  62:             quantize.imatrix.entries_count u32              = 926
+0.00.307.244 I llama_model_loader: - kv  63:              quantize.imatrix.chunks_count u32              = 45
+0.00.307.245 I llama_model_loader: - kv  64:                                   split.no u16              = 0
+0.00.307.245 I llama_model_loader: - kv  65:                        split.tensors.count i32              = 1224
+0.00.307.245 I llama_model_loader: - kv  66:                                split.count u16              = 3
+0.00.307.265 I llama_model_loader: - type  f32:  557 tensors
+0.00.307.265 I llama_model_loader: - type q8_0:  502 tensors
+0.00.307.266 I llama_model_loader: - type q6_K:    1 tensors
+0.00.307.266 I llama_model_loader: - type iq3_xxs:   94 tensors
+0.00.307.266 I llama_model_loader: - type iq4_nl:   44 tensors
+0.00.307.266 I llama_model_loader: - type iq4_xs:    2 tensors
+0.00.307.267 I llama_model_loader: - type bf16:   24 tensors
+0.00.307.268 I print_info: file format = GGUF V3 (latest)
+0.00.307.270 I print_info: file type   = Q3_K - Medium
+0.00.307.272 I print_info: file size   = 83.80 GiB (4.07 BPW) 
+0.00.307.379 I llama_prepare_model_devices: using device CUDA0 (NVIDIA GeForce RTX 3090) (0000:01:00.0) - 23778 MiB free
+0.00.413.242 I load: 0 unused tokens
+0.00.443.861 I load: printing all EOG tokens:
+0.00.443.865 I load:   - 248044 ('<|endoftext|>')
+0.00.443.865 I load:   - 248046 ('<|im_end|>')
+0.00.443.865 I load:   - 248063 ('<|fim_pad|>')
+0.00.443.866 I load:   - 248064 ('<|repo_name|>')
+0.00.443.866 I load:   - 248065 ('<|file_sep|>')
+0.00.444.349 I load: special tokens cache size = 33
+0.00.516.098 I load: token to piece cache size = 1.7581 MB
+0.00.516.112 I print_info: arch                  = qwen4exp
+0.00.516.113 I print_info: vocab_only            = 0
+0.00.516.113 I print_info: no_alloc              = 0
+0.00.516.113 I print_info: n_ctx_train           = 262144
+0.00.516.114 I print_info: n_embd_inp            = 2560
+0.00.516.114 I print_info: n_embd                = 2560
+0.00.516.115 I print_info: n_embd_out            = 10240
+0.00.516.115 I print_info: n_layer               = 48
+0.00.516.116 I print_info: n_layer_all           = 48
+0.00.516.121 I print_info: n_head                = 24
+0.00.516.122 I print_info: n_head_kv             = 2
+0.00.516.123 I print_info: n_rot                 = 64
+0.00.516.123 I print_info: n_swa                 = 0
+0.00.516.124 I print_info: is_swa_any            = 0
+0.00.516.124 I print_info: non_causal_type       = 0
+0.00.516.125 I print_info: n_embd_head_k         = 256
+0.00.516.125 I print_info: n_embd_head_v         = 256
+0.00.516.126 I print_info: n_gqa                 = 12
+0.00.516.129 I print_info: n_embd_k_gqa          = 512
+0.00.516.131 I print_info: n_embd_v_gqa          = 512
+0.00.516.131 I print_info: f_norm_eps            = 0.0e+00
+0.00.516.132 I print_info: f_norm_rms_eps        = 1.0e-06
+0.00.516.133 I print_info: f_clamp_kqv           = 0.0e+00
+0.00.516.133 I print_info: f_max_alibi_bias      = 0.0e+00
+0.00.516.133 I print_info: f_logit_scale         = 0.0e+00
+0.00.516.133 I print_info: f_attn_scale          = 0.0e+00
+0.00.516.134 I print_info: f_attn_value_scale    = 0.0000
+0.00.516.135 I print_info: n_ff                  = 0
+0.00.516.135 I print_info: n_expert              = 512
+0.00.516.135 I print_info: n_expert_used         = 10
+0.00.516.135 I print_info: n_expert_groups       = 0
+0.00.516.135 I print_info: n_group_used          = 0
+0.00.516.136 I print_info: causal attn           = 1
+0.00.516.136 I print_info: pooling type          = -1
+0.00.516.136 I print_info: rope type             = 40
+0.00.516.136 I print_info: rope scaling          = linear
+0.00.516.137 I print_info: freq_base_train       = 10000000.0
+0.00.516.137 I print_info: freq_scale_train      = 1
+0.00.516.137 I print_info: n_ctx_orig_yarn       = 262144
+0.00.516.138 I print_info: rope_yarn_log_mul     = 0.0000
+0.00.516.138 I print_info: rope_finetuned        = unknown
+0.00.516.138 I print_info: mrope sections        = [11, 11, 10, 0]
+0.00.516.139 I print_info: model type            = A3B
+0.00.516.140 I print_info: model params          = 176.94 B
+0.00.516.140 I print_info: general.name          = Qwen3.8 Flash Next
+0.00.516.142 I print_info: vocab type            = BPE
+0.00.516.143 I print_info: n_vocab               = 248320
+0.00.516.143 I print_info: n_merges              = 247587
+0.00.516.144 I print_info: BOS token             = 248044 '<|endoftext|>'
+0.00.516.144 I print_info: EOS token             = 248046 '<|im_end|>'
+0.00.516.144 I print_info: EOT token             = 248046 '<|im_end|>'
+0.00.516.144 I print_info: PAD token             = 248044 '<|endoftext|>'
+0.00.516.144 I print_info: LF token              = 198 'Ċ'
+0.00.516.145 I print_info: FIM PRE token         = 248060 '<|fim_prefix|>'
+0.00.516.145 I print_info: FIM SUF token         = 248062 '<|fim_suffix|>'
+0.00.516.145 I print_info: FIM MID token         = 248061 '<|fim_middle|>'
+0.00.516.145 I print_info: FIM PAD token         = 248063 '<|fim_pad|>'
+0.00.516.145 I print_info: FIM REP token         = 248064 '<|repo_name|>'
+0.00.516.145 I print_info: FIM SEP token         = 248065 '<|file_sep|>'
+0.00.516.145 I print_info: EOG token             = 248044 '<|endoftext|>'
+0.00.516.146 I print_info: EOG token             = 248046 '<|im_end|>'
+0.00.516.146 I print_info: EOG token             = 248063 '<|fim_pad|>'
+0.00.516.146 I print_info: EOG token             = 248064 '<|repo_name|>'
+0.00.516.146 I print_info: EOG token             = 248065 '<|file_sep|>'
+0.00.516.147 I print_info: max token length      = 256
+0.00.516.149 I load_tensors: loading model tensors, this can take a while... (load_mode = none)
+0.00.516.478 I add: tensor per_layer_token_embd.weight (size = 27465 MiB) lazy read enabled
+0.00.516.828 I moe-override: tensor blk.0.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.516.831 I moe-buft-select: tensor=blk.0.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.516.844 I moe-override: tensor blk.0.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.516.845 I moe-buft-select: tensor=blk.0.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.516.856 I moe-override: tensor blk.0.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.516.857 I moe-buft-select: tensor=blk.0.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.517.337 I moe-override: tensor blk.1.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.517.339 I moe-buft-select: tensor=blk.1.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.517.345 I moe-override: tensor blk.1.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.517.345 I moe-buft-select: tensor=blk.1.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.517.350 I moe-override: tensor blk.1.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.517.351 I moe-buft-select: tensor=blk.1.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.517.615 I moe-override: tensor blk.2.ffn_down_exps.weight (850 MiB q8_0) buffer type overridden to CUDA_Host
+0.00.517.617 I moe-buft-select: tensor=blk.2.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.517.623 I moe-override: tensor blk.2.ffn_gate_exps.weight (425 MiB iq4_xs) buffer type overridden to CUDA_Host
+0.00.517.623 I moe-buft-select: tensor=blk.2.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.517.628 I moe-override: tensor blk.2.ffn_up_exps.weight (425 MiB iq4_xs) buffer type overridden to CUDA_Host
+0.00.517.629 I moe-buft-select: tensor=blk.2.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.517.914 I moe-override: tensor blk.3.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.517.916 I moe-buft-select: tensor=blk.3.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.517.921 I moe-override: tensor blk.3.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.517.922 I moe-buft-select: tensor=blk.3.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.517.927 I moe-override: tensor blk.3.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.517.928 I moe-buft-select: tensor=blk.3.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.518.287 I moe-override: tensor blk.4.ffn_down_exps.weight (850 MiB q8_0) buffer type overridden to CUDA_Host
+0.00.518.289 I moe-buft-select: tensor=blk.4.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.518.294 I moe-override: tensor blk.4.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.518.295 I moe-buft-select: tensor=blk.4.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.518.301 I moe-override: tensor blk.4.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.518.302 I moe-buft-select: tensor=blk.4.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.518.532 I moe-override: tensor blk.5.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.518.533 I moe-buft-select: tensor=blk.5.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.518.539 I moe-override: tensor blk.5.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.518.540 I moe-buft-select: tensor=blk.5.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.518.545 I moe-override: tensor blk.5.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.518.545 I moe-buft-select: tensor=blk.5.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.518.794 I moe-override: tensor blk.6.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.518.796 I moe-buft-select: tensor=blk.6.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.518.802 I moe-override: tensor blk.6.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.518.803 I moe-buft-select: tensor=blk.6.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.518.808 I moe-override: tensor blk.6.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.518.810 I moe-buft-select: tensor=blk.6.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.519.112 I moe-override: tensor blk.7.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.519.114 I moe-buft-select: tensor=blk.7.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.519.120 I moe-override: tensor blk.7.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.519.120 I moe-buft-select: tensor=blk.7.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.519.125 I moe-override: tensor blk.7.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.519.126 I moe-buft-select: tensor=blk.7.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.519.452 I moe-override: tensor blk.8.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.519.453 I moe-buft-select: tensor=blk.8.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.519.459 I moe-override: tensor blk.8.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.519.460 I moe-buft-select: tensor=blk.8.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.519.466 I moe-override: tensor blk.8.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.519.467 I moe-buft-select: tensor=blk.8.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.519.717 I moe-override: tensor blk.9.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.519.719 I moe-buft-select: tensor=blk.9.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.519.724 I moe-override: tensor blk.9.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.519.725 I moe-buft-select: tensor=blk.9.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.519.745 I moe-override: tensor blk.9.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.519.745 I moe-buft-select: tensor=blk.9.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.520.012 I moe-override: tensor blk.10.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.520.013 I moe-buft-select: tensor=blk.10.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.520.019 I moe-override: tensor blk.10.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.520.020 I moe-buft-select: tensor=blk.10.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.520.025 I moe-override: tensor blk.10.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.520.026 I moe-buft-select: tensor=blk.10.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.520.319 I moe-override: tensor blk.11.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.520.321 I moe-buft-select: tensor=blk.11.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.520.327 I moe-override: tensor blk.11.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.520.327 I moe-buft-select: tensor=blk.11.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.520.333 I moe-override: tensor blk.11.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.520.333 I moe-buft-select: tensor=blk.11.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.520.597 I moe-override: tensor blk.12.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.520.599 I moe-buft-select: tensor=blk.12.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.520.606 I moe-override: tensor blk.12.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.520.607 I moe-buft-select: tensor=blk.12.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.520.613 I moe-override: tensor blk.12.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.520.614 I moe-buft-select: tensor=blk.12.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.520.876 I moe-override: tensor blk.13.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.520.877 I moe-buft-select: tensor=blk.13.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.520.883 I moe-override: tensor blk.13.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.520.884 I moe-buft-select: tensor=blk.13.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.520.890 I moe-override: tensor blk.13.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.520.891 I moe-buft-select: tensor=blk.13.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.521.160 I moe-override: tensor blk.14.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.521.161 I moe-buft-select: tensor=blk.14.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.521.167 I moe-override: tensor blk.14.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.521.168 I moe-buft-select: tensor=blk.14.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.521.173 I moe-override: tensor blk.14.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.521.174 I moe-buft-select: tensor=blk.14.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.521.427 I moe-override: tensor blk.15.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.521.429 I moe-buft-select: tensor=blk.15.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.521.435 I moe-override: tensor blk.15.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.521.435 I moe-buft-select: tensor=blk.15.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.521.441 I moe-override: tensor blk.15.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.521.441 I moe-buft-select: tensor=blk.15.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.521.707 I moe-override: tensor blk.16.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.521.709 I moe-buft-select: tensor=blk.16.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.521.714 I moe-override: tensor blk.16.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.521.715 I moe-buft-select: tensor=blk.16.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.521.720 I moe-override: tensor blk.16.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.521.721 I moe-buft-select: tensor=blk.16.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.521.977 I moe-override: tensor blk.17.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.521.978 I moe-buft-select: tensor=blk.17.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.521.984 I moe-override: tensor blk.17.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.521.986 I moe-buft-select: tensor=blk.17.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.521.991 I moe-override: tensor blk.17.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.521.992 I moe-buft-select: tensor=blk.17.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.522.244 I moe-override: tensor blk.18.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.522.245 I moe-buft-select: tensor=blk.18.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.522.251 I moe-override: tensor blk.18.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.522.252 I moe-buft-select: tensor=blk.18.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.522.257 I moe-override: tensor blk.18.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.522.258 I moe-buft-select: tensor=blk.18.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.522.512 I moe-override: tensor blk.19.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.522.513 I moe-buft-select: tensor=blk.19.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.522.519 I moe-override: tensor blk.19.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.522.520 I moe-buft-select: tensor=blk.19.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.522.527 I moe-override: tensor blk.19.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.522.527 I moe-buft-select: tensor=blk.19.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.522.793 I moe-override: tensor blk.20.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.522.794 I moe-buft-select: tensor=blk.20.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.522.801 I moe-override: tensor blk.20.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.522.818 I moe-buft-select: tensor=blk.20.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.522.824 I moe-override: tensor blk.20.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.522.825 I moe-buft-select: tensor=blk.20.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.523.079 I moe-override: tensor blk.21.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.523.081 I moe-buft-select: tensor=blk.21.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.523.087 I moe-override: tensor blk.21.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.523.088 I moe-buft-select: tensor=blk.21.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.523.094 I moe-override: tensor blk.21.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.523.095 I moe-buft-select: tensor=blk.21.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.523.362 I moe-override: tensor blk.22.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.523.364 I moe-buft-select: tensor=blk.22.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.523.370 I moe-override: tensor blk.22.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.523.371 I moe-buft-select: tensor=blk.22.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.523.377 I moe-override: tensor blk.22.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.523.378 I moe-buft-select: tensor=blk.22.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.523.665 I moe-override: tensor blk.23.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.523.667 I moe-buft-select: tensor=blk.23.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.523.674 I moe-override: tensor blk.23.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.523.676 I moe-buft-select: tensor=blk.23.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.523.698 I moe-override: tensor blk.23.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.523.699 I moe-buft-select: tensor=blk.23.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.523.949 I moe-override: tensor blk.24.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.523.951 I moe-buft-select: tensor=blk.24.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.523.957 I moe-override: tensor blk.24.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.523.958 I moe-buft-select: tensor=blk.24.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.523.981 I moe-override: tensor blk.24.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.523.982 I moe-buft-select: tensor=blk.24.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.524.237 I moe-override: tensor blk.25.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.524.239 I moe-buft-select: tensor=blk.25.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.524.245 I moe-override: tensor blk.25.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.524.246 I moe-buft-select: tensor=blk.25.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.524.252 I moe-override: tensor blk.25.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.524.253 I moe-buft-select: tensor=blk.25.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.524.520 I moe-override: tensor blk.26.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.524.522 I moe-buft-select: tensor=blk.26.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.524.528 I moe-override: tensor blk.26.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.524.529 I moe-buft-select: tensor=blk.26.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.524.551 I moe-override: tensor blk.26.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.524.553 I moe-buft-select: tensor=blk.26.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.524.814 I moe-override: tensor blk.27.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.524.816 I moe-buft-select: tensor=blk.27.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.524.822 I moe-override: tensor blk.27.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.524.823 I moe-buft-select: tensor=blk.27.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.524.833 I moe-override: tensor blk.27.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.524.835 I moe-buft-select: tensor=blk.27.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.525.080 I moe-override: tensor blk.28.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.525.096 I moe-buft-select: tensor=blk.28.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.525.102 I moe-override: tensor blk.28.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.525.103 I moe-buft-select: tensor=blk.28.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.525.125 I moe-override: tensor blk.28.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.525.126 I moe-buft-select: tensor=blk.28.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.525.365 I moe-override: tensor blk.29.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.525.367 I moe-buft-select: tensor=blk.29.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.525.374 I moe-override: tensor blk.29.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.525.375 I moe-buft-select: tensor=blk.29.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.525.387 I moe-override: tensor blk.29.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.525.389 I moe-buft-select: tensor=blk.29.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.525.643 I moe-override: tensor blk.30.ffn_down_exps.weight (850 MiB q8_0) buffer type overridden to CUDA_Host
+0.00.525.645 I moe-buft-select: tensor=blk.30.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.525.651 I moe-override: tensor blk.30.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.525.653 I moe-buft-select: tensor=blk.30.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.525.662 I moe-override: tensor blk.30.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.525.663 I moe-buft-select: tensor=blk.30.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.525.922 I moe-override: tensor blk.31.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.525.924 I moe-buft-select: tensor=blk.31.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.525.930 I moe-override: tensor blk.31.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.525.931 I moe-buft-select: tensor=blk.31.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.525.937 I moe-override: tensor blk.31.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.525.938 I moe-buft-select: tensor=blk.31.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.526.183 I moe-override: tensor blk.32.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.526.184 I moe-buft-select: tensor=blk.32.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.526.191 I moe-override: tensor blk.32.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.526.192 I moe-buft-select: tensor=blk.32.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.526.197 I moe-override: tensor blk.32.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.526.199 I moe-buft-select: tensor=blk.32.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.526.437 I moe-override: tensor blk.33.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.526.439 I moe-buft-select: tensor=blk.33.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.526.445 I moe-override: tensor blk.33.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.526.447 I moe-buft-select: tensor=blk.33.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.526.457 I moe-override: tensor blk.33.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.526.459 I moe-buft-select: tensor=blk.33.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.526.698 I moe-override: tensor blk.34.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.526.700 I moe-buft-select: tensor=blk.34.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.526.706 I moe-override: tensor blk.34.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.526.707 I moe-buft-select: tensor=blk.34.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.526.714 I moe-override: tensor blk.34.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.526.715 I moe-buft-select: tensor=blk.34.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.526.976 I moe-override: tensor blk.35.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.526.977 I moe-buft-select: tensor=blk.35.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.526.984 I moe-override: tensor blk.35.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.526.985 I moe-buft-select: tensor=blk.35.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.526.991 I moe-override: tensor blk.35.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.526.992 I moe-buft-select: tensor=blk.35.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.527.239 I moe-override: tensor blk.36.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.527.241 I moe-buft-select: tensor=blk.36.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.527.247 I moe-override: tensor blk.36.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.527.249 I moe-buft-select: tensor=blk.36.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.527.259 I moe-override: tensor blk.36.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.527.261 I moe-buft-select: tensor=blk.36.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.527.503 I moe-override: tensor blk.37.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.527.505 I moe-buft-select: tensor=blk.37.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.527.511 I moe-override: tensor blk.37.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.527.513 I moe-buft-select: tensor=blk.37.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.527.523 I moe-override: tensor blk.37.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.527.525 I moe-buft-select: tensor=blk.37.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.527.768 I moe-override: tensor blk.38.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.527.770 I moe-buft-select: tensor=blk.38.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.527.778 I moe-override: tensor blk.38.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.527.780 I moe-buft-select: tensor=blk.38.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.527.790 I moe-override: tensor blk.38.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.527.793 I moe-buft-select: tensor=blk.38.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.528.053 I moe-override: tensor blk.39.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.528.055 I moe-buft-select: tensor=blk.39.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.528.066 I moe-override: tensor blk.39.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.528.069 I moe-buft-select: tensor=blk.39.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.528.079 I moe-override: tensor blk.39.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.528.081 I moe-buft-select: tensor=blk.39.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.528.322 I moe-override: tensor blk.40.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.528.323 I moe-buft-select: tensor=blk.40.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.528.330 I moe-override: tensor blk.40.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.528.332 I moe-buft-select: tensor=blk.40.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.528.343 I moe-override: tensor blk.40.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.528.345 I moe-buft-select: tensor=blk.40.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.528.587 I moe-override: tensor blk.41.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.528.588 I moe-buft-select: tensor=blk.41.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.528.595 I moe-override: tensor blk.41.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.528.597 I moe-buft-select: tensor=blk.41.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.528.608 I moe-override: tensor blk.41.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.528.610 I moe-buft-select: tensor=blk.41.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.528.851 I moe-override: tensor blk.42.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.528.852 I moe-buft-select: tensor=blk.42.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.528.859 I moe-override: tensor blk.42.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.528.861 I moe-buft-select: tensor=blk.42.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.528.872 I moe-override: tensor blk.42.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.528.874 I moe-buft-select: tensor=blk.42.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.529.139 I moe-override: tensor blk.43.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.529.141 I moe-buft-select: tensor=blk.43.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.529.147 I moe-override: tensor blk.43.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.529.149 I moe-buft-select: tensor=blk.43.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.529.158 I moe-override: tensor blk.43.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.529.160 I moe-buft-select: tensor=blk.43.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.529.422 I moe-override: tensor blk.44.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.529.424 I moe-buft-select: tensor=blk.44.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.529.431 I moe-override: tensor blk.44.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.529.433 I moe-buft-select: tensor=blk.44.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.529.444 I moe-override: tensor blk.44.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.529.446 I moe-buft-select: tensor=blk.44.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.529.696 I moe-override: tensor blk.45.ffn_down_exps.weight (450 MiB iq4_nl) buffer type overridden to CUDA_Host
+0.00.529.698 I moe-buft-select: tensor=blk.45.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.529.705 I moe-override: tensor blk.45.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.529.707 I moe-buft-select: tensor=blk.45.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.529.719 I moe-override: tensor blk.45.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.529.722 I moe-buft-select: tensor=blk.45.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.529.974 I moe-override: tensor blk.46.ffn_down_exps.weight (850 MiB q8_0) buffer type overridden to CUDA_Host
+0.00.529.975 I moe-buft-select: tensor=blk.46.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.529.983 I moe-override: tensor blk.46.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.529.985 I moe-buft-select: tensor=blk.46.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.529.996 I moe-override: tensor blk.46.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.529.999 I moe-buft-select: tensor=blk.46.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.530.296 I moe-override: tensor blk.47.ffn_down_exps.weight (850 MiB q8_0) buffer type overridden to CUDA_Host
+0.00.530.298 I moe-buft-select: tensor=blk.47.ffn_down_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.530.306 I moe-override: tensor blk.47.ffn_gate_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.530.307 I moe-buft-select: tensor=blk.47.ffn_gate_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.00.530.318 I moe-override: tensor blk.47.ffn_up_exps.weight (306 MiB iq3_xxs) buffer type overridden to CUDA_Host
+0.00.530.320 I moe-buft-select: tensor=blk.47.ffn_up_exps.weight overrides=4 matched=1 selected=CUDA_Host
+0.11.597.509 I load_tensors: offloading output layer to GPU
+0.11.597.511 I load_tensors: offloading 47 repeating layers to GPU
+0.11.597.512 I load_tensors: offloaded 49/49 layers to GPU
+0.11.597.518 I load_tensors:        CUDA0 model buffer size =  4459.62 MiB
+0.11.597.519 I load_tensors:    CUDA_Host model buffer size = 53881.64 MiB
+0.11.597.519 I load_tensors:   CPU_Mapped model buffer size = 27465.95 MiB
+0.37.462.922 I cmn  common_init_: added <|endoftext|> logit bias = -inf
+0.37.462.925 I cmn  common_init_: added <|im_end|> logit bias = -inf
+0.37.462.925 I cmn  common_init_: added <|fim_pad|> logit bias = -inf
+0.37.462.925 I cmn  common_init_: added <|repo_name|> logit bias = -inf
+0.37.462.926 I cmn  common_init_: added <|file_sep|> logit bias = -inf
+0.37.463.850 I llama_context: constructing llama_context
+0.37.464.294 I llama_context: setting backend sampler for seq_id 0 (n = 10)
+0.37.464.296 I llama_context: n_seq_max             = 1
+0.37.464.296 I llama_context: n_ctx                 = 65536
+0.37.464.296 I llama_context: n_ctx_seq             = 65536
+0.37.464.296 I llama_context: n_batch               = 4096
+0.37.464.296 I llama_context: n_ubatch              = 256
+0.37.464.297 I llama_context: causal_attn           = 1
+0.37.464.298 I llama_context: flash_attn            = enabled
+0.37.464.298 I llama_context: kv_unified            = false
+0.37.464.300 I llama_context: freq_base             = 10000000.0
+0.37.464.301 I llama_context: freq_scale            = 1
+0.37.464.301 I llama_context: n_rs_seq              = 2
+0.37.464.301 I llama_context: n_outputs_max         = 3
+0.37.464.301 I llama_context: n_outputs_max_per_seq = 3
+0.37.464.302 I llama_context: n_ctx_seq (65536) < n_ctx_train (262144) -- the full capacity of the model will not be utilized
+0.37.464.323 I llama_context: decode boundary overlap enabled for CUDA0
+0.37.465.594 I llama_context:  CUDA_Host  output buffer size =     3.79 MiB
+0.37.466.512 I llama_kv_cache:      CUDA0 KV buffer size =   432.00 MiB
+0.37.496.543 I llama_kv_cache: size =  432.00 MiB ( 65536 cells,  12 layers,  1/1 seqs), K (q4_0):  216.00 MiB, V (q4_0):  216.00 MiB
+0.37.496.545 I llama_kv_cache: attn_rot_k = 1, n_embd_head_k_all = 256
+0.37.496.545 I llama_kv_cache: attn_rot_v = 1, n_embd_head_k_all = 256
+0.37.497.102 I llama_memory_recurrent:      CUDA0 RS buffer size =   337.71 MiB
+0.37.497.110 I llama_memory_recurrent: size =  337.71 MiB (     1 cells,  48 layers,  1 seqs  2 rs_seq), R (f32):   12.66 MiB, S (f32):  324.00 MiB, P (f32):    1.05 MiB
+0.37.497.114 I operator(): creating indexer KV cache, size = 65536 cells
+0.37.497.517 I llama_kv_cache:      CUDA0 KV buffer size =    54.00 MiB
+0.37.497.591 I llama_kv_cache: size =   54.00 MiB ( 65536 cells,  12 layers,  1/1 seqs), K (q4_0):   54.00 MiB, V (q4_0):    0.00 MiB
+0.37.497.593 I llama_kv_cache: attn_rot_k = 1, n_embd_head_k_all = 128
+0.37.497.593 I llama_kv_cache: attn_rot_v = 0, n_embd_head_k_all = 0
+0.37.497.612 I sched_reserve: reserving decode workspace (tokens = 3, previous = 0, kv = 256, previous = 0) ...
+0.37.508.599 I operator(): created phase-aware compute backing
+0.37.508.610 I resolve_fused_ops: resolving fused DeepSeek V4 HC support:
+0.37.512.869 I resolve_fused_ops: fused DeepSeek V4 HC pre enabled
+0.37.515.599 I resolve_fused_ops: fused DeepSeek V4 HC comb enabled
+0.37.518.194 I resolve_fused_ops: fused DeepSeek V4 HC post enabled
+0.37.528.412 I sched_reserve:      CUDA0 compute buffer size =    13.26 MiB
+0.37.528.414 I sched_reserve:  CUDA_Host compute buffer size =     0.88 MiB
+0.37.528.415 I sched_reserve: graph nodes  = 8598 (with bs=3), 8652 (with bs=1)
+0.37.528.415 I sched_reserve: graph splits = 98
+0.37.528.417 I sched_reserve: decode workspace reserve took 29.28 ms (kv = 256), sched copies = 1
+0.37.528.478 I set_ple_prefetch: lazy row prefetch enabled for CPU GET_ROWS
+0.37.528.485 I cmn          init: llama threadpool init, n_threads = 12
+0.37.528.533 I common_speculative_init_result: loading draft model '/opt/models/Qwen3.8-Flash-Next/MTP/mtp-Qwen3.8-Flash-Next-Q4_K_M.gguf'
+0.37.576.071 I llama_model_loader: loaded meta data with 51 key-value pairs and 34 tensors from /opt/models/Qwen3.8-Flash-Next/MTP/mtp-Qwen3.8-Flash-Next-Q4_K_M.gguf (version GGUF V3 (latest))
+0.37.576.078 I llama_model_loader: Dumping metadata keys/values. Note: KV overrides do not apply in this output.
+0.37.576.081 I llama_model_loader: - kv   0:                       general.architecture str              = qwen4exp
+0.37.576.081 I llama_model_loader: - kv   1:                               general.type str              = model
+0.37.576.082 I llama_model_loader: - kv   2:                     general.sampling.top_k i32              = 20
+0.37.576.084 I llama_model_loader: - kv   3:                     general.sampling.top_p f32              = 0.950000
+0.37.576.085 I llama_model_loader: - kv   4:                      general.sampling.temp f32              = 1.000000
+0.37.576.085 I llama_model_loader: - kv   5:                               general.name str              = Ckpt_Q38
+0.37.576.086 I llama_model_loader: - kv   6:                         general.size_label str              = 512x1.4B
+0.37.576.086 I llama_model_loader: - kv   7:                            general.license str              = other
+0.37.576.086 I llama_model_loader: - kv   8:                       general.license.name str              = qwen-community-1.0
+0.37.576.087 I llama_model_loader: - kv   9:                       general.license.link str              = LICENSE
+0.37.576.092 I llama_model_loader: - kv  10:                               general.tags arr[str,1]       = ["image-text-to-text"]
+0.37.576.093 I llama_model_loader: - kv  11:                       qwen4exp.block_count u32              = 49
+0.37.576.093 I llama_model_loader: - kv  12:                    qwen4exp.context_length u32              = 262144
+0.37.576.094 I llama_model_loader: - kv  13:                  qwen4exp.embedding_length u32              = 2560
+0.37.576.094 I llama_model_loader: - kv  14:              qwen4exp.attention.head_count u32              = 24
+0.37.576.095 I llama_model_loader: - kv  15:           qwen4exp.attention.head_count_kv u32              = 2
+0.37.576.096 I llama_model_loader: - kv  16:           qwen4exp.rope.dimension_sections arr[i32,4]       = [11, 11, 10, 0]
+0.37.576.097 I llama_model_loader: - kv  17:                    qwen4exp.rope.freq_base f32              = 10000000.000000
+0.37.576.098 I llama_model_loader: - kv  18:  qwen4exp.attention.layer_norm_rms_epsilon f32              = 0.000001
+0.37.576.098 I llama_model_loader: - kv  19:                      qwen4exp.expert_count u32              = 512
+0.37.576.098 I llama_model_loader: - kv  20:                 qwen4exp.expert_used_count u32              = 10
+0.37.576.099 I llama_model_loader: - kv  21:              qwen4exp.attention.key_length u32              = 256
+0.37.576.099 I llama_model_loader: - kv  22:            qwen4exp.attention.value_length u32              = 256
+0.37.576.099 I llama_model_loader: - kv  23:        qwen4exp.expert_feed_forward_length u32              = 640
+0.37.576.100 I llama_model_loader: - kv  24: qwen4exp.expert_shared_feed_forward_length u32              = 640
+0.37.576.100 I llama_model_loader: - kv  25:              qwen4exp.nextn_predict_layers u32              = 1
+0.37.576.100 I llama_model_loader: - kv  26:                   qwen4exp.ssm.conv_kernel u32              = 4
+0.37.576.101 I llama_model_loader: - kv  27:                    qwen4exp.ssm.state_size u32              = 128
+0.37.576.101 I llama_model_loader: - kv  28:                   qwen4exp.ssm.group_count u32              = 16
+0.37.576.101 I llama_model_loader: - kv  29:                qwen4exp.ssm.time_step_rank u32              = 48
+0.37.576.102 I llama_model_loader: - kv  30:                    qwen4exp.ssm.inner_size u32              = 6144
+0.37.576.102 I llama_model_loader: - kv  31:           qwen4exp.full_attention_interval u32              = 4
+0.37.576.102 I llama_model_loader: - kv  32:              qwen4exp.rope.dimension_count u32              = 64
+0.37.576.103 I llama_model_loader: - kv  33:            qwen4exp.hyper_connection.count u32              = 4
+0.37.576.103 I llama_model_loader: - kv  34:         qwen4exp.hyper_connection.low_rank u32              = 320
+0.37.576.103 I llama_model_loader: - kv  35:      qwen4exp.attention.indexer.head_count u32              = 4
+0.37.576.104 I llama_model_loader: - kv  36:      qwen4exp.attention.indexer.key_length u32              = 128
+0.37.576.104 I llama_model_loader: - kv  37:           qwen4exp.attention.indexer.top_k u32              = 2048
+0.37.576.107 I llama_model_loader: - kv  38:         qwen4exp.attention.compress_ratios arr[i32,49]      = [0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, ...
+0.37.576.107 I llama_model_loader: - kv  39:                       tokenizer.ggml.model str              = gpt2
+0.37.576.107 I llama_model_loader: - kv  40:                         tokenizer.ggml.pre str              = qwen35
+0.37.595.437 I llama_model_loader: - kv  41:                      tokenizer.ggml.tokens arr[str,248320]  = ["!", "\"", "#", "$", "%", "&", "'", ...
+0.37.600.345 I llama_model_loader: - kv  42:                  tokenizer.ggml.token_type arr[i32,248320]  = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ...
+0.37.620.377 I llama_model_loader: - kv  43:                      tokenizer.ggml.merges arr[str,247587]  = ["Ġ Ġ", "ĠĠ ĠĠ", "i n", "Ġ t",...
+0.37.620.379 I llama_model_loader: - kv  44:                tokenizer.ggml.eos_token_id u32              = 248046
+0.37.620.380 I llama_model_loader: - kv  45:            tokenizer.ggml.padding_token_id u32              = 248044
+0.37.620.380 I llama_model_loader: - kv  46:                tokenizer.ggml.bos_token_id u32              = 248044
+0.37.620.381 I llama_model_loader: - kv  47:               tokenizer.ggml.add_bos_token bool             = false
+0.37.620.383 I llama_model_loader: - kv  48:                    tokenizer.chat_template str              = {%- set image_count = namespace(value...
+0.37.620.384 I llama_model_loader: - kv  49:               general.quantization_version u32              = 2
+0.37.620.384 I llama_model_loader: - kv  50:                          general.file_type u32              = 15
+0.37.620.385 I llama_model_loader: - type  f32:   11 tensors
+0.37.620.385 I llama_model_loader: - type q5_0:    3 tensors
+0.37.620.386 I llama_model_loader: - type q8_0:    2 tensors
+0.37.620.386 I llama_model_loader: - type q4_K:   13 tensors
+0.37.620.386 I llama_model_loader: - type q6_K:    3 tensors
+0.37.620.386 I llama_model_loader: - type bf16:    2 tensors
+0.37.620.391 I print_info: file format = GGUF V3 (latest)
+0.37.620.391 I print_info: file type   = Q4_K - Medium
+0.37.620.393 I print_info: file size   = 2.58 GiB (5.72 BPW) 
+0.37.620.476 I llama_prepare_model_devices: using device CUDA0 (NVIDIA GeForce RTX 3090) (0000:01:00.0) - 18374 MiB free
+0.37.732.803 I load: 0 unused tokens
+0.37.765.443 I load: printing all EOG tokens:
+0.37.765.445 I load:   - 248044 ('<|endoftext|>')
+0.37.765.446 I load:   - 248046 ('<|im_end|>')
+0.37.765.446 I load:   - 248063 ('<|fim_pad|>')
+0.37.765.446 I load:   - 248064 ('<|repo_name|>')
+0.37.765.446 I load:   - 248065 ('<|file_sep|>')
+0.37.765.883 I load: special tokens cache size = 33
+0.37.837.341 I load: token to piece cache size = 1.7581 MB
+0.37.837.352 I print_info: arch                  = qwen4exp
+0.37.837.353 I print_info: vocab_only            = 0
+0.37.837.353 I print_info: no_alloc              = 0
+0.37.837.353 I print_info: n_ctx_train           = 262144
+0.37.837.353 I print_info: n_embd_inp            = 2560
+0.37.837.354 I print_info: n_embd                = 2560
+0.37.837.354 I print_info: n_embd_out            = 10240
+0.37.837.354 I print_info: n_layer               = 48
+0.37.837.354 I print_info: n_layer_all           = 49
+0.37.837.360 I print_info: n_head                = 24
+0.37.837.361 I print_info: n_head_kv             = 2
+0.37.837.361 I print_info: n_rot                 = 64
+0.37.837.361 I print_info: n_swa                 = 0
+0.37.837.362 I print_info: is_swa_any            = 0
+0.37.837.362 I print_info: non_causal_type       = 0
+0.37.837.362 I print_info: n_embd_head_k         = 256
+0.37.837.362 I print_info: n_embd_head_v         = 256
+0.37.837.363 I print_info: n_gqa                 = 12
+0.37.837.364 I print_info: n_embd_k_gqa          = 512
+0.37.837.365 I print_info: n_embd_v_gqa          = 512
+0.37.837.366 I print_info: f_norm_eps            = 0.0e+00
+0.37.837.367 I print_info: f_norm_rms_eps        = 1.0e-06
+0.37.837.367 I print_info: f_clamp_kqv           = 0.0e+00
+0.37.837.367 I print_info: f_max_alibi_bias      = 0.0e+00
+0.37.837.367 I print_info: f_logit_scale         = 0.0e+00
+0.37.837.368 I print_info: f_attn_scale          = 0.0e+00
+0.37.837.368 I print_info: f_attn_value_scale    = 0.0000
+0.37.837.369 I print_info: n_ff                  = 0
+0.37.837.369 I print_info: n_expert              = 512
+0.37.837.369 I print_info: n_expert_used         = 10
+0.37.837.369 I print_info: n_expert_groups       = 0
+0.37.837.369 I print_info: n_group_used          = 0
+0.37.837.369 I print_info: causal attn           = 1
+0.37.837.370 I print_info: pooling type          = -1
+0.37.837.370 I print_info: rope type             = 40
+0.37.837.370 I print_info: rope scaling          = linear
+0.37.837.371 I print_info: freq_base_train       = 10000000.0
+0.37.837.371 I print_info: freq_scale_train      = 1
+0.37.837.371 I print_info: n_ctx_orig_yarn       = 262144
+0.37.837.372 I print_info: rope_yarn_log_mul     = 0.0000
+0.37.837.372 I print_info: rope_finetuned        = unknown
+0.37.837.372 I print_info: mrope sections        = [11, 11, 10, 0]
+0.37.837.373 I print_info: model type            = A3B
+0.37.837.373 I print_info: model params          = 3.88 B
+0.37.837.374 I print_info: general.name          = Ckpt_Q38
+0.37.837.374 I print_info: vocab type            = BPE
+0.37.837.375 I print_info: n_vocab               = 248320
+0.37.837.375 I print_info: n_merges              = 247587
+0.37.837.375 I print_info: BOS token             = 248044 '<|endoftext|>'
+0.37.837.375 I print_info: EOS token             = 248046 '<|im_end|>'
+0.37.837.375 I print_info: EOT token             = 248046 '<|im_end|>'
+0.37.837.376 I print_info: PAD token             = 248044 '<|endoftext|>'
+0.37.837.376 I print_info: LF token              = 198 'Ċ'
+0.37.837.376 I print_info: FIM PRE token         = 248060 '<|fim_prefix|>'
+0.37.837.376 I print_info: FIM SUF token         = 248062 '<|fim_suffix|>'
+0.37.837.376 I print_info: FIM MID token         = 248061 '<|fim_middle|>'
+0.37.837.377 I print_info: FIM PAD token         = 248063 '<|fim_pad|>'
+0.37.837.377 I print_info: FIM REP token         = 248064 '<|repo_name|>'
+0.37.837.377 I print_info: FIM SEP token         = 248065 '<|file_sep|>'
+0.37.837.377 I print_info: EOG token             = 248044 '<|endoftext|>'
+0.37.837.377 I print_info: EOG token             = 248046 '<|im_end|>'
+0.37.837.377 I print_info: EOG token             = 248063 '<|fim_pad|>'
+0.37.837.378 I print_info: EOG token             = 248064 '<|repo_name|>'
+0.37.837.378 I print_info: EOG token             = 248065 '<|file_sep|>'
+0.37.837.378 I print_info: max token length      = 256
+0.37.837.379 I load_tensors: loading model tensors, this can take a while... (load_mode = none)
+0.37.841.190 I moe-override: tensor blk.48.ffn_down_exps.weight (850 MiB q8_0) buffer type overridden to CUDA_MoE_Cached
+0.37.841.192 I moe-buft-select: tensor=blk.48.ffn_down_exps.weight overrides=1 matched=1 selected=CUDA_MoE_Cached
+0.37.841.206 I moe-override: tensor blk.48.ffn_gate_exps.weight (450 MiB q4_K) buffer type overridden to CUDA_MoE_Cached
+0.37.841.207 I moe-buft-select: tensor=blk.48.ffn_gate_exps.weight overrides=1 matched=1 selected=CUDA_MoE_Cached
+0.37.841.211 I moe-override: tensor blk.48.ffn_up_exps.weight (450 MiB q4_K) buffer type overridden to CUDA_MoE_Cached
+0.37.841.212 I moe-buft-select: tensor=blk.48.ffn_up_exps.weight overrides=1 matched=1 selected=CUDA_MoE_Cached
+0.38.375.696 I load_tensors: offloading output layer to GPU
+0.38.375.699 I load_tensors: offloading 48 repeating layers to GPU
+0.38.375.700 I load_tensors: offloaded 50/50 layers to GPU
+0.38.375.703 I load_tensors:        CUDA0 model buffer size =   555.68 MiB
+0.38.375.704 I load_tensors:    CUDA_Host model buffer size =   341.02 MiB
+0.38.375.705 I load_tensors: CUDA_MoE_Cached model buffer size =  1750.00 MiB
+0.40.200.380 I llama_context: constructing llama_context
+0.40.200.384 I llama_context: n_seq_max             = 1
+0.40.200.384 I llama_context: n_ctx                 = 65536
+0.40.200.384 I llama_context: n_ctx_seq             = 65536
+0.40.200.384 I llama_context: n_batch               = 4096
+0.40.200.385 I llama_context: n_ubatch              = 256
+0.40.200.385 I llama_context: causal_attn           = 1
+0.40.200.385 I llama_context: flash_attn            = enabled
+0.40.200.385 I llama_context: kv_unified            = false
+0.40.200.405 I llama_context: freq_base             = 10000000.0
+0.40.200.405 I llama_context: freq_scale            = 1
+0.40.200.406 I llama_context: n_rs_seq              = 0
+0.40.200.406 I llama_context: n_outputs_max         = 1
+0.40.200.406 I llama_context: n_outputs_max_per_seq = 1
+0.40.200.406 I llama_context: n_ctx_seq (65536) < n_ctx_train (262144) -- the full capacity of the model will not be utilized
+0.40.200.420 I llama_context: decode boundary overlap enabled for CUDA0
+0.40.200.473 I llama_context:  CUDA_Host  output buffer size =     0.95 MiB
+0.40.200.919 I llama_kv_cache:      CUDA0 KV buffer size =   128.00 MiB
+0.40.201.097 I llama_kv_cache: size =  128.00 MiB ( 65536 cells,   1 layers,  1/1 seqs), K (f16):   64.00 MiB, V (f16):   64.00 MiB
+0.40.201.099 I llama_kv_cache: attn_rot_k = 0, n_embd_head_k_all = 256
+0.40.201.099 I llama_kv_cache: attn_rot_v = 0, n_embd_head_k_all = 256
+0.40.201.104 I sched_reserve: reserving decode workspace (tokens = 1, previous = 0, kv = 256, previous = 0) ...
+0.40.201.747 I operator(): created phase-aware compute backing
+0.40.201.751 I resolve_fused_ops: resolving fused DeepSeek V4 HC support:
+0.40.201.891 I resolve_fused_ops: fused DeepSeek V4 HC pre enabled
+0.40.201.985 I resolve_fused_ops: fused DeepSeek V4 HC comb enabled
+0.40.202.097 I resolve_fused_ops: fused DeepSeek V4 HC post enabled
+0.40.202.577 I sched_reserve:      CUDA0 compute buffer size =     1.11 MiB
+0.40.202.580 I sched_reserve:  CUDA_Host compute buffer size =     0.05 MiB
+0.40.202.580 I sched_reserve: graph nodes  = 166
+0.40.202.580 I sched_reserve: graph splits = 2
+0.40.202.581 I sched_reserve: decode workspace reserve took 1.34 ms (kv = 256), sched copies = 1
+0.40.202.726 I sched_reserve: reserving prefill workspace (tokens = 256, previous = 3, kv = 256, previous = 256) ...
+0.40.215.337 I sched_reserve:      CUDA0 compute buffer size =   917.23 MiB
+0.40.215.340 I sched_reserve:  CUDA_Host compute buffer size =     7.98 MiB
+0.40.215.340 I sched_reserve: graph nodes  = 8598 (with bs=256), 8652 (with bs=1)
+0.40.215.340 I sched_reserve: graph splits = 145 (with bs=256), 98 (with bs=1)
+0.40.215.341 I sched_reserve: prefill workspace reserve took 12.61 ms (kv = 256), sched copies = 1
+0.40.215.347 I sched_reserve: reserving decode workspace (tokens = 3, previous = 256, kv = 256, previous = 256) ...
+0.40.229.646 I sched_reserve:      CUDA0 compute buffer size =    13.26 MiB
+0.40.229.650 I sched_reserve:  CUDA_Host compute buffer size =     0.88 MiB
+0.40.229.650 I sched_reserve: graph nodes  = 8598 (with bs=3), 8652 (with bs=1)
+0.40.229.650 I sched_reserve: graph splits = 98
+0.40.229.651 I sched_reserve: decode workspace reserve took 14.30 ms (kv = 256), sched copies = 1
+0.40.229.654 I sched_reserve: reserving decode workspace (tokens = 3, previous = 0, kv = 256, previous = 0) ...
+0.40.231.703 I operator(): borrowing target phase-aware compute backing
+0.40.232.088 I sched_reserve:      CUDA0 compute buffer size =    13.26 MiB
+0.40.232.090 I sched_reserve:  CUDA_Host compute buffer size =     0.88 MiB
+0.40.232.090 I sched_reserve: graph nodes  = 166
+0.40.232.090 I sched_reserve: graph splits = 2
+0.40.232.091 I sched_reserve: decode workspace reserve took 2.44 ms (kv = 256), sched copies = 1
+0.40.418.738 I cmn  common_conte: the context supports bounded partial sequence removal
+0.40.420.459 I srv    load_model: MTP recurrent-plane policy: draft depth = 2, total planes = 3, direct rollback horizon = 2, full-shape GPU replay = disabled
+0.40.420.461 I srv    load_model: initializing, n_slots = 1, n_ctx_slot = 65536, kv_unified = 'false'
+0.40.420.576 I spec common_specu: adding speculative implementation 'draft-mtp'
+0.40.420.579 I spec common_specu: - n_max=2, n_min=0, p_min=0.00, n_embd=10240, backend_sampling=1
+0.40.420.581 I spec common_specu: - gpu_layers=-1, cache_k=f16, cache_v=f16, ctx_tgt=yes, ctx_dft=yes, devices=[default]
+0.40.421.396 I sched_reserve: reserving decode workspace (tokens = 3, previous = 3, kv = 256, previous = 256) ...
+0.40.421.850 I sched_reserve:      CUDA0 compute buffer size =    13.26 MiB
+0.40.421.853 I sched_reserve:  CUDA_Host compute buffer size =     0.88 MiB
+0.40.421.853 I sched_reserve: graph nodes  = 172
+0.40.421.854 I sched_reserve: graph splits = 2
+0.40.421.854 I sched_reserve: decode workspace reserve took 0.45 ms (kv = 256), sched copies = 1
+0.40.428.934 I srv    load_model: speculative decoding context initialized
+0.40.428.938 I slot   load_model: id  0 | task -1 | new slot, n_ctx = 65536
+0.40.429.069 I srv    load_model: prompt cache is disabled - use `--cache-ram N` to enable it
+0.40.429.070 I srv    load_model: for more info see https://github.com/ggml-org/llama.cpp/pull/16391
+0.40.429.070 I srv    load_model: context checkpoints enabled, max = 32, min spacing = 8192
+0.40.429.086 W srv          init: --cache-idle-slots requires --cache-ram, disabling
+0.40.437.266 I srv          init: init: chat template, example_format: '<|im_start|>system
+Reasoning effort is set to xhigh. Please think carefully through the task, validate key assumptions, consider plausible alternatives, and prioritize correctness, consistency, and clarity in the final answer.
+
+You are a helpful assistant<|im_end|>
+<|im_start|>user
+Hello<|im_end|>
+<|im_start|>assistant
+<think>
+
+</think>
+
+Hi there<|im_end|>
+<|im_start|>user
+How are you?<|im_end|>
+<|im_start|>assistant
+<think>
+'
+0.40.438.137 I srv          init: init: chat template, thinking = 1
+0.40.438.142 I srv          init: preserve_reasoning kwarg: true
+0.40.438.142 W srv          init: chat template supports preserving reasoning, it is enabled by default (may use more tokens, disable via --no-reasoning-preserve)
+0.40.438.168 I srv  llama_server: model loaded
+0.40.438.170 I srv  llama_server: listening on http://127.0.0.1:8080
+0.40.438.170 W srv  llama_server: NOTICE: server default port will be changed to :9931 in a future release
+0.40.438.171 W srv  llama_server:         ref: https://github.com/ggml-org/llama.cpp/pull/26508
+0.40.438.248 I srv  update_slots: all slots are idle
+0.41.119.252 I srv  server_strea: conv_id= (empty=1)
+0.41.122.901 I srv    operator(): chat format: peg-native
+0.41.123.405 I slot get_availabl: id  0 | task -1 |  - skipping, slot is empty
+0.41.123.408 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = -1
+0.41.123.509 I slot launch_slot_: id  0 | task -1 | decode overlap: MTP draft enabled after target acceptance
+0.41.123.517 I slot launch_slot_: id  0 | task -1 | sampler chain: logits -> ?penalties -> ?dry -> ?top-n-sigma -> +top-k -> ?typical -> ?top-p -> ?min-p -> ?xtc -> +temp-ext -> +dist 
+0.41.123.528 I slot launch_slot_: id  0 | task -1 | sampler params: 
+	repeat_last_n = 64, repeat_penalty = 1.000, frequency_penalty = 0.000, presence_penalty = 0.000
+	dry_multiplier = 0.000, dry_base = 1.750, dry_allowed_length = 2, dry_penalty_last_n = 64
+	top_k = 20, top_p = 1.000, min_p = 0.000, xtc_probability = 0.000, xtc_threshold = 0.100, typical_p = 1.000, top_n_sigma = -1.000, temp = 0.000
+	mirostat = 0, mirostat_lr = 0.100, mirostat_ent = 5.000, adaptive_target = -1.000, adaptive_decay = 0.900
+0.41.123.531 I slot launch_slot_: id  0 | task 0 | processing task, is_child = 0
+0.41.123.547 I slot   operator(): id  0 | task 0 | new prompt, n_ctx_slot = 65536, n_keep = 0, task.n_tokens = 1383
+0.41.123.554 I slot   operator(): id  0 | task 0 | cached n_tokens = 0, memory_seq_rm [0, end)
+0.41.123.732 I sched_reserve: reserving prefill workspace (tokens = 256, previous = 3, kv = 256, previous = 256) ...
+0.41.139.636 I sched_reserve:      CUDA0 compute buffer size =   917.23 MiB
+0.41.139.641 I sched_reserve:  CUDA_Host compute buffer size =     7.98 MiB
+0.41.139.642 I sched_reserve: graph nodes  = 8527 (with bs=256), 8627 (with bs=1)
+0.41.139.642 I sched_reserve: graph splits = 146 (with bs=256), 98 (with bs=1)
+0.41.139.645 I sched_reserve: prefill workspace reserve took 15.90 ms (kv = 256), sched copies = 1
+0.42.476.059 I sched_reserve: reserving prefill workspace (tokens = 256, previous = 3, kv = 256, previous = 256) ...
+0.42.480.643 I sched_reserve:      CUDA0 compute buffer size =   917.23 MiB
+0.42.480.646 I sched_reserve:  CUDA_Host compute buffer size =    12.51 MiB
+0.42.480.646 I sched_reserve: graph nodes  = 172
+0.42.480.647 I sched_reserve: graph splits = 2
+0.42.480.648 I sched_reserve: prefill workspace reserve took 4.56 ms (kv = 256), sched copies = 1
+0.42.500.822 I slot   operator(): id  0 | task 0 | cached n_tokens = 42, memory_seq_rm [42, end)
+0.42.549.441 I slot create_check: id  0 | task 0 | created context checkpoint 1 of 32 (pos_min = 41, pos_max = 41, n_tokens = 42, size = 112.693 MiB)
+0.42.550.849 I sched_reserve: reserving prefill workspace (tokens = 256, previous = 256, kv = 2048, previous = 256) ...
+0.42.564.501 I sched_reserve:      CUDA0 compute buffer size =   940.25 MiB
+0.42.564.504 I sched_reserve:  CUDA_Host compute buffer size =    12.51 MiB
+0.42.564.505 I sched_reserve: graph nodes  = 8527 (with bs=256), 8627 (with bs=1)
+0.42.564.505 I sched_reserve: graph splits = 146 (with bs=256), 98 (with bs=1)
+0.42.564.506 I sched_reserve: prefill workspace reserve took 13.65 ms (kv = 2048), sched copies = 1
+0.51.353.380 I sched_reserve: reserving prefill workspace (tokens = 256, previous = 256, kv = 2048, previous = 256) ...
+0.51.353.750 I sched_reserve:      CUDA0 compute buffer size =   940.25 MiB
+0.51.353.752 I sched_reserve:  CUDA_Host compute buffer size =    12.51 MiB
+0.51.353.752 I sched_reserve: graph nodes  = 172
+0.51.353.753 I sched_reserve: graph splits = 2
+0.51.353.753 I sched_reserve: prefill workspace reserve took 0.37 ms (kv = 2048), sched copies = 1
+0.51.393.828 I slot print_timing: id  0 | task 0 | prompt processing, n_tokens =   1123, progress = 0.81, t =  10.20 s / 110.06 tokens per second
+0.51.393.830 I slot   operator(): id  0 | task 0 | cached n_tokens = 1123, memory_seq_rm [1123, end)
+0.51.439.214 I slot create_check: id  0 | task 0 | created context checkpoint 2 of 32 (pos_min = 1122, pos_max = 1122, n_tokens = 1123, size = 114.829 MiB)
+0.53.384.261 I slot print_timing: id  0 | task 0 | prompt processing, n_tokens =   1379, progress = 1.00, t =  12.25 s / 112.55 tokens per second
+0.53.384.263 I slot   operator(): id  0 | task 0 | cached n_tokens = 1379, memory_seq_rm [1379, end)
+0.53.384.509 I slot init_sampler: id  0 | task 0 | init sampler, took 0.13 ms, tokens: text = 1383, total = 1383
+0.53.429.000 I slot create_check: id  0 | task 0 | created context checkpoint 3 of 32 (pos_min = 1378, pos_max = 1378, n_tokens = 1379, size = 115.335 MiB)
+0.53.624.858 I slot print_timing: id  0 | task 0 | prompt eval time =   12501.30 ms /  1383 tokens (    9.04 ms per token,   110.63 tokens per second)
+0.53.624.862 I slot print_timing: id  0 | task 0 |        eval time =       0.00 ms /     1 tokens (    0.00 ms per token,     0.00 tokens per second)
+0.53.624.863 I slot print_timing: id  0 | task 0 |       total time =   12501.30 ms /  1384 tokens
+0.53.624.865 I slot print_timing: id  0 | task 0 |    graphs reused =          0
+0.53.624.886 I spec common_specu: statistics        draft-mtp: #calls(b,g,a) =    1      0      0, #gen drafts =      0, #acc drafts =     0, #gen tokens =      0, #acc tokens =     0, dur(b,g,a) = 0.002, 0.000, 0.000 ms
+0.53.624.946 I moe-cache: 0 caches  hits=0  misses=0  evictions=0  hit-rate=0.00%
+moe-grouped-decode: registered=1 covered=1 plan_calls=1 plan_compiles=1 plan_reuses=0 calls=1 ready=1 ready_min=1 ready_max=1 completed=1 completed_min=1 completed_max=1 admitted_banks=3 fallback=0 rollback=0 host_calls=0 host_ops=0 host_split_ops=0 strategy_switches=0 required_unsupported=0 prepare_error=0 finish_error=0 h2d_banks=30 h2d_bytes=35840000
+moe-cache-experts: tensors=0 experts=0 unique=0 unique_pct=0.00 accesses=0 first_touches=0 first_touch_pct=0.00 touched_once=0 touched_ge2=0 reuse_le_l1=0 reuse_le_l1_pct=0.00 reuse_gt_l1=0 reuse_gt_l1_pct=0.00 top1_pct=0.00 top5_pct=0.00 top10_pct=0.00
+moe-cache-experts-hot: tensor=? experts=0 unique=0 unique_pct=0.00 accesses=0 touched_once=0 touched_ge2=0 top10_pct=0.00 reuse_gt_l1_pct=0.00
+moe-cache-tensor-hot-decode-miss: tensor=? l1_hits=0 l1_misses=0 l1_evictions=0 l1_hit_rate=0.00% h2d_copies=0 h2d_mib=0.00 h2d_enqueue_ms=0.000 prefetch_used=0 prefetch_h2d_copies=0 prefetch_h2d_mib=0.00 reuse_gt_l1_pct=0.00
+moe-cache-phase: phase=prefill ops=0 staged_ops=0 split_staged_ops=0 overflow_ops=0 unique_avg=0.00 unique_max=0 ids_mib=0.00 ids_d2h_mib=0.00 ids_d2h_ms=0.000 ids_d2h_syncs=0 ids_cache_hits=0 acquire_ms=0.000 remap_ms=0.000 copy_wait_events=0 copy_wait_event_ms=0.000 op_cpu_ms=0.000 l1_hits=0 l1_misses=0 l1_evictions=0 l1_hit_rate=0.00% h2d_copies=0 h2d_mib=0.00 h2d_enqueue_ms=0.000 prefetch_hits=0 prefetch_misses=0 prefetch_used=0 prefetch_h2d_copies=0 prefetch_h2d_mib=0.00 prefetch_h2d_enqueue_ms=0.000 upload_calls=0 upload_mib=0.00 staging_tiles=0 pipeline_tiles=0 tile_wait_calls=0 tile_wait_ms=0.000 cpu_pack_mib=0.00 cpu_pack_ms=0.000 pre_sync_calls=0 pre_sync_ms=0.000 h2d_submit_calls=0 h2d_submit_mib=0.00 h2d_submit_ms=0.000 post_sync_calls=0 post_sync_ms=0.000 upload_errors=0
+moe-cache-phase: phase=decode ops=0 staged_ops=0 split_staged_ops=0 overflow_ops=0 unique_avg=0.00 unique_max=0 ids_mib=0.00 ids_d2h_mib=0.00 ids_d2h_ms=0.000 ids_d2h_syncs=0 ids_cache_hits=0 acquire_ms=0.000 remap_ms=0.000 copy_wait_events=0 copy_wait_event_ms=0.000 op_cpu_ms=0.000 l1_hits=0 l1_misses=0 l1_evictions=0 l1_hit_rate=0.00% h2d_copies=0 h2d_mib=0.00 h2d_enqueue_ms=0.000 prefetch_hits=0 prefetch_misses=0 prefetch_used=0 prefetch_h2d_copies=0 prefetch_h2d_mib=0.00 prefetch_h2d_enqueue_ms=0.000 upload_calls=0 upload_mib=0.00 staging_tiles=0 pipeline_tiles=0 tile_wait_calls=0 tile_wait_ms=0.000 cpu_pack_mib=0.00 cpu_pack_ms=0.000 pre_sync_calls=0 pre_sync_ms=0.000 h2d_submit_calls=0 h2d_submit_mib=0.00 h2d_submit_ms=0.000 post_sync_calls=0 post_sync_ms=0.000 upload_errors=0
+moe-cache-mm: h2d_copies=0 h2d_mib=0.00 h2d_enqueue_ms=0.000 mincore_sampled=0 resident_pages=0/0 resident_pct=0.00 nonresident_experts=0 mincore_fail=0 proc_minflt=0 proc_majflt=0 vm_pswpin=0 vm_pswpout=0 vm_pgfault=0 vm_pgmajfault=0 vm_pgpgin=0 vm_pgpgout=0 vm_refault_file=0 vm_refault_anon=0
+0.53.625.164 I slot      release: id  0 | task 0 | stop processing: n_tokens = 1383, truncated = 0
+0.53.625.771 I srv    operator(): trimmed transient backend pools: target 12.00 MiB, draft 12.00 MiB
+0.53.625.779 I srv  update_slots: all slots are idle
+0.54.635.378 I srv    operator(): operator(): cleaning up before exit...
+0.54.637.385 I common_memory_breakdown_print: | memory breakdown [MiB] | total    free     self   model   context   compute    unaccounted |
+0.54.637.393 I common_memory_breakdown_print: |   - CUDA0 (RTX 3090)   | 24123 = 16184 + ( 6223 =  4459 +     823 +     940) +        1715 |
+0.54.637.394 I common_memory_breakdown_print: |   - Host               |                  81360 = 81347 +       0 +      12                |
+0.54.647.106 I moe-cuda-sync-trace: stream_syncs=0 event_syncs=1
+0.54.647.108 I moe-cuda-sync-trace: event line=4504 count=1
+0.54.647.109 I moe-cache: 0 caches  hits=0  misses=0  evictions=0  hit-rate=0.00%
+moe-grouped-decode: registered=1 covered=0 plan_calls=0 plan_compiles=0 plan_reuses=0 calls=0 ready=0 ready_min=0 ready_max=0 completed=0 completed_min=0 completed_max=0 admitted_banks=0 fallback=0 rollback=0 host_calls=0 host_ops=0 host_split_ops=0 strategy_switches=0 required_unsupported=0 prepare_error=0 finish_error=0 h2d_banks=0 h2d_bytes=0
+moe-cache-experts: tensors=0 experts=0 unique=0 unique_pct=0.00 accesses=0 first_touches=0 first_touch_pct=0.00 touched_once=0 touched_ge2=0 reuse_le_l1=0 reuse_le_l1_pct=0.00 reuse_gt_l1=0 reuse_gt_l1_pct=0.00 top1_pct=0.00 top5_pct=0.00 top10_pct=0.00
+moe-cache-experts-hot: tensor=? experts=0 unique=0 unique_pct=0.00 accesses=0 touched_once=0 touched_ge2=0 top10_pct=0.00 reuse_gt_l1_pct=0.00
+moe-cache-tensor-hot-decode-miss: tensor=? l1_hits=0 l1_misses=0 l1_evictions=0 l1_hit_rate=0.00% h2d_copies=0 h2d_mib=0.00 h2d_enqueue_ms=0.000 prefetch_used=0 prefetch_h2d_copies=0 prefetch_h2d_mib=0.00 reuse_gt_l1_pct=0.00
+moe-cache-phase: phase=prefill ops=0 staged_ops=0 split_staged_ops=0 overflow_ops=0 unique_avg=0.00 unique_max=0 ids_mib=0.00 ids_d2h_mib=0.00 ids_d2h_ms=0.000 ids_d2h_syncs=0 ids_cache_hits=0 acquire_ms=0.000 remap_ms=0.000 copy_wait_events=0 copy_wait_event_ms=0.000 op_cpu_ms=0.000 l1_hits=0 l1_misses=0 l1_evictions=0 l1_hit_rate=0.00% h2d_copies=0 h2d_mib=0.00 h2d_enqueue_ms=0.000 prefetch_hits=0 prefetch_misses=0 prefetch_used=0 prefetch_h2d_copies=0 prefetch_h2d_mib=0.00 prefetch_h2d_enqueue_ms=0.000 upload_calls=0 upload_mib=0.00 staging_tiles=0 pipeline_tiles=0 tile_wait_calls=0 tile_wait_ms=0.000 cpu_pack_mib=0.00 cpu_pack_ms=0.000 pre_sync_calls=0 pre_sync_ms=0.000 h2d_submit_calls=0 h2d_submit_mib=0.00 h2d_submit_ms=0.000 post_sync_calls=0 post_sync_ms=0.000 upload_errors=0
+moe-cache-phase: phase=decode ops=0 staged_ops=0 split_staged_ops=0 overflow_ops=0 unique_avg=0.00 unique_max=0 ids_mib=0.00 ids_d2h_mib=0.00 ids_d2h_ms=0.000 ids_d2h_syncs=0 ids_cache_hits=0 acquire_ms=0.000 remap_ms=0.000 copy_wait_events=0 copy_wait_event_ms=0.000 op_cpu_ms=0.000 l1_hits=0 l1_misses=0 l1_evictions=0 l1_hit_rate=0.00% h2d_copies=0 h2d_mib=0.00 h2d_enqueue_ms=0.000 prefetch_hits=0 prefetch_misses=0 prefetch_used=0 prefetch_h2d_copies=0 prefetch_h2d_mib=0.00 prefetch_h2d_enqueue_ms=0.000 upload_calls=0 upload_mib=0.00 staging_tiles=0 pipeline_tiles=0 tile_wait_calls=0 tile_wait_ms=0.000 cpu_pack_mib=0.00 cpu_pack_ms=0.000 pre_sync_calls=0 pre_sync_ms=0.000 h2d_submit_calls=0 h2d_submit_mib=0.00 h2d_submit_ms=0.000 post_sync_calls=0 post_sync_ms=0.000 upload_errors=0
+moe-cache-mm: h2d_copies=0 h2d_mib=0.00 h2d_enqueue_ms=0.000 mincore_sampled=0 resident_pages=0/0 resident_pct=0.00 nonresident_experts=0 mincore_fail=0 proc_minflt=3 proc_majflt=4 vm_pswpin=0 vm_pswpout=0 vm_pgfault=19094 vm_pgmajfault=4 vm_pgpgin=144 vm_pgpgout=16 vm_refault_file=36 vm_refault_anon=0
+0.54.903.331 I moe-cuda-sync-trace: stream_syncs=0 event_syncs=1
+0.54.903.334 I moe-cuda-sync-trace: event line=4504 count=1
+0.54.903.336 I moe-cache: 0 caches  hits=0  misses=0  evictions=0  hit-rate=0.00%
+moe-grouped-decode: registered=0 covered=0 plan_calls=0 plan_compiles=0 plan_reuses=0 calls=0 ready=0 ready_min=0 ready_max=0 completed=0 completed_min=0 completed_max=0 admitted_banks=0 fallback=0 rollback=0 host_calls=0 host_ops=0 host_split_ops=0 strategy_switches=0 required_unsupported=0 prepare_error=0 finish_error=0 h2d_banks=0 h2d_bytes=0
+moe-cache-experts: tensors=0 experts=0 unique=0 unique_pct=0.00 accesses=0 first_touches=0 first_touch_pct=0.00 touched_once=0 touched_ge2=0 reuse_le_l1=0 reuse_le_l1_pct=0.00 reuse_gt_l1=0 reuse_gt_l1_pct=0.00 top1_pct=0.00 top5_pct=0.00 top10_pct=0.00
+moe-cache-experts-hot: tensor=? experts=0 unique=0 unique_pct=0.00 accesses=0 touched_once=0 touched_ge2=0 top10_pct=0.00 reuse_gt_l1_pct=0.00
+moe-cache-tensor-hot-decode-miss: tensor=? l1_hits=0 l1_misses=0 l1_evictions=0 l1_hit_rate=0.00% h2d_copies=0 h2d_mib=0.00 h2d_enqueue_ms=0.000 prefetch_used=0 prefetch_h2d_copies=0 prefetch_h2d_mib=0.00 reuse_gt_l1_pct=0.00
+moe-cache-phase: phase=prefill ops=0 staged_ops=0 split_staged_ops=0 overflow_ops=0 unique_avg=0.00 unique_max=0 ids_mib=0.00 ids_d2h_mib=0.00 ids_d2h_ms=0.000 ids_d2h_syncs=0 ids_cache_hits=0 acquire_ms=0.000 remap_ms=0.000 copy_wait_events=0 copy_wait_event_ms=0.000 op_cpu_ms=0.000 l1_hits=0 l1_misses=0 l1_evictions=0 l1_hit_rate=0.00% h2d_copies=0 h2d_mib=0.00 h2d_enqueue_ms=0.000 prefetch_hits=0 prefetch_misses=0 prefetch_used=0 prefetch_h2d_copies=0 prefetch_h2d_mib=0.00 prefetch_h2d_enqueue_ms=0.000 upload_calls=0 upload_mib=0.00 staging_tiles=0 pipeline_tiles=0 tile_wait_calls=0 tile_wait_ms=0.000 cpu_pack_mib=0.00 cpu_pack_ms=0.000 pre_sync_calls=0 pre_sync_ms=0.000 h2d_submit_calls=0 h2d_submit_mib=0.00 h2d_submit_ms=0.000 post_sync_calls=0 post_sync_ms=0.000 upload_errors=0
+moe-cache-phase: phase=decode ops=0 staged_ops=0 split_staged_ops=0 overflow_ops=0 unique_avg=0.00 unique_max=0 ids_mib=0.00 ids_d2h_mib=0.00 ids_d2h_ms=0.000 ids_d2h_syncs=0 ids_cache_hits=0 acquire_ms=0.000 remap_ms=0.000 copy_wait_events=0 copy_wait_event_ms=0.000 op_cpu_ms=0.000 l1_hits=0 l1_misses=0 l1_evictions=0 l1_hit_rate=0.00% h2d_copies=0 h2d_mib=0.00 h2d_enqueue_ms=0.000 prefetch_hits=0 prefetch_misses=0 prefetch_used=0 prefetch_h2d_copies=0 prefetch_h2d_mib=0.00 prefetch_h2d_enqueue_ms=0.000 upload_calls=0 upload_mib=0.00 staging_tiles=0 pipeline_tiles=0 tile_wait_calls=0 tile_wait_ms=0.000 cpu_pack_mib=0.00 cpu_pack_ms=0.000 pre_sync_calls=0 pre_sync_ms=0.000 h2d_submit_calls=0 h2d_submit_mib=0.00 h2d_submit_ms=0.000 post_sync_calls=0 post_sync_ms=0.000 upload_errors=0
+moe-cache-mm: h2d_copies=0 h2d_mib=0.00 h2d_enqueue_ms=0.000 mincore_sampled=0 resident_pages=0/0 resident_pct=0.00 nonresident_experts=0 mincore_fail=0 proc_minflt=0 proc_majflt=0 vm_pswpin=0 vm_pswpout=0 vm_pgfault=592 vm_pgmajfault=0 vm_pgpgin=0 vm_pgpgout=0 vm_refault_file=29 vm_refault_anon=0
