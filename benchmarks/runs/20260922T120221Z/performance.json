@@ -1,0 +1,70 @@
+{
+  "run_id": "20260922T120221Z",
+  "started_at_utc": "2026-09-22T12:02:21+00:00",
+  "health_ready_at_utc": "2026-09-22T12:03:22+00:00",
+  "http_code": 200,
+  "request_wall_ms": 24452.751,
+  "run_wall_ms": 85681.101,
+  "prompt_tokens_api": 159,
+  "completion_tokens_api": 1024,
+  "finish_reason": "length",
+  "server_timing": {
+    "prompt_eval_ms": 2711.24,
+    "prompt_tokens": 159,
+    "prompt_tok_s": 58.64,
+    "eval_ms": 21725.67,
+    "eval_tokens": 1024,
+    "eval_tok_s": 47.09,
+    "total_ms": 24436.9,
+    "graphs_reused": 440,
+    "draft_acceptance": 0.64831,
+    "sched_sync_sites": {},
+    "backend_sync_trace_samples": {
+      "ggml_backend_sched_synchronize+0x3a": 157,
+      "ggml_backend_sched_graph_compute_async_ext+0xc98": 50,
+      "ggml_backend_sched_graph_compute_async_ext+0xcb8": 113,
+      "ggml_backend_sched_graph_compute_async_ext+0xcd5": 39,
+      "0x7fce9155228a": 8
+    },
+    "timing_lines": {
+      "prompt_eval_ms": "1.25.622.390 I slot print_timing: id  0 | task 0 | prompt eval time =    2711.24 ms /   159 tokens (   17.05 ms per token,    58.64 tokens per second)",
+      "prompt_tokens": "1.25.622.390 I slot print_timing: id  0 | task 0 | prompt eval time =    2711.24 ms /   159 tokens (   17.05 ms per token,    58.64 tokens per second)",
+      "prompt_tok_s": "1.25.622.390 I slot print_timing: id  0 | task 0 | prompt eval time =    2711.24 ms /   159 tokens (   17.05 ms per token,    58.64 tokens per second)",
+      "eval_ms": "1.25.622.393 I slot print_timing: id  0 | task 0 |        eval time =   21725.67 ms /  1024 tokens (   21.24 ms per token,    47.09 tokens per second)",
+      "eval_tokens": "1.25.622.393 I slot print_timing: id  0 | task 0 |        eval time =   21725.67 ms /  1024 tokens (   21.24 ms per token,    47.09 tokens per second)",
+      "eval_tok_s": "1.25.622.393 I slot print_timing: id  0 | task 0 |        eval time =   21725.67 ms /  1024 tokens (   21.24 ms per token,    47.09 tokens per second)",
+      "total_ms": "1.25.622.393 I slot print_timing: id  0 | task 0 |       total time =   24436.90 ms /  1183 tokens",
+      "graphs_reused": "1.25.622.397 I slot print_timing: id  0 | task 0 |    graphs reused =        440",
+      "draft_acceptance": "1.25.622.399 I slot print_timing: id  0 | task 0 | draft acceptance = 0.64831 (  577 accepted /   890 generated), mean len =  2.30"
+    }
+  },
+  "gpu_end": {
+    "name": "NVIDIA GeForce RTX 3090",
+    "driver_version": "610.57.04",
+    "pstate": "P2",
+    "temperature_c": 61.0,
+    "utilization_pct": 0.0,
+    "clocks_sm_mhz": 1725.0,
+    "clocks_mem_mhz": 9751.0,
+    "power_w": 113.89,
+    "memory_used_mib": 81.0,
+    "memory_total_mib": 24576.0
+  },
+  "request": {
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "min_p": 0.0,
+    "presence_penalty": 0.0,
+    "frequency_penalty": 0.0,
+    "seed": 12345,
+    "cache_prompt": false,
+    "stream": false,
+    "max_tokens": 1024,
+    "messages": [
+      {
+        "role": "user",
+        "content": "Act as the release operator. First reason through the deployment hazards, dependencies, and rollback criteria. Then explicitly finish reasoning and produce a final executable rollout plan dominated by shell commands and configuration snippets. Deploy the payments API to the blue canary pool, hold traffic at ten percent, verify latency and error budgets, and publish a signed go-or-rollback decision. Keep the reasoning brief enough to leave most of the response budget for the final plan.\nInclude concrete scripts with error handling, configuration examples, and verification commands rather than only prose."
+      }
+    ]
+  }
+}
