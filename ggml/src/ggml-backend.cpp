@@ -1724,8 +1724,7 @@ static bool ggml_backend_sched_alloc_splits(ggml_backend_sched_t sched, bool reu
         // the re-allocation may cause the split inputs to be moved to a different address
         // synchronize without ggml_backend_sched_synchronize to avoid changing cur_copy
         for (int i = 0; i < sched->n_backends; i++) {
-            ggml_backend_sched_trace_sync_site("alloc_splits.realloc");
-            ggml_backend_synchronize(sched->backends[i]);
+            { const uint64_t sync_start_us = (uint64_t) ggml_time_us(); ggml_backend_sched_trace_sync_site("alloc_splits.realloc"); ggml_backend_synchronize(sched->backends[i]); g_ggml_backend_sched_sync_profile.record("alloc_splits.realloc", (uint64_t) ggml_time_us() - sync_start_us); }
         }
 
         if (!ggml_gallocr_reserve_n(sched->galloc, &sched->graph, sched->node_backend_ids, sched->leaf_backend_ids)) {
@@ -1824,8 +1823,7 @@ static enum ggml_status ggml_backend_sched_compute_splits(
     const auto fail = [&](enum ggml_status status) {
         if (required_grouped) {
             for (int i = 0; i < sched->n_backends; ++i) {
-                ggml_backend_sched_trace_sync_site("compute_splits.fail");
-                ggml_backend_synchronize(sched->backends[i]);
+                { const uint64_t sync_start_us = (uint64_t) ggml_time_us(); ggml_backend_sched_trace_sync_site("compute_splits.fail"); ggml_backend_synchronize(sched->backends[i]); g_ggml_backend_sched_sync_profile.record("compute_splits.fail", (uint64_t) ggml_time_us() - sync_start_us); }
             }
         }
         return status;
@@ -2317,8 +2315,7 @@ enum ggml_status ggml_backend_sched_graph_compute_async_ext(
 void ggml_backend_sched_synchronize(ggml_backend_sched_t sched) {
     GGML_ASSERT(sched);
     for (int i = 0; i < sched->n_backends; i++) {
-        ggml_backend_sched_trace_sync_site("sched_synchronize");
-        ggml_backend_synchronize(sched->backends[i]);
+        { const uint64_t sync_start_us = (uint64_t) ggml_time_us(); ggml_backend_sched_trace_sync_site("sched_synchronize"); ggml_backend_synchronize(sched->backends[i]); g_ggml_backend_sched_sync_profile.record("sched_synchronize", (uint64_t) ggml_time_us() - sync_start_us); }
     }
     if (!sched->is_alloc) {
         // if the graph is not already allocated, always use copy 0 after a synchronization
