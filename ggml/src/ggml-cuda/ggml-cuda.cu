@@ -3794,23 +3794,34 @@ static bool ggml_cuda_mul_mat_id(
     }
 
     const bool src0_cached = src0 && src0->buffer && ggml_backend_buft_is_cuda_moe_cached(src0->buffer->buft);
-    if (src0_cached) {
+    const bool src0_cuda_host = src0 && src0->buffer && ggml_backend_buft_is_cuda_host(src0->buffer->buft);
+    const auto * authority = group != nullptr && group->authority ? &group->authority :
+        (execution != nullptr ? execution->find_authority(dst) : nullptr);
+
+    if (src0_cached || src0_cuda_host) {
         static std::once_flag once;
         std::call_once(once, [&]() {
             const char * buft_name = "(null)";
             if (src0 && src0->buffer && src0->buffer->buft && src0->buffer->buft->iface.get_name) {
                 buft_name = src0->buffer->buft->iface.get_name(src0->buffer->buft);
             }
-            GGML_LOG_INFO("moe-cache: first mul_mat_id  src0=%s  buft=%s  is_cached=%d\n",
+            GGML_LOG_INFO("moe-cache: first mul_mat_id src0=%s buft=%s cached=%d cuda_host=%d\\n",
                           src0 ? src0->name : "(null)",
                           buft_name,
-                          1);
+                          src0_cached ? 1 : 0,
+                          src0_cuda_host ? 1 : 0);
         });
-    }
 
-    if (src0_cached) {
-        const auto * authority = group != nullptr && group->authority ? &group->authority :
-            (execution != nullptr ? execution->find_authority(dst) : nullptr);
+        // Explicit CUDA_Host expert tensors use the existing staging path for
+        // prefill. Decode deliberately retains the persistent 152-slot cache.
+        const bool single_row = dst->src[2]->ne[1] * dst->src[2]->ne[2] == 1;
+        const bool is_decode = authority != nullptr ?
+            authority->legacy_telemetry_is_decode(single_row) : single_row;
+        if (src0_cuda_host && !is_decode) {
+            ggml_cuda_mul_mat_id_host_prefill(ctx, dst, authority);
+            return true;
+        }
+
         ggml_cuda_mul_mat_id_cached(ctx, dst, authority);
         return true;
     }
