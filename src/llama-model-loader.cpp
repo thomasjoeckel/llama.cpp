@@ -1307,7 +1307,7 @@ struct ggml_tensor * llama_model_loader::create_tensor(
                         buft_overridden = true;
                     }
 
-                    LLAMA_LOG_DEBUG("tensor %s (%zu MiB %s) buffer type overridden to %s\n",
+                    LLAMA_LOG_INFO("moe-override: tensor %s (%zu MiB %s) buffer type overridden to %s\n",
                             tensor_name.c_str(),
                             ggml_nbytes(t_meta) / 1024 / 1024, ggml_type_name(t_meta->type),
                             ggml_backend_buft_name(buft));
