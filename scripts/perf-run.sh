@@ -36,6 +36,10 @@ POLL_SECONDS="${POLL_SECONDS:-2}"
 HEALTH_TIMEOUT="${HEALTH_TIMEOUT:-300}"
 KEEP_SERVER="${KEEP_SERVER:-0}"
 PUSH_RESULTS="${PUSH_RESULTS:-0}"
+
+# Optional extra llama-server arguments, forwarded verbatim.
+SERVER_EXTRA_ARGS=( "$@" )
+
 GIT_REMOTE="${GIT_REMOTE:-github-fork}"
 GIT_BRANCH="${GIT_BRANCH:-}"
 
@@ -214,11 +218,17 @@ SERVER_ARGS=(
     --experimental-logs
     --host "${HOST}"
     --port "${PORT}"
+    "${SERVER_EXTRA_ARGS[@]}"
 )
 
 echo "Starting llama-server..."
 echo "Run directory: ${RUN_DIR}"
 echo "Server log:    ${SERVER_LOG}"
+if (( ${#SERVER_EXTRA_ARGS[@]} )); then
+    printf "Extra server args:"
+    printf " %q" "${SERVER_EXTRA_ARGS[@]}"
+    printf "\\n"
+fi
 
 LOG_FIFO="${TMP_DIR}/server.log.pipe"
 mkfifo "${LOG_FIFO}"
