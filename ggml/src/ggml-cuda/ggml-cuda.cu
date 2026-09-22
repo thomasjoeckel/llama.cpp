@@ -4190,8 +4190,11 @@ static const char * ggml_backend_cuda_get_name(ggml_backend_t backend) {
     return cuda_ctx->name.c_str();
 }
 
+static void ggml_cuda_sync_profile_report();
+
 static void ggml_backend_cuda_free(ggml_backend_t backend) {
     ggml_backend_cuda_context * cuda_ctx = (ggml_backend_cuda_context *)backend->context;
+    ggml_cuda_sync_profile_report();
     delete cuda_ctx;
     delete backend;
 }
@@ -4327,6 +4330,10 @@ struct ggml_cuda_sync_profile {
     }
 };
 static ggml_cuda_sync_profile g_ggml_cuda_sync_profile;
+
+static void ggml_cuda_sync_profile_report() {
+    g_ggml_cuda_sync_profile.report();
+}
 }
 
 static void ggml_backend_cuda_synchronize(ggml_backend_t backend) {
