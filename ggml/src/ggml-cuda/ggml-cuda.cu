@@ -4341,29 +4341,53 @@ struct ggml_cuda_sync_profile {
     ~ggml_cuda_sync_profile() { report_snapshot(); }
 
     void report_snapshot() {
-        if(!enabled||(!total_calls && !direct_calls))return;
-        GGML_LOG_INFO("\\n=== CUDA SYNC PROFILE (instrumentation only) ===\\n");
-        GGML_LOG_INFO("total_syncs = %" PRIu64 "\\n",total_calls);
-        GGML_LOG_INFO("total_wait_ms = %.3f\\n",total_us/1000.0);
-        GGML_LOG_INFO("max_wait_us = %" PRIu64 "\\n",max_us);
-        GGML_LOG_INFO("sites = %zu\\n",n_sites);
-        GGML_LOG_INFO("wait_hist_us = logarithmic buckets\\n");
-        for(size_t i=0;i<24;++i) if(hist[i]) GGML_LOG_INFO("  hist[%zu] = %" PRIu64 "\\n",i,hist[i]);
+        if (!enabled || (!total_calls && !direct_calls)) {
+            return;
+        }
+
+        // Use stderr directly here. The benchmark's logger/backend teardown can
+        // outlive or suppress logger output, while stderr remains available for
+        // the diagnostic snapshot.
+        fprintf(stderr, "\n=== CUDA SYNC PROFILE (instrumentation only) ===\n");
+        fprintf(stderr, "total_syncs = %" PRIu64 "\n", total_calls);
+        fprintf(stderr, "total_wait_ms = %.3f\n", total_us / 1000.0);
+        fprintf(stderr, "max_wait_us = %" PRIu64 "\n", max_us);
+        fprintf(stderr, "sites = %zu\n", n_sites);
+        fprintf(stderr, "wait_hist_us = logarithmic buckets\n");
+        for (size_t i = 0; i < 24; ++i) {
+            if (hist[i]) {
+                fprintf(stderr, "  hist[%zu] = %" PRIu64 "\n", i, hist[i]);
+            }
+        }
 
         std::array<site, MAX_SITES> sorted_sites{};
         std::copy_n(sites, n_sites, sorted_sites.begin());
         std::sort(sorted_sites.begin(), sorted_sites.begin() + n_sites,
-                  [](const site & a,const site & b){return a.total_us>b.total_us;});
-        GGML_LOG_INFO("by_callsite (caller PC; symbolize with addr2line):\\n");
-        for(size_t i=0;i<n_sites;++i){const site&s=sorted_sites[i];GGML_LOG_INFO("  %2zu caller=%p calls=%" PRIu64 " total_ms=%.3f avg_us=%.3f max_us=%" PRIu64 "\\n",i,s.caller,s.calls,s.total_us/1000.0,s.calls?(double)s.total_us/s.calls:0.0,s.max_us);}
-        GGML_LOG_INFO("direct_cudaStreamSynchronize: calls=%" PRIu64 " total_ms=%.3f max_us=%" PRIu64 "\\n",direct_calls,direct_total_us/1000.0,direct_max_us);
-        GGML_LOG_INFO("by_direct_callsite (file:line):\\n");
+                  [](const site & a, const site & b) { return a.total_us > b.total_us; });
+        fprintf(stderr, "by_callsite (caller PC; symbolize with addr2line):\n");
+        for (size_t i = 0; i < n_sites; ++i) {
+            const site & s = sorted_sites[i];
+            fprintf(stderr, "  %2zu caller=%p calls=%" PRIu64 " total_ms=%.3f avg_us=%.3f max_us=%" PRIu64 "\n",
+                    i, s.caller, s.calls, s.total_us / 1000.0,
+                    s.calls ? (double) s.total_us / s.calls : 0.0, s.max_us);
+        }
+
+        fprintf(stderr, "direct_cudaStreamSynchronize: calls=%" PRIu64 " total_ms=%.3f max_us=%" PRIu64 "\n",
+                direct_calls, direct_total_us / 1000.0, direct_max_us);
+        fprintf(stderr, "by_direct_callsite (file:line):\n");
+
         std::array<direct_site, 32> sorted_direct{};
         std::copy_n(direct_sites, n_direct_sites, sorted_direct.begin());
         std::sort(sorted_direct.begin(), sorted_direct.begin() + n_direct_sites,
-                  [](const direct_site & a,const direct_site & b){return a.total_us>b.total_us;});
-        for(size_t i=0;i<n_direct_sites;++i){const direct_site&s=sorted_direct[i];GGML_LOG_INFO("  %2zu %s:%d calls=%" PRIu64 " total_ms=%.3f avg_us=%.3f max_us=%" PRIu64 "\\n",i,s.file,s.line,s.calls,s.total_us/1000.0,s.calls?(double)s.total_us/s.calls:0.0,s.max_us);}
-        GGML_LOG_INFO("=== END CUDA SYNC PROFILE ===\\n");
+                  [](const direct_site & a, const direct_site & b) { return a.total_us > b.total_us; });
+        for (size_t i = 0; i < n_direct_sites; ++i) {
+            const direct_site & s = sorted_direct[i];
+            fprintf(stderr, "  %2zu %s:%d calls=%" PRIu64 " total_ms=%.3f avg_us=%.3f max_us=%" PRIu64 "\n",
+                    i, s.file, s.line, s.calls, s.total_us / 1000.0,
+                    s.calls ? (double) s.total_us / s.calls : 0.0, s.max_us);
+        }
+        fprintf(stderr, "=== END CUDA SYNC PROFILE ===\n");
+        fflush(stderr);
     }
 };
 static ggml_cuda_sync_profile g_ggml_cuda_sync_profile;
