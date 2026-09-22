@@ -103,6 +103,7 @@
 static_assert(sizeof(half) == sizeof(ggml_fp16_t), "wrong fp16 size");
 
 static cudaError_t ggml_cuda_profiled_stream_synchronize(cudaStream_t stream, const char * file, int line);
+static void ggml_cuda_sync_profile_report();
 static cudaError_t ggml_cuda_direct_stream_synchronize(cudaStream_t stream, const char * file, int line);
 
 #define GGML_LOG_WARN_ONCE(str) \
@@ -2374,6 +2375,11 @@ ggml_backend_cuda_context::~ggml_backend_cuda_context() {
             }
         }
     }
+
+    // Report while the CUDA backend and logging infrastructure are still alive.
+    // The process-exit/atexit path can run after CUDA teardown/static destruction,
+    // which made the sync profile disappear from benchmark logs.
+    ggml_cuda_sync_profile_report();
 }
 
 static ggml_cuda_moe_ids_cache_state & ggml_cuda_moe_ids_cache_get(ggml_backend_cuda_context & ctx) {
