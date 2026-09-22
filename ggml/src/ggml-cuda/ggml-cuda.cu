@@ -4309,7 +4309,7 @@ struct ggml_cuda_sync_profile {
     uint64_t total_calls=0,total_us=0,max_us=0; uint64_t hist[24]={};
     bool enabled=false,reported=false;
     ggml_cuda_sync_profile() { const char * e=getenv("GGML_TRACE_BACKEND_SYNC"); enabled=e&&std::atoi(e)!=0; }
-    static constexpr uint64_t REPORT_EVERY = 5000;
+    static constexpr uint64_t REPORT_EVERY = 100;
     struct direct_site { const char * file=nullptr; int line=0; uint64_t calls=0,total_us=0,max_us=0; };
     direct_site direct_sites[32]={}; size_t n_direct_sites=0; uint64_t direct_calls=0,direct_total_us=0,direct_max_us=0;
 
