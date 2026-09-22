@@ -102,6 +102,8 @@
 
 static_assert(sizeof(half) == sizeof(ggml_fp16_t), "wrong fp16 size");
 
+static cudaError_t ggml_cuda_profiled_stream_synchronize(cudaStream_t stream, const char * file, int line);
+
 #define GGML_LOG_WARN_ONCE(str) \
     { static std::once_flag warn_flag; std::call_once(warn_flag, []() { GGML_LOG_WARN(str); }); }
 
@@ -734,7 +736,7 @@ static uint64_t ggml_backend_cuda_trim_transient_pools(ggml_backend_t backend) {
         for (int stream = 0; stream < GGML_CUDA_MAX_STREAMS; ++stream) {
             if (cuda_ctx->streams[device][stream] != nullptr) {
                 ggml_cuda_set_device(device);
-                CUDA_CHECK(g_ggml_cuda_sync_profile.synchronize_direct(cuda_ctx->streams[device][stream], __FILE__, __LINE__));
+                CUDA_CHECK(ggml_cuda_profiled_stream_synchronize(cuda_ctx->streams[device][stream], __FILE__, __LINE__));
             }
         }
     }
@@ -4320,14 +4322,6 @@ struct ggml_cuda_sync_profile {
         if ((direct_calls % REPORT_EVERY) == 0) report_snapshot();
     }
 
-    cudaError_t synchronize_direct(cudaStream_t stream, const char * file, int line) {
-        if(!enabled) return cudaStreamSynchronize(stream);
-        const uint64_t start_us = (uint64_t) ggml_time_us();
-        const cudaError_t err = cudaStreamSynchronize(stream);
-        record_direct(file,line,(uint64_t) ggml_time_us()-start_us);
-        return err;
-    }
-
     void record(const void * caller,uint64_t us) {
         if(!enabled)return; ++total_calls; total_us+=us; max_us=std::max(max_us,us);
         size_t b=0; for(uint64_t v=us;v>1&&b+1<24;v>>=1)++b; ++hist[b];
@@ -4382,6 +4376,16 @@ static ggml_cuda_sync_profile_atexit_reg g_ggml_cuda_sync_profile_atexit_reg;
 
 static void ggml_cuda_sync_profile_report() {
     g_ggml_cuda_sync_profile.report_snapshot();
+}
+
+static cudaError_t ggml_cuda_profiled_stream_synchronize(cudaStream_t stream, const char * file, int line) {
+    if (!g_ggml_cuda_sync_profile.enabled) {
+        return cudaStreamSynchronize(stream);
+    }
+    const uint64_t start_us = (uint64_t) ggml_time_us();
+    const cudaError_t err = cudaStreamSynchronize(stream);
+    g_ggml_cuda_sync_profile.record_direct(file, line, (uint64_t) ggml_time_us() - start_us);
+    return err;
 }
 
 static void ggml_backend_cuda_synchronize(ggml_backend_t backend) {
