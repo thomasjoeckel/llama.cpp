@@ -4194,7 +4194,6 @@ static void ggml_backend_cuda_free(ggml_backend_t backend) {
     ggml_backend_cuda_context * cuda_ctx = (ggml_backend_cuda_context *)backend->context;
     delete cuda_ctx;
     delete backend;
-    g_ggml_cuda_sync_profile.report();
 }
 
 static void ggml_backend_cuda_set_tensor_async(ggml_backend_t backend, ggml_tensor * tensor, const void * data, size_t offset, size_t size) {
@@ -4311,6 +4310,7 @@ struct ggml_cuda_sync_profile {
         for(size_t i=0;i<n_sites;++i) if(sites[i].caller==caller){++sites[i].calls;sites[i].total_us+=us;sites[i].max_us=std::max(sites[i].max_us,us);return;}
         if(n_sites<MAX_SITES){sites[n_sites]={caller,1,us,us};++n_sites;}
     }
+    ~ggml_cuda_sync_profile() { report(); }
     void report() {
         if(!enabled||reported||!total_calls)return; reported=true;
         GGML_LOG_INFO("\\n=== CUDA SYNC PROFILE (instrumentation only) ===\\n");
