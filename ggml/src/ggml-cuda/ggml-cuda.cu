@@ -826,7 +826,7 @@ static void ggml_backend_cuda_buffer_memset_tensor(ggml_backend_buffer_t buffer,
 
     ggml_cuda_set_device(ctx->device);
     CUDA_CHECK(cudaMemsetAsync((char *) tensor->data + offset, value, size, cudaStreamPerThread));
-    CUDA_CHECK(g_ggml_cuda_sync_profile.synchronize_direct(cudaStreamPerThread, __FILE__, __LINE__));
+    CUDA_CHECK(ggml_cuda_profiled_stream_synchronize(cudaStreamPerThread, __FILE__, __LINE__));
 }
 
 static void ggml_backend_cuda_buffer_set_tensor(ggml_backend_buffer_t buffer, ggml_tensor * tensor, const void * data, size_t offset, size_t size) {
@@ -834,7 +834,7 @@ static void ggml_backend_cuda_buffer_set_tensor(ggml_backend_buffer_t buffer, gg
 
     ggml_cuda_set_device(ctx->device);
     CUDA_CHECK(cudaMemcpyAsync((char *) tensor->data + offset, data, size, cudaMemcpyHostToDevice, cudaStreamPerThread));
-    CUDA_CHECK(g_ggml_cuda_sync_profile.synchronize_direct(cudaStreamPerThread, __FILE__, __LINE__));
+    CUDA_CHECK(ggml_cuda_profiled_stream_synchronize(cudaStreamPerThread, __FILE__, __LINE__));
 }
 
 static void ggml_backend_cuda_buffer_get_tensor(ggml_backend_buffer_t buffer, const ggml_tensor * tensor, void * data, size_t offset, size_t size) {
@@ -842,7 +842,7 @@ static void ggml_backend_cuda_buffer_get_tensor(ggml_backend_buffer_t buffer, co
 
     ggml_cuda_set_device(ctx->device);
     CUDA_CHECK(cudaMemcpyAsync(data, (const char *) tensor->data + offset, size, cudaMemcpyDeviceToHost, cudaStreamPerThread));
-    CUDA_CHECK(g_ggml_cuda_sync_profile.synchronize_direct(cudaStreamPerThread, __FILE__, __LINE__));
+    CUDA_CHECK(ggml_cuda_profiled_stream_synchronize(cudaStreamPerThread, __FILE__, __LINE__));
 }
 
 static void ggml_backend_cuda_buffer_set_tensor_2d(ggml_backend_buffer_t buffer, struct ggml_tensor * tensor, const void * data,
@@ -852,7 +852,7 @@ static void ggml_backend_cuda_buffer_set_tensor_2d(ggml_backend_buffer_t buffer,
     ggml_cuda_set_device(ctx->device);
     CUDA_CHECK(cudaMemcpy2DAsync(
         (char *) tensor->data + offset, stride_tensor, data, stride_data, size, n_copies, cudaMemcpyHostToDevice, cudaStreamPerThread));
-    CUDA_CHECK(g_ggml_cuda_sync_profile.synchronize_direct(cudaStreamPerThread, __FILE__, __LINE__));
+    CUDA_CHECK(ggml_cuda_profiled_stream_synchronize(cudaStreamPerThread, __FILE__, __LINE__));
 }
 
 static void ggml_backend_cuda_buffer_get_tensor_2d(ggml_backend_buffer_t buffer, const struct ggml_tensor * tensor, void * data,
@@ -862,7 +862,7 @@ static void ggml_backend_cuda_buffer_get_tensor_2d(ggml_backend_buffer_t buffer,
     ggml_cuda_set_device(ctx->device);
     CUDA_CHECK(cudaMemcpy2DAsync(
         data, stride_data, (const char *) tensor->data + offset, stride_tensor, size, n_copies, cudaMemcpyDeviceToHost, cudaStreamPerThread));
-    CUDA_CHECK(g_ggml_cuda_sync_profile.synchronize_direct(cudaStreamPerThread, __FILE__, __LINE__));
+    CUDA_CHECK(ggml_cuda_profiled_stream_synchronize(cudaStreamPerThread, __FILE__, __LINE__));
 }
 
 static bool ggml_backend_cuda_buffer_cpy_tensor(ggml_backend_buffer_t buffer, const ggml_tensor * src, ggml_tensor * dst) {
@@ -882,7 +882,7 @@ static bool ggml_backend_cuda_buffer_cpy_tensor(ggml_backend_buffer_t buffer, co
             CUDA_CHECK(cudaMemcpyPeerAsync(dst->data, dst_physical, src->data, src_physical, ggml_nbytes(src), cudaStreamPerThread));
 #endif
         }
-        CUDA_CHECK(g_ggml_cuda_sync_profile.synchronize_direct(cudaStreamPerThread, __FILE__, __LINE__));
+        CUDA_CHECK(ggml_cuda_profiled_stream_synchronize(cudaStreamPerThread, __FILE__, __LINE__));
         return true;
     }
     return false;
@@ -895,7 +895,7 @@ static void ggml_backend_cuda_buffer_clear(ggml_backend_buffer_t buffer, uint8_t
 
     ggml_cuda_set_device(ctx->device);
     CUDA_CHECK(cudaMemsetAsync(ctx->dev_ptr, value, buffer->size, cudaStreamPerThread));
-    CUDA_CHECK(g_ggml_cuda_sync_profile.synchronize_direct(cudaStreamPerThread, __FILE__, __LINE__));
+    CUDA_CHECK(ggml_cuda_profiled_stream_synchronize(cudaStreamPerThread, __FILE__, __LINE__));
 }
 
 static const ggml_backend_buffer_i ggml_backend_cuda_buffer_interface = {
@@ -2117,7 +2117,7 @@ static bool ggml_cuda_mul_mat_id_impl(
     if (!use_device_ids) {
         ids_host.resize(ggml_nbytes(ids));
         CUDA_CHECK(cudaMemcpyAsync(ids_host.data(), ids->data, ggml_nbytes(ids), cudaMemcpyDeviceToHost, stream));
-        CUDA_CHECK(g_ggml_cuda_sync_profile.synchronize_direct(stream, __FILE__, __LINE__));
+        CUDA_CHECK(ggml_cuda_profiled_stream_synchronize(stream, __FILE__, __LINE__));
         ids_host_data = ids_host.data();
         ids_host_nb0 = ids->nb[0];
         ids_host_nb1 = ids->nb[1];
@@ -2157,7 +2157,7 @@ static bool ggml_cuda_mul_mat_id_impl(
         GGML_ASSERT(ids_to_sorted_host.size() == size_t(ne_get_rows));
         ids_to_sorted_host.insert(ids_to_sorted_host.end(), ids_from_sorted_host.begin(), ids_from_sorted_host.end());
         CUDA_CHECK(cudaMemcpyAsync(ids_buf_dev.ptr, ids_to_sorted_host.data(), 2*ne_get_rows*sizeof(int32_t), cudaMemcpyHostToDevice, stream));
-        CUDA_CHECK(g_ggml_cuda_sync_profile.synchronize_direct(stream, __FILE__, __LINE__));
+        CUDA_CHECK(ggml_cuda_profiled_stream_synchronize(stream, __FILE__, __LINE__));
     }
 
     get_rows_cuda(src1->data, src1->type, ids_to_sorted, src1_sorted.ptr, type_src1_sorted,
@@ -2361,7 +2361,7 @@ ggml_backend_cuda_context::~ggml_backend_cuda_context() {
         for (int j = 0; j < GGML_CUDA_MAX_STREAMS; ++j) {
             if (streams[i][j] != nullptr) {
                 if (moe_ids_cache != nullptr) {
-                    CUDA_CHECK(g_ggml_cuda_sync_profile.synchronize_direct(streams[i][j], __FILE__, __LINE__));
+                    CUDA_CHECK(ggml_cuda_profiled_stream_synchronize(streams[i][j], __FILE__, __LINE__));
                 }
                 CUDA_CHECK(cudaStreamDestroy(streams[i][j]));
             }
@@ -2655,7 +2655,7 @@ static ggml_cuda_moe_ids_host ggml_cuda_moe_read_ids(
             } else {
                 CUDA_CHECK(cudaMemcpyAsync(target->data(), ids->data, ggml_nbytes(ids), cudaMemcpyDeviceToHost, ctx.stream()));
             }
-            CUDA_CHECK(g_ggml_cuda_sync_profile.synchronize_direct(ctx.stream(), __FILE__, __LINE__));
+            CUDA_CHECK(ggml_cuda_profiled_stream_synchronize(ctx.stream(), __FILE__, __LINE__));
             result.d2h_sync_count = 1;
         }
         if (can_use_published) {
@@ -3490,7 +3490,7 @@ static void ggml_cuda_mul_mat_id_cached(
         dst->src[0] = orig_src0;
     }
     if (!ggml_cuda_moe_cache_mark_used(cache, stream)) {
-        CUDA_CHECK(g_ggml_cuda_sync_profile.synchronize_direct(stream, __FILE__, __LINE__));
+        CUDA_CHECK(ggml_cuda_profiled_stream_synchronize(stream, __FILE__, __LINE__));
     }
     ggml_cuda_moe_cache_release_slots(cache, pinned_slots.data(), (int) pinned_slots.size());
 
