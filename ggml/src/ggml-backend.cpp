@@ -803,18 +803,51 @@ static bool ggml_is_view_op(enum ggml_op op) {
 // scheduler
 
 // Optional scheduler sync-site tracing for performance investigations.
+struct ggml_backend_sched_sync_profile {
+    struct site {
+        const char * name = nullptr;
+        uint64_t calls = 0;
+        uint64_t total_us = 0;
+        uint64_t max_us = 0;
+    };
+    static constexpr size_t MAX_SITES = 32;
+    site sites[MAX_SITES] = {};
+    size_t n_sites = 0;
+    bool enabled = false;
+    ggml_backend_sched_sync_profile() {
+        const char * e = getenv("GGML_TRACE_SCHED_SYNC_SITES");
+        enabled = e && std::atoi(e) != 0;
+    }
+    void record(const char * name, uint64_t us) {
+        if (!enabled) return;
+        for (size_t i = 0; i < n_sites; ++i) {
+            if (strcmp(sites[i].name, name) == 0) {
+                sites[i].calls++;
+                sites[i].total_us += us;
+                sites[i].max_us = std::max(sites[i].max_us, us);
+                return;
+            }
+        }
+        if (n_sites < MAX_SITES) sites[n_sites++] = { name, 1, us, us };
+    }
+    ~ggml_backend_sched_sync_profile() { report(); }
+    void report() {
+        if (!enabled) return;
+        fprintf(stderr, "=== SCHEDULER SYNC PROFILE ===\n");
+        for (size_t i = 0; i < n_sites; ++i) {
+            const site & s = sites[i];
+            fprintf(stderr, "site=%s calls=%llu total_ms=%.3f avg_us=%.3f max_us=%llu\n",
+                s.name, (unsigned long long) s.calls, (double) s.total_us / 1000.0,
+                s.calls ? (double) s.total_us / (double) s.calls : 0.0,
+                (unsigned long long) s.max_us);
+        }
+        fprintf(stderr, "=== END SCHEDULER SYNC PROFILE ===\n");
+        fflush(stderr);
+    }
+};
+static ggml_backend_sched_sync_profile g_ggml_backend_sched_sync_profile;
 static void ggml_backend_sched_trace_sync_site(const char * site) {
-    static const bool trace = getenv("GGML_TRACE_SCHED_SYNC_SITES") != nullptr;
-    if (!trace) {
-        return;
-    }
-    static std::mutex mutex;
-    static std::unordered_map<std::string, uint64_t> counts;
-    std::lock_guard<std::mutex> lock(mutex);
-    const uint64_t count = ++counts[site];
-    if (count == 1 || count % 100 == 0) {
-        fprintf(stderr, "sched-sync-site: site=%s count=%llu\n", site, (unsigned long long) count);
-    }
+    GGML_UNUSED(site);
 }
 
 
@@ -1851,8 +1884,7 @@ static enum ggml_status ggml_backend_sched_compute_splits(
                 if (sched->events[split_backend_id][sched->cur_copy] != NULL) {
                     ggml_backend_event_synchronize(sched->events[split_backend_id][sched->cur_copy]);
                 } else {
-                    ggml_backend_sched_trace_sync_site("compute_splits.user_input");
-                    ggml_backend_synchronize(split_backend);
+                    { const uint64_t sync_start_us = (uint64_t) ggml_time_us(); ggml_backend_sched_trace_sync_site("compute_splits.user_input"); ggml_backend_synchronize(split_backend); g_ggml_backend_sched_sync_profile.record("compute_splits.user_input", (uint64_t) ggml_time_us() - sync_start_us); }
                 }
                 ggml_backend_tensor_copy(input, input_cpy);
             } else {
@@ -1860,8 +1892,7 @@ static enum ggml_status ggml_backend_sched_compute_splits(
                 if (sched->events[split_backend_id][sched->cur_copy] != NULL) {
                     ggml_backend_event_wait(split_backend, sched->events[split_backend_id][sched->cur_copy]);
                 } else {
-                    ggml_backend_sched_trace_sync_site("compute_splits.input_reuse");
-                    ggml_backend_synchronize(split_backend);
+                    { const uint64_t sync_start_us = (uint64_t) ggml_time_us(); ggml_backend_sched_trace_sync_site("compute_splits.input_reuse"); ggml_backend_synchronize(split_backend); g_ggml_backend_sched_sync_profile.record("compute_splits.input_reuse", (uint64_t) ggml_time_us() - sync_start_us); }
                 }
 
                 // when offloading MoE weights, we can reduce the amount of data copied by copying only the experts that are used
@@ -1876,8 +1907,7 @@ static enum ggml_status ggml_backend_sched_compute_splits(
                     const int64_t n_expert   = node->op == GGML_OP_MUL_MAT_ID ? input->ne[2] : input->ne[1];
                     const size_t expert_size = node->op == GGML_OP_MUL_MAT_ID ? input->nb[2] : input->nb[1];
 
-                    ggml_backend_sched_trace_sync_site("compute_splits.moe_input");
-                    ggml_backend_synchronize(input_backend);
+                    { const uint64_t sync_start_us = (uint64_t) ggml_time_us(); ggml_backend_sched_trace_sync_site("compute_splits.moe_input"); ggml_backend_synchronize(input_backend); g_ggml_backend_sched_sync_profile.record("compute_splits.moe_input", (uint64_t) ggml_time_us() - sync_start_us); }
 
                     // get the ids
                     ggml_tensor * ids_tensor = node->src[2];
@@ -1900,8 +1930,7 @@ static enum ggml_status ggml_backend_sched_compute_splits(
                     if (ids_tensor != prev_ids_tensor) {
                         ids.resize(ggml_nbytes(ids_tensor) / sizeof(int32_t));
                         ggml_backend_tensor_get_async(ids_backend, ids_tensor, ids.data(), 0, ggml_nbytes(ids_tensor));
-                        ggml_backend_sched_trace_sync_site("compute_splits.moe_ids");
-                        ggml_backend_synchronize(ids_backend);
+                        { const uint64_t sync_start_us = (uint64_t) ggml_time_us(); ggml_backend_sched_trace_sync_site("compute_splits.moe_ids"); ggml_backend_synchronize(ids_backend); g_ggml_backend_sched_sync_profile.record("compute_splits.moe_ids", (uint64_t) ggml_time_us() - sync_start_us); }
 
                         // find the used experts
                         used_ids.clear();
@@ -1965,19 +1994,16 @@ static enum ggml_status ggml_backend_sched_compute_splits(
                     // try async copy, but if not possible, we can still use a sync copy without synchronizing the dst backend, since we handle the synchronization here with multiple copies and events
                     // TODO: add public function to facilitate this, since applications do not have direct access to the backend interface
                     if (ranged || !split_backend->iface.cpy_tensor_async || !split_backend->iface.cpy_tensor_async(input_backend, split_backend, input, input_cpy)) {
-                        ggml_backend_sched_trace_sync_site("compute_splits.input_copy_src");
-                        ggml_backend_synchronize(input_backend);
+                        { const uint64_t sync_start_us = (uint64_t) ggml_time_us(); ggml_backend_sched_trace_sync_site("compute_splits.input_copy_src"); ggml_backend_synchronize(input_backend); g_ggml_backend_sched_sync_profile.record("compute_splits.input_copy_src", (uint64_t) ggml_time_us() - sync_start_us); }
                         if (sched->events[split_backend_id][sched->cur_copy] != NULL) {
                             ggml_backend_event_synchronize(sched->events[split_backend_id][sched->cur_copy]);
                         } else {
-                            ggml_backend_sched_trace_sync_site("compute_splits.input_copy_dst");
-                            ggml_backend_synchronize(split_backend);
+                            { const uint64_t sync_start_us = (uint64_t) ggml_time_us(); ggml_backend_sched_trace_sync_site("compute_splits.input_copy_dst"); ggml_backend_synchronize(split_backend); g_ggml_backend_sched_sync_profile.record("compute_splits.input_copy_dst", (uint64_t) ggml_time_us() - sync_start_us); }
                         }
                         if (ranged) {
                             // blocking like the copy it replaces: the split backend is idle here, so the ranges go on its own stream and the host waits for them
                             ggml_backend_tensor_set_2d_async(split_backend, input_cpy, input->data, 0, rg.used, rg.n, rg.stride, rg.stride);
-                            ggml_backend_sched_trace_sync_site("compute_splits.ranged_dst");
-                            ggml_backend_synchronize(split_backend);
+                            { const uint64_t sync_start_us = (uint64_t) ggml_time_us(); ggml_backend_sched_trace_sync_site("compute_splits.ranged_dst"); ggml_backend_synchronize(split_backend); g_ggml_backend_sched_sync_profile.record("compute_splits.ranged_dst", (uint64_t) ggml_time_us() - sync_start_us); }
                         } else {
                             ggml_backend_tensor_copy(input, input_cpy);
                         }
@@ -2017,8 +2043,7 @@ static enum ggml_status ggml_backend_sched_compute_splits(
                 }
 
                 // TODO: pass backend to the callback, then the user can decide if they want to synchronize
-                ggml_backend_sched_trace_sync_site("compute_splits.callback");
-                ggml_backend_synchronize(split_backend);
+                { const uint64_t sync_start_us = (uint64_t) ggml_time_us(); ggml_backend_sched_trace_sync_site("compute_splits.callback"); ggml_backend_synchronize(split_backend); g_ggml_backend_sched_sync_profile.record("compute_splits.callback", (uint64_t) ggml_time_us() - sync_start_us); }
 
                 if (need && !sched->callback_eval(t, false, sched->callback_eval_user_data)) {
                     break;
