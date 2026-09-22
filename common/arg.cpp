@@ -280,13 +280,18 @@ static void parse_tensor_buffer_overrides(const std::string & value, std::vector
             }
             throw std::invalid_argument("unknown buffer type");
         }
-        // keep strings alive and avoid leaking memory by storing them in a static vector
+
         static std::list<std::string> buft_overrides;
         buft_overrides.push_back(tensor_name);
-        overrides.push_back({buft_overrides.back().c_str(), buft_list.at(buffer_type)});
-    }
-}
+        auto buft = buft_list.at(buffer_type);
+        overrides.push_back({buft_overrides.back().c_str(), buft});
 
+        fprintf(stderr, "tensor-override-parse: pattern='%s' buffer='%s' buft='%s'\n",
+                tensor_name.c_str(), buffer_type.c_str(), ggml_backend_buft_name(buft));
+    }
+
+    fprintf(stderr, "tensor-override-parse: total=%zu\n", overrides.size());
+}
 static std::string clean_file_name(const std::string & fname) {
     std::string clean_fname = fname;
     string_replace_all(clean_fname, "\\", "_");
