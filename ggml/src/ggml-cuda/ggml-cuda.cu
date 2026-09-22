@@ -4335,7 +4335,7 @@ struct ggml_cuda_sync_profile {
     ~ggml_cuda_sync_profile() { report_snapshot(); }
 
     void report_snapshot() {
-        if(!enabled||!total_calls)return;
+        if(!enabled||(!total_calls && !direct_calls))return;
         GGML_LOG_INFO("\\n=== CUDA SYNC PROFILE (instrumentation only) ===\\n");
         GGML_LOG_INFO("total_syncs = %" PRIu64 "\\n",total_calls);
         GGML_LOG_INFO("total_wait_ms = %.3f\\n",total_us/1000.0);
