@@ -1413,13 +1413,6 @@ void llama_context::sched_reserve(uint32_t n_tokens_req, uint32_t n_kv_req) {
     const uint32_t n_kv          = plan.n_kv;
     const bool live_kv            = plan.live_kv;
 
-    if (getenv("LLAMA_TRACE_WORKSPACE") != nullptr) {
-        LLAMA_LOG_INFO("%s: workspace plan tokens_req=%u tokens=%u tokens_max=%u decode=%u live_kv=%d kv_req=%u kv=%u kv_capacity=%u prev_tokens=%u prev_kv=%u phase_aware=%d\n",
-                __func__, n_tokens_req, n_tokens, n_tokens_max, n_tokens_tg,
-                live_kv ? 1 : 0, n_kv_req, n_kv, n_kv_capacity,
-                sched_reserved_tokens, sched_reserved_kv, cparams.phase_aware_workspace ? 1 : 0);
-    }
-
     if (live_kv) {
         LLAMA_LOG_INFO("%s: reserving %s workspace (tokens = %u, previous = %u, kv = %u, previous = %u) ...\n",
                 __func__, n_tokens == n_tokens_tg ? "decode" : "prefill",
