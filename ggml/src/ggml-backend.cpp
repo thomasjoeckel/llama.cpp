@@ -2190,12 +2190,34 @@ bool ggml_backend_sched_reserve(ggml_backend_sched_t sched, struct ggml_cgraph *
     GGML_ASSERT(sched);
     GGML_ASSERT((int)sched->hash_set.size >= measure_graph->n_nodes + measure_graph->n_leafs);
 
+    const bool trace_workspace = getenv("LLAMA_TRACE_WORKSPACE") != NULL;
+    if (trace_workspace) {
+        fprintf(stderr, "workspace-reserve: begin nodes=%d leafs=%d backends=%d copies=%d\\n",
+                measure_graph->n_nodes, measure_graph->n_leafs, sched->n_backends, sched->n_copies);
+    }
+
     ggml_backend_sched_synchronize(sched);
 
     ggml_backend_sched_split_graph(sched, measure_graph);
 
+    if (trace_workspace) {
+        fprintf(stderr, "workspace-reserve: split nodes=%d leafs=%d splits=%d\\n",
+                sched->graph.n_nodes, sched->graph.n_leafs, sched->n_splits);
+        for (int i = 0; i < sched->n_splits; ++i) {
+            fprintf(stderr, "workspace-split: i=%d nodes=%d leafs=%d\\n",
+                    i, sched->splits[i].graph.n_nodes, sched->splits[i].graph.n_leafs);
+        }
+    }
+
     if (!ggml_gallocr_reserve_n(sched->galloc, &sched->graph, sched->node_backend_ids, sched->leaf_backend_ids)) {
+        if (trace_workspace) {
+            fprintf(stderr, "workspace-reserve: gallocr FAILED\\n");
+        }
         return false;
+    }
+
+    if (trace_workspace) {
+        fprintf(stderr, "workspace-reserve: gallocr OK\\n");
     }
 
     ggml_backend_sched_reset(sched);
