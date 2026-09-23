@@ -717,6 +717,22 @@ static bool ggml_gallocr_publish_shared_requirements(ggml_gallocr_t galloc) {
         }
     }
 
+    if (getenv("LLAMA_TRACE_WORKSPACE") != NULL) {
+        fprintf(stderr, "workspace-shared-summary: role=%d shrink=%d entries=%d\n",
+                galloc->shared_role, shrink ? 1 : 0, shared->n_entries);
+        for (int i = 0; i < shared->n_entries; ++i) {
+            fprintf(stderr, "workspace-shared-summary: entry=%d buft=%s",
+                    i, ggml_backend_buft_name(shared->entries[i].buft));
+            for (int role = 0; role < GGML_GALLOCR_SHARED_ROLE_COUNT; ++role) {
+                fprintf(stderr, " role%d=%.2f",
+                        role, shared->entries[i].requirements[role][0] / (1024.0 * 1024.0));
+            }
+            fprintf(stderr, " max=%.2f MiB\n",
+                    MAX(shared->entries[i].requirements[0][0],
+                        shared->entries[i].requirements[1][0]) / (1024.0 * 1024.0));
+        }
+    }
+
     for (int i = 0; i < shared->n_entries; ++i) {
         if (!ggml_gallocr_resize_shared_entry(shared, &shared->entries[i], shrink)) {
             return false;
@@ -1035,6 +1051,7 @@ static void ggml_gallocr_free_extra_space(ggml_gallocr_t galloc, struct ggml_ten
 
 static void ggml_gallocr_allocate_node(ggml_gallocr_t galloc, struct ggml_tensor * node, int buffer_id) {
     GGML_ASSERT(buffer_id >= 0);
+    const bool trace_workspace = getenv("LLAMA_TRACE_WORKSPACE") != NULL;
     struct hash_node * hn = ggml_gallocr_hash_get(galloc, node);
 
     if (!ggml_gallocr_is_allocated(galloc, node) && !ggml_impl_is_view(node)) {
@@ -1098,6 +1115,14 @@ static void ggml_gallocr_allocate_node(ggml_gallocr_t galloc, struct ggml_tensor
         size_t size = ggml_backend_buft_get_alloc_size(buft, node);
         hn->buffer_id = buffer_id;
         hn->addr = ggml_dyn_tallocr_alloc(alloc, size, node);
+        if (trace_workspace && size >= 1024*1024) {
+            fprintf(stderr,
+                    "workspace-tensor: name=%s op=%s buffer=%d size=%.2f MiB ne=[%" PRId64 ",%" PRId64 ",%" PRId64 ",%" PRId64 "] nb=[%zu,%zu,%zu,%zu]\n",
+                    node->name, ggml_op_name(node->op), buffer_id,
+                    size / (1024.0 * 1024.0),
+                    node->ne[0], node->ne[1], node->ne[2], node->ne[3],
+                    node->nb[0], node->nb[1], node->nb[2], node->nb[3]);
+        }
     }
 }
 
