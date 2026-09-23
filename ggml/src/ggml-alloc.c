@@ -5,6 +5,7 @@
 
 #include <assert.h>
 #include <limits.h>
+#include <inttypes.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
