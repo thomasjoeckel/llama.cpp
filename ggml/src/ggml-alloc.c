@@ -636,18 +636,6 @@ static bool ggml_gallocr_resize_shared_entry(
         }
     }
 
-    const bool trace_workspace = getenv("LLAMA_TRACE_WORKSPACE") != NULL;
-    if (trace_workspace) {
-        for (int role = 0; role < GGML_GALLOCR_SHARED_ROLE_COUNT; ++role) {
-            if (!shared->active[role]) {
-                continue;
-            }
-            fprintf(stderr, "workspace-shared: entry=%d role=%d req0=%.2f MiB\\n",
-                    (int) (entry - shared->entries), role,
-                    entry->requirements[role][0] / (1024.0 * 1024.0));
-        }
-    }
-
     bool changed = false;
     bool needs_growth = false;
     for (int chunk = 0; chunk < GGML_VBUFFER_MAX_CHUNKS; ++chunk) {
