@@ -364,12 +364,36 @@ static void ggml_dyn_tallocr_reset(struct ggml_dyn_tallocr * alloc) {
 #endif
 }
 
+static size_t ggml_dyn_tallocr_chunk_limit(size_t max_buffer_size) {
+    // Allow large graph workspaces to be split across multiple backend buffers.
+    // This is primarily useful for GPUs where a single large cudaMalloc can fail
+    // even though the total free VRAM is sufficient for several smaller blocks.
+    // Keep the default unchanged unless explicitly requested.
+    const char * env = getenv("GGML_ALLOCATOR_MAX_CHUNK_MB");
+    if (env == NULL || env[0] == '\0') {
+        return MIN(max_buffer_size, SIZE_MAX/2);
+    }
+
+    char * end = NULL;
+    unsigned long long mb = strtoull(env, &end, 10);
+    if (end == env || *end != '\0' || mb == 0) {
+        return MIN(max_buffer_size, SIZE_MAX/2);
+    }
+
+    size_t limit = (size_t) mb * 1024 * 1024;
+    if (limit == 0 || limit > max_buffer_size) {
+        limit = max_buffer_size;
+    }
+
+    return MIN(limit, SIZE_MAX/2);
+}
+
 static struct ggml_dyn_tallocr * ggml_dyn_tallocr_new(size_t alignment, size_t max_buffer_size) {
     struct ggml_dyn_tallocr * alloc = (struct ggml_dyn_tallocr *)malloc(sizeof(struct ggml_dyn_tallocr));
 
     *alloc = (struct ggml_dyn_tallocr) {
         /*.alignment      = */ alignment,
-        /*.max_chunk_size = */ MIN(max_buffer_size, SIZE_MAX/2), // clamp to avoid overflows
+        /*.max_chunk_size = */ ggml_dyn_tallocr_chunk_limit(max_buffer_size),
         /*.chunks         = */ {NULL},
         /*.n_chunks       = */ 0,
 #ifdef GGML_ALLOCATOR_DEBUG
